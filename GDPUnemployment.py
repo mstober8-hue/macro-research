@@ -1,0 +1,412 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import stats as sp_stats
+
+
+# --- Load data ---
+gdp = pd.read_csv("GDPC1.csv", parse_dates=["observation_date"])
+gdp.columns = ["date", "gdp"]
+gdp = gdp.set_index("date")
+
+gdppot = pd.read_csv("GDPPOT.csv", parse_dates=["observation_date"])
+gdppot.columns = ["date", "gdppot"]
+gdppot = gdppot.set_index("date")
+
+unrate = pd.read_csv("UNRATE.csv", parse_dates=["observation_date"])
+unrate.columns = ["date", "unrate"]
+unrate = unrate.set_index("date")
+
+nrou = pd.read_csv("NROU.csv", parse_dates=["observation_date"])
+nrou.columns = ["date", "nrou"]
+nrou = nrou.set_index("date")
+
+# --- Align frequencies: resample monthly unemployment to quarterly ---
+unrate_q = unrate.resample("QS").mean()
+
+# Merge on shared dates
+df = gdp.join(gdppot, how="inner").join(unrate_q, how="inner").join(nrou, how="inner").dropna()
+
+# --- Compute Okun's Law gap variables ---
+# Output Gap: percentage deviation of actual GDP from potential GDP
+df["y_gap"] = (df["gdp"] - df["gdppot"]) / df["gdppot"] * 100   # expressed in %
+
+# Unemployment Gap: actual unemployment minus natural rate
+df["u_gap"] = df["unrate"] - df["nrou"]
+
+print(f"Full dataset: {len(df)} quarters ({df.index[0].date()} – {df.index[-1].date()})\n")
+print("=== Gap Variables (first 5 rows) ===")
+print(df[["gdp", "gdppot", "y_gap", "unrate", "nrou", "u_gap"]].head().round(4), "\n")
+
+# --- Exclude COVID quarters: Q2 2020 through Q1 2021 ---
+covid_quarters = pd.date_range("2020-04-01", "2021-01-01", freq="QS")
+df_clean = df[~df.index.isin(covid_quarters)].copy()
+df_covid  = df[df.index.isin(covid_quarters)].copy()
+print(f"After removing COVID quarters (Q2 2020–Q1 2021): {len(df_clean)} quarters remaining\n")
+
+
+# ===============================================================
+# 1. SCATTER: Unemployment vs Real GDP (level view)
+# ===============================================================
+fig1, ax1 = plt.subplots(figsize=(10, 7))
+
+x_line = np.linspace(df_clean["gdp"].min() / 1000, df_clean["gdp"].max() / 1000, 200)
+slope_lv, intercept_lv = np.polyfit(df_clean["gdp"] / 1000, df_clean["unrate"], 1)
+ax1.plot(x_line, intercept_lv + slope_lv * x_line, color="steelblue",
+         linewidth=1.5, linestyle="--", zorder=2, label="Trend (clean data)")
+
+ax1.scatter(df_clean["gdp"] / 1000, df_clean["unrate"],
+            color="steelblue", alpha=0.65, s=40, zorder=3,
+            label=f"Normal quarters (n={len(df_clean)})")
+ax1.scatter(df_covid["gdp"] / 1000, df_covid["unrate"],
+            color="crimson", alpha=0.75, s=45, zorder=4, marker="D",
+            label=f"COVID quarters — excluded (n={len(df_covid)})")
+
+ax1.set_xlabel("Real GDP (Trillions of 2017 $)", fontsize=12)
+ax1.set_ylabel("Unemployment Rate (%)", fontsize=12)
+ax1.set_title("Unemployment vs Real GDP\n(red = COVID quarters Q2 2020–Q1 2021, excluded from analysis)",
+              fontsize=13, fontweight="bold")
+ax1.legend(fontsize=10)
+ax1.grid(True, linestyle="--", alpha=0.4)
+plt.tight_layout()
+plt.savefig("gdp_unemployment_analysis.png", dpi=150, bbox_inches="tight")
+print("Chart 1 saved: gdp_unemployment_analysis.png")
+
+
+# ===============================================================
+# 2. GAP DIVERGENCE: timeline + scatter relationship (2010–present)
+# ===============================================================
+# Use clean data (COVID quarters excluded) from 2010 onward.
+# For the timeline we also grab the COVID quarters so we can shade
+# the exclusion window without connecting across the gap.
+df_post2010       = df_clean[df_clean.index >= "2010-01-01"].copy()
+df_covid_post2010 = df_covid[df_covid.index >= "2010-01-01"].copy()
+
+# Era labels for the scatter panel
+df_post2010["era"] = "2010–2022"
+df_post2010.loc[df_post2010.index >= "2022-10-01", "era"] = "Q4 2022–Present"
+
+era_colors = {"2010–2022": "steelblue", "Q4 2022–Present": "darkorange"}
+
+fig2, (ax_time, ax_scat) = plt.subplots(
+    2, 1, figsize=(13, 12),
+    gridspec_kw={"height_ratios": [1.2, 1]}
+)
+
+# ── Top panel: time series ──────────────────────────────────────
+ax_time.plot(df_post2010.index, df_post2010["y_gap"],
+             color="steelblue", linewidth=2,
+             label="Output Gap $Y_{gap}$ (% of potential GDP)")
+ax_time.plot(df_post2010.index, df_post2010["u_gap"],
+             color="firebrick", linewidth=2,
+             label="Unemployment Gap $U_{gap}$ (pp above natural rate)")
+ax_time.axhline(0, color="black", linewidth=0.8, linestyle="--")
+
+# Mark COVID exclusion zone
+ax_time.axvspan(pd.Timestamp("2020-04-01"), pd.Timestamp("2021-04-01"),
+                alpha=0.15, color="crimson", label="COVID quarters excluded")
+ax_time.text(pd.Timestamp("2020-07-01"), ax_time.get_ylim()[0] if False else -4.5,
+             "COVID\nexcluded", color="crimson", fontsize=8,
+             ha="center", va="bottom")
+
+# Shade the post-ChatGPT era
+ax_time.axvspan(pd.Timestamp("2022-10-01"), df_post2010.index[-1],
+                alpha=0.08, color="gold", label="Post-ChatGPT era (Q4 2022+)")
+
+ax_time.set_ylabel("Gap (percentage points)", fontsize=12)
+ax_time.set_title("Output Gap vs Unemployment Gap — 2010 to Present\n"
+                  "COVID quarters (Q2 2020–Q1 2021) excluded from analysis",
+                  fontsize=13, fontweight="bold")
+ax_time.legend(fontsize=10, loc="upper left")
+ax_time.grid(True, linestyle="--", alpha=0.4)
+
+# ── Bottom panel: scatter relationship ─────────────────────────
+for era, color in era_colors.items():
+    sub = df_post2010[df_post2010["era"] == era]
+    ax_scat.scatter(sub["y_gap"], sub["u_gap"],
+                    color=color, alpha=0.75, s=55, zorder=3, label=era)
+
+# Regression line for each era
+for era, color in era_colors.items():
+    sub = df_post2010[df_post2010["era"] == era]
+    if len(sub) < 4:
+        continue
+    m, b = np.polyfit(sub["y_gap"], sub["u_gap"], 1)
+    x_r = np.linspace(sub["y_gap"].min(), sub["y_gap"].max(), 100)
+    ax_scat.plot(x_r, m * x_r + b, color=color, linewidth=1.5,
+                 linestyle="--", alpha=0.9)
+
+ax_scat.axhline(0, color="black", linewidth=0.8, linestyle="--")
+ax_scat.axvline(0, color="black", linewidth=0.8, linestyle="--")
+ax_scat.set_xlabel("Output Gap $Y_{gap}$ (% of potential GDP)", fontsize=12)
+ax_scat.set_ylabel("Unemployment Gap $U_{gap}$ (pp above natural rate)", fontsize=12)
+ax_scat.set_title("Relationship: $Y_{gap}$ vs $U_{gap}$ — Has the Slope Changed?",
+                  fontsize=13, fontweight="bold")
+ax_scat.legend(fontsize=10)
+ax_scat.grid(True, linestyle="--", alpha=0.4)
+
+plt.tight_layout(pad=2.5)
+plt.savefig("gap_divergence.png", dpi=150, bbox_inches="tight")
+print("Chart 2 saved: gap_divergence.png")
+
+# Print the 2022+ quarters so the divergence is readable
+print("\n=== Gap Variables: Q4 2022 – Present ===")
+print(df_clean[df_clean.index >= "2022-10-01"][["y_gap", "u_gap"]].round(3).to_string())
+
+# ===============================================================
+# 2b. GAP DIVERGENCE — ABSOLUTE VALUE VERSION
+#     Both gaps shown as |gap|. Under Okun's Law they should track
+#     together in magnitude. A divergence means one is large while
+#     the other has collapsed — the decoupling signature.
+# ===============================================================
+fig2b, (ax_abs, ax_scat2) = plt.subplots(
+    2, 1, figsize=(13, 12),
+    gridspec_kw={"height_ratios": [1.2, 1]}
+)
+
+# ── Top panel: |y_gap| and |u_gap| over time ───────────────────
+ax_abs.plot(df_post2010.index, df_post2010["y_gap"].abs(),
+            color="steelblue", linewidth=2,
+            label="|Output Gap| $|Y_{gap}|$ (% of potential GDP)")
+ax_abs.plot(df_post2010.index, df_post2010["u_gap"].abs(),
+            color="firebrick", linewidth=2,
+            label="|Unemployment Gap| $|U_{gap}|$ (pp from natural rate)")
+
+ax_abs.axvspan(pd.Timestamp("2020-04-01"), pd.Timestamp("2021-04-01"),
+               alpha=0.15, color="crimson", label="COVID quarters excluded")
+ax_abs.text(pd.Timestamp("2020-07-01"), 0.15,
+            "COVID\nexcluded", color="crimson", fontsize=8,
+            ha="center", va="bottom")
+ax_abs.axvspan(pd.Timestamp("2022-10-01"), df_post2010.index[-1],
+               alpha=0.08, color="gold", label="Post-ChatGPT era (Q4 2022+)")
+
+ax_abs.set_ylabel("Absolute Gap (percentage points)", fontsize=12)
+ax_abs.set_title("|Output Gap| vs |Unemployment Gap| — 2010 to Present\n"
+                 "Divergence = one gap large while the other collapses",
+                 fontsize=13, fontweight="bold")
+ax_abs.set_ylim(bottom=0)
+ax_abs.legend(fontsize=10, loc="upper left")
+ax_abs.grid(True, linestyle="--", alpha=0.4)
+
+# ── Bottom panel: scatter of |y_gap| vs |u_gap| by era ─────────
+for era, color in era_colors.items():
+    sub = df_post2010[df_post2010["era"] == era]
+    ax_scat2.scatter(sub["y_gap"].abs(), sub["u_gap"].abs(),
+                     color=color, alpha=0.75, s=55, zorder=3, label=era)
+
+for era, color in era_colors.items():
+    sub = df_post2010[df_post2010["era"] == era]
+    if len(sub) < 4:
+        continue
+    m, b = np.polyfit(sub["y_gap"].abs(), sub["u_gap"].abs(), 1)
+    x_r = np.linspace(sub["y_gap"].abs().min(), sub["y_gap"].abs().max(), 100)
+    ax_scat2.plot(x_r, m * x_r + b, color=color, linewidth=1.5,
+                  linestyle="--", alpha=0.9)
+
+ax_scat2.set_xlabel("|Output Gap| $|Y_{gap}|$ (% of potential GDP)", fontsize=12)
+ax_scat2.set_ylabel("|Unemployment Gap| $|U_{gap}|$ (pp from natural rate)", fontsize=12)
+ax_scat2.set_title("Magnitude Relationship: $|Y_{gap}|$ vs $|U_{gap}|$ — Has It Broken Down?",
+                   fontsize=13, fontweight="bold")
+ax_scat2.set_xlim(left=0)
+ax_scat2.set_ylim(bottom=0)
+ax_scat2.legend(fontsize=10)
+ax_scat2.grid(True, linestyle="--", alpha=0.4)
+
+plt.tight_layout(pad=2.5)
+plt.savefig("gap_divergence_abs.png", dpi=150, bbox_inches="tight")
+print("Chart 2b saved: gap_divergence_abs.png")
+print()
+
+
+# ===============================================================
+# 2c. OKUN RESIDUAL + QUADRANT SCATTER
+#     Chart A: residual from pre-2022 regression over time
+#     Chart B: quadrant scatter colored by recency (blue→orange)
+# ===============================================================
+
+# Fit the historical Okun relationship on pre-2022 clean data only
+pre22 = df_post2010[df_post2010.index < "2022-10-01"]
+okun_m, okun_b = np.polyfit(pre22["y_gap"], pre22["u_gap"], 1)
+
+# Residual for every quarter: actual U_gap minus what Okun predicts
+df_post2010["u_predicted"] = okun_m * df_post2010["y_gap"] + okun_b
+df_post2010["okun_resid"]  = df_post2010["u_gap"] - df_post2010["u_predicted"]
+
+fig2c, (ax_resid, ax_quad) = plt.subplots(
+    2, 1, figsize=(13, 12),
+    gridspec_kw={"height_ratios": [1, 1]}
+)
+
+# ── Top panel: residual over time ──────────────────────────────
+ax_resid.axhline(0, color="black", linewidth=1.2, linestyle="--", zorder=2)
+ax_resid.fill_between(df_post2010.index, df_post2010["okun_resid"], 0,
+                      where=df_post2010["okun_resid"] > 0,
+                      color="firebrick", alpha=0.4,
+                      label="Unemployment higher than Okun predicts (law breaking down)")
+ax_resid.fill_between(df_post2010.index, df_post2010["okun_resid"], 0,
+                      where=df_post2010["okun_resid"] <= 0,
+                      color="steelblue", alpha=0.4,
+                      label="Unemployment lower than Okun predicts (law holding)")
+ax_resid.plot(df_post2010.index, df_post2010["okun_resid"],
+              color="black", linewidth=1.2, zorder=3)
+
+ax_resid.axvspan(pd.Timestamp("2020-04-01"), pd.Timestamp("2021-04-01"),
+                 alpha=0.15, color="crimson", label="COVID quarters excluded")
+ax_resid.axvspan(pd.Timestamp("2022-10-01"), df_post2010.index[-1],
+                 alpha=0.08, color="gold", label="Post-ChatGPT era (Q4 2022+)")
+
+ax_resid.set_ylabel("Okun Residual (pp)\nActual $U_{gap}$ − Predicted $U_{gap}$", fontsize=11)
+ax_resid.set_title("Okun's Law Residual — 2010 to Present\n"
+                   f"Pre-2022 fit: $U_{{gap}}$ = {okun_m:.3f} × $Y_{{gap}}$ + {okun_b:.3f}",
+                   fontsize=13, fontweight="bold")
+ax_resid.legend(fontsize=9, loc="lower left")
+ax_resid.grid(True, linestyle="--", alpha=0.4)
+
+# ── Bottom panel: quadrant scatter colored by time ─────────────
+# Color gradient: earlier quarters = blue, recent = orange
+n = len(df_post2010)
+cmap = plt.cm.RdYlBu_r
+colors_grad = [cmap(i / (n - 1)) for i in range(n)]
+
+sc = ax_quad.scatter(df_post2010["y_gap"], df_post2010["u_gap"],
+                     c=range(n), cmap="RdYlBu_r", s=60, zorder=3, alpha=0.85)
+
+# Quadrant shading
+ax_quad.axhline(0, color="black", linewidth=1.0, zorder=2)
+ax_quad.axvline(0, color="black", linewidth=1.0, zorder=2)
+ax_quad.fill_between([-6, 0], [0, 0], [6, 6], alpha=0.04, color="steelblue")  # Q2: law holds
+ax_quad.fill_between([0, 6], [-6, -6], [0, 0], alpha=0.04, color="steelblue")  # Q4: law holds
+ax_quad.fill_between([0, 6], [0, 0], [6, 6], alpha=0.06, color="firebrick")    # Q1: law broken
+ax_quad.fill_between([-6, 0], [-6, -6], [0, 0], alpha=0.06, color="firebrick") # Q3: law broken
+
+# Quadrant labels
+xlim = df_post2010["y_gap"].abs().max() * 1.15
+ylim = df_post2010["u_gap"].abs().max() * 1.25
+ax_quad.text( xlim * 0.55,  ylim * 0.75, "Q1: Law Broken\n(economy above potential,\nunemployment rising)",
+              fontsize=8, color="firebrick", ha="center", style="italic")
+ax_quad.text(-xlim * 0.55,  ylim * 0.75, "Q2: Law Holding\n(economy below potential,\nunemployment elevated)",
+              fontsize=8, color="steelblue", ha="center", style="italic")
+ax_quad.text( xlim * 0.55, -ylim * 0.75, "Q4: Law Holding\n(economy above potential,\nunemployment low)",
+              fontsize=8, color="steelblue", ha="center", style="italic")
+ax_quad.text(-xlim * 0.55, -ylim * 0.75, "Q3: Law Broken\n(economy below potential,\nunemployment low)",
+              fontsize=8, color="firebrick", ha="center", style="italic")
+
+ax_quad.set_xlim(-xlim, xlim)
+ax_quad.set_ylim(-ylim, ylim)
+
+cbar = plt.colorbar(sc, ax=ax_quad, orientation="vertical", pad=0.02)
+cbar.set_label("Time (blue = 2010, orange = present)", fontsize=9)
+tick_positions = [0, n // 4, n // 2, 3 * n // 4, n - 1]
+tick_labels    = [str(df_post2010.index[i].year) for i in tick_positions]
+cbar.set_ticks(tick_positions)
+cbar.set_ticklabels(tick_labels)
+
+ax_quad.set_xlabel("Output Gap $Y_{gap}$ (% of potential GDP)", fontsize=12)
+ax_quad.set_ylabel("Unemployment Gap $U_{gap}$ (pp above natural rate)", fontsize=12)
+ax_quad.set_title("Quadrant Map: Where Does Each Quarter Land?\n"
+                  "Blue/Q2+Q4 = Okun holds  |  Red/Q1+Q3 = Okun broken",
+                  fontsize=13, fontweight="bold")
+ax_quad.grid(True, linestyle="--", alpha=0.3)
+
+plt.tight_layout(pad=2.5)
+plt.savefig("gap_okun_residual_quadrant.png", dpi=150, bbox_inches="tight")
+print("Chart 2c saved: gap_okun_residual_quadrant.png")
+print()
+
+
+# ===============================================================
+# 3. ROLLING REGRESSION: Okun's constant C — 2000 to present
+#    Window = 12 quarters (3 years), rolling forward 1 quarter
+# ===============================================================
+WINDOW = 12   # quarters
+
+df_2000 = df_clean[df_clean.index >= "2000-01-01"].copy()
+clean_idx = df_2000.index.tolist()
+
+roll_dates = []
+roll_slope = []
+roll_r     = []
+
+for i in range(WINDOW, len(clean_idx) + 1):
+    window_df = df_2000.iloc[i - WINDOW : i]
+    x_w = window_df["y_gap"].values
+    y_w = window_df["u_gap"].values
+    if np.std(x_w) < 1e-9:
+        continue
+    s, _ = np.polyfit(x_w, y_w, 1)
+    r     = np.corrcoef(x_w, y_w)[0, 1]
+    roll_dates.append(clean_idx[i - 1])
+    roll_slope.append(s)
+    roll_r.append(r)
+
+roll_df = pd.DataFrame({"slope": roll_slope, "r": roll_r}, index=roll_dates)
+
+# ── Historical baseline: all windows BEFORE Q4 2022 ────────────
+pre_ai    = roll_df[roll_df.index < "2022-10-01"]["r"]
+post_ai   = roll_df[roll_df.index >= "2022-10-01"]["r"]
+
+hist_pos_rate = (pre_ai > 0).mean()       # fraction of pre-AI windows with r > 0
+hist_mean     = pre_ai.mean()
+hist_std      = pre_ai.std()
+
+print("=== Historical Baseline (2000–Q3 2022) ===")
+print(f"  Windows:              {len(pre_ai)}")
+print(f"  Mean r:               {hist_mean:.3f}")
+print(f"  Std r:                {hist_std:.3f}")
+print(f"  % windows with r > 0: {hist_pos_rate*100:.1f}%")
+print()
+
+# Probability of each post-AI r value under the historical normal distribution
+from scipy import stats as sp_stats
+print("=== Post-ChatGPT Windows — Probability Under Historical Normal ===")
+print(f"  {'Quarter':<14}  {'r':>7}  {'p(r ≥ observed)':>16}")
+for dt, row in post_ai.items():
+    p = 1 - sp_stats.norm.cdf(row, loc=hist_mean, scale=hist_std)
+    print(f"  {str(dt.date()):<14}  {row:>7.3f}  {p:>15.4f}")
+print()
+
+# ── Plot ────────────────────────────────────────────────────────
+fig3, (ax3a, ax3b) = plt.subplots(2, 1, figsize=(13, 9), sharex=True)
+
+ax3a.plot(roll_df.index, roll_df["slope"], color="steelblue", linewidth=2)
+ax3a.axhline(0, color="black", linewidth=0.8, linestyle="--")
+ax3a.axvspan(pd.Timestamp("2022-10-01"), roll_df.index[-1],
+             alpha=0.08, color="gold", label="Post-ChatGPT era (Q4 2022+)")
+ax3a.set_ylabel("Rolling Okun's Coefficient C\n(ΔU_gap per 1pp Y_gap)", fontsize=11)
+ax3a.set_title("Rolling 3-Year Okun's Coefficient (2000–Present) — Is C Decaying?",
+               fontsize=13, fontweight="bold")
+ax3a.legend(fontsize=10)
+ax3a.grid(True, linestyle="--", alpha=0.4)
+
+ax3b.plot(roll_df.index, roll_df["r"], color="firebrick", linewidth=2)
+ax3b.axhline(0, color="black", linewidth=0.8, linestyle="--")
+ax3b.axvspan(pd.Timestamp("2022-10-01"), roll_df.index[-1],
+             alpha=0.08, color="gold")
+
+# Annotate the peak inversion with its probability
+peak_idx = post_ai.idxmax()
+peak_r   = post_ai.max()
+peak_p   = 1 - sp_stats.norm.cdf(peak_r, loc=hist_mean, scale=hist_std)
+ax3b.annotate(f"r = {peak_r:.2f}\np(r ≥ this) = {peak_p:.4f}",
+              xy=(peak_idx, peak_r),
+              xytext=(peak_idx - pd.DateOffset(months=18), peak_r - 0.25),
+              arrowprops=dict(arrowstyle="->", color="black"),
+              fontsize=9, color="black",
+              bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="gray", alpha=0.9))
+
+ax3b.set_ylabel("Rolling Correlation (r)\n+ = law inverted,  − = law holding", fontsize=11)
+ax3b.set_xlabel("Quarter (end of window)", fontsize=12)
+ax3b.set_ylim(-1.05, 1.05)
+ax3b.grid(True, linestyle="--", alpha=0.4)
+
+plt.tight_layout()
+plt.savefig("rolling_okuns_coefficient.png", dpi=150, bbox_inches="tight")
+print("Chart 3 saved: rolling_okuns_coefficient.png")
+
+print("\n=== Rolling Okun's Coefficient: Last 12 Windows ===")
+print(roll_df.tail(12).round(4).to_string())
+print()
+
+
+plt.show()
+print("\nAll charts saved.")
