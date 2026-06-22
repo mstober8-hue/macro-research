@@ -1,0 +1,10 @@
+Industry,AIIE,BTOS_pct,BTOS_rank,AIIE_rank,rank_diff
+Financial Activities,1.538,28.104,2.000,1.000,1.000
+Information,1.268,38.407,1.000,2.000,-1.000
+Education & Health,0.775,25.982,4.000,3.000,1.000
+Professional & Business,0.654,26.608,3.000,4.000,-1.000
+Wholesale Trade,0.264,15.150,5.000,5.000,0.000
+Leisure & Hospitality,-0.315,13.061,7.000,6.000,1.000
+Transportation & Utilities,-0.342,10.050,8.000,7.000,1.000
+Manufacturing,-0.484,14.336,6.000,8.000,-2.000
+Construction,-0.997,9.929,9.000,9.000,0.000

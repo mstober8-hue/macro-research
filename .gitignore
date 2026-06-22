@@ -1,0 +1,17 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Raw data files (large, proprietary source data — not versioned)
+Fred Fed Data /
+
+# Claude internal files
+.claude/
+
+# Screenshots / Word docs
+Screenshot *.png
+*.docx

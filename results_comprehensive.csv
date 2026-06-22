@@ -1,0 +1,466 @@
+
+=== SECTION 1 — STUDY DESIGN AND CONSTANTS ===
+
+Parameter,Value,Notes
+Dependent variable,ΔU (pp),"YoY change in sector unemployment rate, not seasonally adjusted"
+Output variable,%ΔY,"YoY % change in sector real GDP (BEA, chained 2017$)"
+Differencing horizon,4 quarters,YoY to remove seasonality; diffs computed BEFORE dropping rows
+AI era cutoff,Q4 2022,ChatGPT launch (November 2022)
+Pre-period,1990 Q1 – 2022 Q3,Approximate; varies slightly by industry data availability
+Post-period,2022 Q4 – 2025 Q4,n=13 quarters
+COVID exclusion,Q2 2020 – Q1 2022,8 quarters dropped from both pre and post analysis
+Δβ1 sign convention,Δβ1 = β1_post − β1_pre,Positive = Okun coefficient weakened (less negative post-AI)
+Significance threshold,Bonferroni-corrected p < 0.01,5 distinct specs tested; family-wise α = 0.05 → per-test α = 0.01
+
+Specifications,,
+simple,Simple Okun (no rate control)
+rc_lag0,Rate Control: ΔFFR (lag 0)
+rc_lag2,Rate Control: ΔFFR (lag 2Q)
+rc_lag4,Rate Control: ΔFFR (lag 4Q)
+rc_level,Rate Control: FFR level
+rc_dev_rolling,Rate Control: FFR dev from rolling mean
+
+Industries (9),AIIE Score,Felten/Raj/Seamans 2023 AI exposure index
+Financial Activities,1.538
+Information,1.268
+Education & Health,0.775
+Professional & Business,0.654
+Wholesale Trade,0.264
+Leisure & Hospitality,-0.315
+Transportation & Utilities,-0.342
+Manufacturing,-0.484
+Construction,-0.997
+
+=== SECTION 2 — SIMPLE OKUN'S LAW (ΔU = Α + Β1·%ΔY): PRE VS POST SUMMARY ===
+
+Industry,AIIE,β1 Pre,SE Pre,t Pre,p Pre,Sig,n Pre,R² Pre,β1 Post,SE Post,t Post,p Post,Sig,n Post,R² Post,Δβ1,Δβ1 magnitude,Interpretation
+Financial Activities,1.538,-0.0224,0.0137,-1.63,0.108,,59,0.045,-0.0574,0.0362,-1.59,0.141,,13,0.186,-0.0351,0.0351,Stable
+Information,1.268,-0.1339,0.0497,-2.69,0.009,**,59,0.113,0.1804,0.1754,1.03,0.326,,13,0.088,0.3142,0.3142,Large breakdown
+Education & Health,0.775,-0.0339,0.0578,-0.59,0.559,,59,0.006,-0.2218,0.3109,-0.71,0.490,,13,0.044,-0.1879,0.1879,Moderate strengthening
+Professional & Business,0.654,-0.3407,0.0378,-9.02,0.000,***,59,0.588,-0.2266,0.0733,-3.09,0.010,*,13,0.465,0.1140,0.1140,Moderate breakdown
+Wholesale Trade,0.264,-0.1668,0.0242,-6.90,0.000,***,59,0.455,0.0657,0.0697,0.94,0.366,,13,0.075,0.2324,0.2324,Large breakdown
+Leisure & Hospitality,-0.315,-0.3561,0.0395,-9.01,0.000,***,59,0.587,-0.3017,0.0586,-5.15,0.000,***,13,0.707,0.0544,0.0544,Small shift
+Transportation & Utilities,-0.342,-0.2554,0.0416,-6.15,0.000,***,59,0.399,0.1566,0.0996,1.57,0.144,,13,0.184,0.4121,0.4121,Large breakdown
+Manufacturing,-0.484,-0.3270,0.0475,-6.89,0.000,***,59,0.454,0.1104,0.0402,2.75,0.019,*,13,0.407,0.4373,0.4373,Large breakdown
+Construction,-0.997,-0.3933,0.0464,-8.48,0.000,***,59,0.558,0.0460,0.0113,4.06,0.002,**,13,0.600,0.4393,0.4393,Large breakdown
+
+--- Significance codes:  *** p<0.001  ** p<0.01  * p<0.05  . p<0.10 ---
+
+=== SECTION 3 — ΔΒ1 MATRIX: ALL INDUSTRIES × ALL 6 SPECIFICATIONS ===
+
+--- Δβ1 = β1_post − β1_pre  (positive = Okun weakened post-Q4-2022) ---
+
+Industry,AIIE,simple,rc_lag0,rc_lag2,rc_lag4,rc_level,rc_dev_rolling,Mean Δβ1 (6 specs),Min Δβ1,Max Δβ1,All positive?
+Financial Activities,1.538,-0.0351,-0.0864,0.0237,-0.0052,-0.0176,0.0106,-0.0183,-0.0864,0.0237,NO
+Information,1.268,0.3142,0.2843,0.2054,0.2725,0.2975,0.2590,0.2722,0.2054,0.3142,YES
+Education & Health,0.775,-0.1879,0.1578,-0.0215,-0.1743,-0.2043,0.0630,-0.0612,-0.2043,0.1578,NO
+Professional & Business,0.654,0.1140,0.0074,0.0215,0.0975,0.2039,0.0074,0.0753,0.0074,0.2039,YES
+Wholesale Trade,0.264,0.2324,0.1303,0.1434,0.3080,0.4059,0.0658,0.2143,0.0658,0.4059,YES
+Leisure & Hospitality,-0.315,0.0544,0.0684,0.0007,0.0098,0.0625,0.0302,0.0376,0.0007,0.0684,YES
+Transportation & Utilities,-0.342,0.4121,0.3493,0.2559,0.1965,0.1170,0.3258,0.2761,0.1170,0.4121,YES
+Manufacturing,-0.484,0.4373,0.3136,0.2869,0.3916,0.5029,0.3077,0.3733,0.2869,0.5029,YES
+Construction,-0.997,0.4393,0.3790,0.3232,0.3663,0.4417,0.3457,0.3825,0.3232,0.4417,YES
+
+--- Sorted by mean Δβ1 descending (largest breakdown first) ---
+Rank,Industry,AIIE,Δβ1 (simple),Δβ1 (rc_lag0),Δβ1 (rc_lag2),Δβ1 (rc_lag4),Δβ1 (rc_level),Δβ1 (rc_dev_rolling),Mean Δβ1
+1,Construction,-0.997,0.4393,0.3790,0.3232,0.3663,0.4417,0.3457,0.3825
+2,Manufacturing,-0.484,0.4373,0.3136,0.2869,0.3916,0.5029,0.3077,0.3733
+3,Transportation & Utilities,-0.342,0.4121,0.3493,0.2559,0.1965,0.1170,0.3258,0.2761
+4,Information,1.268,0.3142,0.2843,0.2054,0.2725,0.2975,0.2590,0.2722
+5,Wholesale Trade,0.264,0.2324,0.1303,0.1434,0.3080,0.4059,0.0658,0.2143
+6,Professional & Business,0.654,0.1140,0.0074,0.0215,0.0975,0.2039,0.0074,0.0753
+7,Leisure & Hospitality,-0.315,0.0544,0.0684,0.0007,0.0098,0.0625,0.0302,0.0376
+8,Financial Activities,1.538,-0.0351,-0.0864,0.0237,-0.0052,-0.0176,0.0106,-0.0183
+9,Education & Health,0.775,-0.1879,0.1578,-0.0215,-0.1743,-0.2043,0.0630,-0.0612
+
+=== SECTION 4 — FULL COEFFICIENT TABLES: Β1 (%ΔY) AND Β2 (RATE CONTROL) FOR EVERY INDUSTRY × SPEC ===
+
+"--- k = number of regressors incl. intercept (2 for simple, 3 for rate-control specs) ---"
+
+--- Spec: simple  —  Simple Okun (no rate control) ---
+Industry,Period,n,df,R²,β1 (%ΔY),SE(β1),t(β1),p(β1),Sig,95% CI_lo(β1),95% CI_hi(β1),β2 (Rate ctrl),SE(β2),t(β2),p(β2),Sig (β2)
+Financial Activities,pre,59,57,0.045,-0.0224,0.0137,-1.63,0.108,,-0.0498,0.0051,,,,,
+Financial Activities,post,13,11,0.186,-0.0574,0.0362,-1.59,0.141,,-0.1370,0.0222,,,,,
+
+Information,pre,59,57,0.113,-0.1339,0.0497,-2.69,0.009,**,-0.2335,-0.0343,,,,,
+Information,post,13,11,0.088,0.1804,0.1754,1.03,0.326,,-0.2058,0.5665,,,,,
+
+Education & Health,pre,59,57,0.006,-0.0339,0.0578,-0.59,0.559,,-0.1497,0.0818,,,,,
+Education & Health,post,13,11,0.044,-0.2218,0.3109,-0.71,0.490,,-0.9062,0.4625,,,,,
+
+Professional & Business,pre,59,57,0.588,-0.3407,0.0378,-9.02,0.000,***,-0.4164,-0.2650,,,,,
+Professional & Business,post,13,11,0.465,-0.2266,0.0733,-3.09,0.010,*,-0.3880,-0.0653,,,,,
+
+Wholesale Trade,pre,59,57,0.455,-0.1668,0.0242,-6.90,0.000,***,-0.2151,-0.1184,,,,,
+Wholesale Trade,post,13,11,0.075,0.0657,0.0697,0.94,0.366,,-0.0877,0.2190,,,,,
+
+Leisure & Hospitality,pre,59,57,0.587,-0.3561,0.0395,-9.01,0.000,***,-0.4353,-0.2770,,,,,
+Leisure & Hospitality,post,13,11,0.707,-0.3017,0.0586,-5.15,0.000,***,-0.4307,-0.1728,,,,,
+
+Transportation & Utilities,pre,59,57,0.399,-0.2554,0.0416,-6.15,0.000,***,-0.3387,-0.1722,,,,,
+Transportation & Utilities,post,13,11,0.184,0.1566,0.0996,1.57,0.144,,-0.0626,0.3758,,,,,
+
+Manufacturing,pre,59,57,0.454,-0.3270,0.0475,-6.89,0.000,***,-0.4220,-0.2319,,,,,
+Manufacturing,post,13,11,0.407,0.1104,0.0402,2.75,0.019,*,0.0219,0.1989,,,,,
+
+Construction,pre,59,57,0.558,-0.3933,0.0464,-8.48,0.000,***,-0.4862,-0.3004,,,,,
+Construction,post,13,11,0.600,0.0460,0.0113,4.06,0.002,**,0.0211,0.0710,,,,,
+
+--- Spec: rc_lag0  —  Rate Control: ΔFFR (lag 0) ---
+Industry,Period,n,df,R²,β1 (%ΔY),SE(β1),t(β1),p(β1),Sig,95% CI_lo(β1),95% CI_hi(β1),β2 (Rate ctrl),SE(β2),t(β2),p(β2),Sig (β2)
+Financial Activities,pre,59,56,0.305,0.0054,0.0133,0.41,0.685,,-0.0211,0.0320,-0.4882,0.1065,-4.58,0.000,***
+Financial Activities,post,13,10,0.195,-0.0810,0.0800,-1.01,0.335,,-0.2592,0.0972,-0.0332,0.0991,-0.33,0.745,
+
+Information,pre,59,56,0.314,-0.0981,0.0450,-2.18,0.033,*,-0.1882,-0.0080,-0.6917,0.1705,-4.06,0.000,***
+Information,post,13,10,0.261,0.1863,0.1656,1.12,0.287,,-0.1828,0.5553,-0.2386,0.1558,-1.53,0.157,
+
+Education & Health,pre,59,56,0.388,-0.1169,0.0479,-2.44,0.018,*,-0.2128,-0.0210,-0.3789,0.0641,-5.91,0.000,***
+Education & Health,post,13,10,0.522,0.0410,0.2452,0.17,0.871,,-0.5055,0.5874,-0.1292,0.0409,-3.16,0.010,*
+
+Professional & Business,pre,59,56,0.751,-0.2801,0.0313,-8.95,0.000,***,-0.3427,-0.2174,-0.5215,0.0861,-6.06,0.000,***
+Professional & Business,post,13,10,0.531,-0.2727,0.0818,-3.33,0.008,**,-0.4550,-0.0904,0.0483,0.0408,1.18,0.264,
+
+Wholesale Trade,pre,59,56,0.630,-0.1231,0.0218,-5.64,0.000,***,-0.1668,-0.0794,-0.4484,0.0873,-5.14,0.000,***
+Wholesale Trade,post,13,10,0.319,0.0073,0.0699,0.10,0.919,,-0.1484,0.1630,-0.1227,0.0648,-1.89,0.088,.
+
+Leisure & Hospitality,pre,59,56,0.608,-0.3022,0.0502,-6.02,0.000,***,-0.4027,-0.2017,-0.2222,0.1305,-1.70,0.094,.
+Leisure & Hospitality,post,13,10,0.727,-0.2338,0.0995,-2.35,0.041,*,-0.4556,-0.0121,-0.0941,0.1107,-0.85,0.415,
+
+Transportation & Utilities,pre,59,56,0.466,-0.1809,0.0485,-3.73,0.000,***,-0.2781,-0.0838,-0.3789,0.1428,-2.65,0.010,*
+Transportation & Utilities,post,13,10,0.200,0.1684,0.1067,1.58,0.146,,-0.0694,0.4061,0.0397,0.0888,0.45,0.664,
+
+Manufacturing,pre,59,56,0.494,-0.2526,0.0582,-4.34,0.000,***,-0.3691,-0.1361,-0.4319,0.2059,-2.10,0.040,*
+Manufacturing,post,13,10,0.596,0.0610,0.0416,1.47,0.173,,-0.0317,0.1537,-0.1087,0.0502,-2.17,0.056,.
+
+Construction,pre,59,56,0.600,-0.3261,0.0524,-6.22,0.000,***,-0.4312,-0.2211,-0.6343,0.2616,-2.42,0.019,*
+Construction,post,13,10,0.626,0.0528,0.0141,3.76,0.004,**,0.0215,0.0842,0.0247,0.0294,0.84,0.421,
+
+--- Spec: rc_lag2  —  Rate Control: ΔFFR (lag 2Q) ---
+Industry,Period,n,df,R²,β1 (%ΔY),SE(β1),t(β1),p(β1),Sig,95% CI_lo(β1),95% CI_hi(β1),β2 (Rate ctrl),SE(β2),t(β2),p(β2),Sig (β2)
+Financial Activities,pre,59,56,0.379,-0.0153,0.0112,-1.36,0.178,,-0.0378,0.0072,-0.4898,0.0892,-5.49,0.000,***
+Financial Activities,post,13,10,0.374,0.0084,0.0506,0.17,0.872,,-0.1043,0.1210,0.1174,0.0679,1.73,0.114,
+
+Information,pre,59,56,0.424,-0.0196,0.0455,-0.43,0.667,,-0.1107,0.0714,-0.9373,0.1704,-5.50,0.000,***
+Information,post,13,10,0.090,0.1858,0.1874,0.99,0.345,,-0.2317,0.6032,-0.0283,0.1908,-0.15,0.885,
+
+Education & Health,pre,59,56,0.539,-0.0868,0.0403,-2.16,0.035,*,-0.1675,-0.0062,-0.4292,0.0533,-8.05,0.000,***
+Education & Health,post,13,10,0.210,-0.1083,0.3066,-0.35,0.731,,-0.7915,0.5748,-0.0803,0.0554,-1.45,0.178,
+
+Professional & Business,pre,59,56,0.735,-0.2240,0.0371,-6.04,0.000,***,-0.2983,-0.1497,-0.5620,0.1010,-5.56,0.000,***
+Professional & Business,post,13,10,0.525,-0.2026,0.0756,-2.68,0.023,*,-0.3710,-0.0341,0.0456,0.0408,1.12,0.289,
+
+Wholesale Trade,pre,59,56,0.608,-0.0875,0.0267,-3.28,0.002,**,-0.1411,-0.0340,-0.4945,0.1057,-4.68,0.000,***
+Wholesale Trade,post,13,10,0.075,0.0559,0.1453,0.38,0.708,,-0.2678,0.3796,-0.0114,0.1459,-0.08,0.940,
+
+Leisure & Hospitality,pre,59,56,0.614,-0.3029,0.0472,-6.41,0.000,***,-0.3975,-0.2083,-0.2379,0.1215,-1.96,0.055,.
+Leisure & Hospitality,post,13,10,0.707,-0.3022,0.0650,-4.65,0.001,***,-0.4471,-0.1573,0.0017,0.0783,0.02,0.983,
+
+Transportation & Utilities,pre,59,56,0.509,-0.1499,0.0482,-3.11,0.003,**,-0.2464,-0.0534,-0.4979,0.1404,-3.55,0.001,***
+Transportation & Utilities,post,13,10,0.291,0.1060,0.1056,1.00,0.339,,-0.1293,0.3413,0.1173,0.0952,1.23,0.246,
+
+Manufacturing,pre,59,56,0.545,-0.1674,0.0648,-2.58,0.012,*,-0.2973,-0.0376,-0.7570,0.2271,-3.33,0.002,**
+Manufacturing,post,13,10,0.516,0.1195,0.0386,3.10,0.011,*,0.0335,0.2054,-0.0756,0.0504,-1.50,0.165,
+
+Construction,pre,59,56,0.642,-0.2788,0.0525,-5.31,0.000,***,-0.3840,-0.1735,-0.9440,0.2593,-3.64,0.001,***
+Construction,post,13,10,0.627,0.0444,0.0117,3.81,0.003,**,0.0184,0.0703,0.0222,0.0264,0.84,0.420,
+
+--- Spec: rc_lag4  —  Rate Control: ΔFFR (lag 4Q) ---
+Industry,Period,n,df,R²,β1 (%ΔY),SE(β1),t(β1),p(β1),Sig,95% CI_lo(β1),95% CI_hi(β1),β2 (Rate ctrl),SE(β2),t(β2),p(β2),Sig (β2)
+Financial Activities,pre,59,56,0.354,-0.0385,0.0118,-3.27,0.002,**,-0.0621,-0.0149,-0.4710,0.0909,-5.18,0.000,***
+Financial Activities,post,13,10,0.506,-0.0437,0.0300,-1.46,0.176,,-0.1107,0.0232,0.1132,0.0445,2.54,0.029,*
+
+Information,pre,59,56,0.328,-0.0496,0.0480,-1.03,0.306,,-0.1457,0.0466,-0.7393,0.1746,-4.23,0.000,***
+Information,post,13,10,0.387,0.2230,0.1521,1.47,0.173,,-0.1158,0.5618,0.3775,0.1708,2.21,0.052,.
+
+Education & Health,pre,59,56,0.448,0.0014,0.0438,0.03,0.975,,-0.0864,0.0891,-0.3768,0.0563,-6.69,0.000,***
+Education & Health,post,13,10,0.120,-0.1730,0.3172,-0.55,0.597,,-0.8798,0.5338,0.0588,0.0632,0.93,0.374,
+
+Professional & Business,pre,59,56,0.621,-0.2825,0.0449,-6.29,0.000,***,-0.3724,-0.1926,-0.2647,0.1186,-2.23,0.030,*
+Professional & Business,post,13,10,0.476,-0.1850,0.1184,-1.56,0.149,,-0.4488,0.0787,0.0323,0.0705,0.46,0.656,
+
+Wholesale Trade,pre,59,56,0.559,-0.1225,0.0251,-4.88,0.000,***,-0.1728,-0.0722,-0.3494,0.0964,-3.62,0.001,***
+Wholesale Trade,post,13,10,0.267,0.1855,0.0986,1.88,0.089,.,-0.0341,0.4052,0.1768,0.1093,1.62,0.137,
+
+Leisure & Hospitality,pre,59,56,0.644,-0.3176,0.0392,-8.10,0.000,***,-0.3962,-0.2390,-0.2929,0.0979,-2.99,0.004,**
+Leisure & Hospitality,post,13,10,0.710,-0.3078,0.0640,-4.81,0.001,***,-0.4504,-0.1653,-0.0273,0.0850,-0.32,0.754,
+
+Transportation & Utilities,pre,59,56,0.479,-0.2125,0.0417,-5.10,0.000,***,-0.2960,-0.1290,-0.3465,0.1179,-2.94,0.005,**
+Transportation & Utilities,post,13,10,0.600,-0.0159,0.0906,-0.18,0.864,,-0.2178,0.1860,0.2905,0.0901,3.22,0.009,**
+
+Manufacturing,pre,59,56,0.513,-0.2651,0.0511,-5.19,0.000,***,-0.3674,-0.1628,-0.4528,0.1736,-2.61,0.012,*
+Manufacturing,post,13,10,0.414,0.1265,0.0616,2.05,0.067,.,-0.0108,0.2638,-0.0316,0.0889,-0.36,0.729,
+
+Construction,pre,59,56,0.627,-0.3236,0.0481,-6.72,0.000,***,-0.4200,-0.2272,-0.7422,0.2305,-3.22,0.002,**
+Construction,post,13,10,0.603,0.0427,0.0177,2.41,0.037,*,0.0033,0.0822,0.0112,0.0443,0.25,0.805,
+
+--- Spec: rc_level  —  Rate Control: FFR level ---
+Industry,Period,n,df,R²,β1 (%ΔY),SE(β1),t(β1),p(β1),Sig,95% CI_lo(β1),95% CI_hi(β1),β2 (Rate ctrl),SE(β2),t(β2),p(β2),Sig (β2)
+Financial Activities,pre,59,56,0.046,-0.0216,0.0141,-1.54,0.130,,-0.0498,0.0066,0.0222,0.0804,0.28,0.784,
+Financial Activities,post,13,10,0.522,-0.0393,0.0299,-1.31,0.218,,-0.1058,0.0273,0.3502,0.1322,2.65,0.024,*
+
+Information,pre,59,56,0.113,-0.1329,0.0518,-2.57,0.013,*,-0.2367,-0.0291,-0.0104,0.1397,-0.07,0.941,
+Information,post,13,10,0.275,0.1646,0.1644,1.00,0.340,,-0.2017,0.5308,0.8853,0.5515,1.61,0.140,
+
+Education & Health,pre,59,56,0.015,-0.0315,0.0581,-0.54,0.590,,-0.1480,0.0850,-0.0403,0.0554,-0.73,0.470,
+Education & Health,post,13,10,0.066,-0.2358,0.3236,-0.73,0.483,,-0.9568,0.4851,0.0938,0.1926,0.49,0.637,
+
+Professional & Business,pre,59,56,0.592,-0.3455,0.0384,-9.00,0.000,***,-0.4224,-0.2686,0.0604,0.0752,0.80,0.425,
+Professional & Business,post,13,10,0.522,-0.1417,0.1063,-1.33,0.212,,-0.3785,0.0952,0.2071,0.1891,1.10,0.299,
+
+Wholesale Trade,pre,59,56,0.456,-0.1677,0.0246,-6.82,0.000,***,-0.2169,-0.1185,0.0197,0.0699,0.28,0.779,
+Wholesale Trade,post,13,10,0.487,0.2382,0.0816,2.92,0.015,*,0.0563,0.4200,0.7660,0.2702,2.84,0.018,*
+
+Leisure & Hospitality,pre,59,56,0.591,-0.3594,0.0399,-9.00,0.000,***,-0.4394,-0.2794,-0.0559,0.0739,-0.76,0.452,
+Leisure & Hospitality,post,13,10,0.715,-0.2969,0.0612,-4.85,0.001,***,-0.4333,-0.1605,0.1314,0.2429,0.54,0.601,
+
+Transportation & Utilities,pre,59,56,0.399,-0.2557,0.0419,-6.10,0.000,***,-0.3397,-0.1717,0.0182,0.0879,0.21,0.836,
+Transportation & Utilities,post,13,10,0.572,-0.1387,0.1238,-1.12,0.289,,-0.4145,0.1372,1.1073,0.3676,3.01,0.013,*
+
+Manufacturing,pre,59,56,0.520,-0.3758,0.0483,-7.79,0.000,***,-0.4725,-0.2791,0.3366,0.1216,2.77,0.008,**
+Manufacturing,post,13,10,0.419,0.1271,0.0553,2.30,0.044,*,0.0038,0.2503,-0.1095,0.2382,-0.46,0.656,
+
+Construction,pre,59,56,0.562,-0.3990,0.0473,-8.44,0.000,***,-0.4938,-0.3043,-0.1196,0.1678,-0.71,0.479,
+Construction,post,13,10,0.605,0.0426,0.0156,2.73,0.021,*,0.0079,0.0774,0.0390,0.1167,0.33,0.745,
+
+--- Spec: rc_dev_rolling  —  Rate Control: FFR dev from rolling mean ---
+Industry,Period,n,df,R²,β1 (%ΔY),SE(β1),t(β1),p(β1),Sig,95% CI_lo(β1),95% CI_hi(β1),β2 (Rate ctrl),SE(β2),t(β2),p(β2),Sig (β2)
+Financial Activities,pre,59,56,0.367,-0.0023,0.0119,-0.20,0.845,,-0.0261,0.0214,-0.4994,0.0936,-5.34,0.000,***
+Financial Activities,post,13,10,0.230,0.0083,0.0949,0.09,0.932,,-0.2032,0.2197,0.1007,0.1340,0.75,0.470,
+
+Information,pre,59,56,0.379,-0.0761,0.0436,-1.74,0.087,.,-0.1634,0.0113,-0.7949,0.1622,-4.90,0.000,***
+Information,post,13,10,0.169,0.1829,0.1756,1.04,0.322,,-0.2084,0.5742,-0.1862,0.1881,-0.99,0.346,
+
+Education & Health,pre,59,56,0.493,-0.0997,0.0426,-2.34,0.023,*,-0.1851,-0.0143,-0.4107,0.0560,-7.33,0.000,***
+Education & Health,post,13,10,0.417,-0.0367,0.2650,-0.14,0.893,,-0.6270,0.5537,-0.1274,0.0504,-2.53,0.030,*
+
+Professional & Business,pre,59,56,0.753,-0.2536,0.0328,-7.74,0.000,***,-0.3193,-0.1880,-0.5416,0.0886,-6.11,0.000,***
+Professional & Business,post,13,10,0.511,-0.2463,0.0762,-3.23,0.009,**,-0.4161,-0.0764,0.0420,0.0433,0.97,0.355,
+
+Wholesale Trade,pre,59,56,0.670,-0.1068,0.0214,-4.99,0.000,***,-0.1497,-0.0639,-0.5072,0.0841,-6.03,0.000,***
+Wholesale Trade,post,13,10,0.337,-0.0410,0.0818,-0.50,0.627,,-0.2233,0.1414,-0.1721,0.0865,-1.99,0.075,.
+
+Leisure & Hospitality,pre,59,56,0.629,-0.2771,0.0491,-5.64,0.000,***,-0.3755,-0.1787,-0.3163,0.1253,-2.52,0.014,*
+Leisure & Hospitality,post,13,10,0.730,-0.2469,0.0833,-2.96,0.014,*,-0.4325,-0.0613,-0.0983,0.1055,-0.93,0.374,
+
+Transportation & Utilities,pre,59,56,0.501,-0.1599,0.0475,-3.37,0.001,**,-0.2550,-0.0647,-0.4654,0.1373,-3.39,0.001,**
+Transportation & Utilities,post,13,10,0.253,0.1659,0.1004,1.65,0.129,,-0.0577,0.3895,0.0917,0.0951,0.96,0.358,
+
+Manufacturing,pre,59,56,0.524,-0.2205,0.0582,-3.79,0.000,***,-0.3371,-0.1038,-0.5783,0.2024,-2.86,0.006,**
+Manufacturing,post,13,10,0.552,0.0872,0.0388,2.25,0.048,*,0.0007,0.1737,-0.0962,0.0534,-1.80,0.102,
+
+Construction,pre,59,56,0.629,-0.2963,0.0521,-5.69,0.000,***,-0.4006,-0.1920,-0.8363,0.2550,-3.28,0.002,**
+Construction,post,13,10,0.621,0.0493,0.0124,3.99,0.003,**,0.0218,0.0769,0.0221,0.0295,0.75,0.471,
+
+
+=== SECTION 5 — AI EXPOSURE MEASURES: AIIE SCORES AND BTOS ADOPTION RATES ===
+
+
+Industry,AIIE Score,AIIE Rank,BTOS AI Adoption %,BTOS Rank,Rank Difference (AIIE − BTOS),BTOS n_obs (biweekly panels)
+Financial Activities,1.538,1,28.10,2,1,14
+Information,1.268,2,38.41,1,-1,14
+Education & Health,0.775,3,25.98,4,1,14
+Professional & Business,0.654,4,26.61,3,-1,14
+Wholesale Trade,0.264,5,15.15,5,0,14
+Leisure & Hospitality,-0.315,6,13.06,7,1,14
+Transportation & Utilities,-0.342,7,10.05,8,1,14
+Manufacturing,-0.484,8,14.34,6,-2,14
+Construction,-0.997,9,9.93,9,0,14
+
+--- Spearman rank correlation: AIIE ranking vs BTOS adoption ranking ---
+Spearman ρ,0.917,p-value,0.001,Interpretation,Strong agreement
+
+--- Note: AIIE = Felten/Raj/Seamans (2023) theoretical AI occupational exposure score. ---
+--- BTOS = Census Bureau Business Trends and Outlook Survey Q7 (used AI in past 2 weeks). ---
+--- BTOS sector-level data available from Nov 2025 onward; averaged across 14 biweekly panels. ---
+--- ρ=0.917 closes off 'AIIE measured the wrong thing' objection — both measures agree on sector ranking. ---
+
+=== SECTION 6 — CROSS-SECTIONAL REGRESSION: ΔΒ1 VS AI EXPOSURE MEASURES ===
+
+--- OLS: Δβ1_i = α + γ·AI_i + ε_i  across 9 industries ---
+--- Positive γ (slope) would mean higher AI exposure → larger Okun breakdown. ---
+--- Bonferroni-corrected threshold: p < 0.01 for 5 non-simple specs. ---
+
+Spec,Spec Description,AI Measure,n,Slope γ,SE(γ),t(γ),p(γ),Sig,95% CI_lo,95% CI_hi,r (Pearson),Intercept,SE(Intercept),Direction vs hypothesis
+simple,Simple Okun (no rate control),AIIE,9,-0.1594,0.0789,-2.02,0.083,.,-0.3460,0.0272,-0.607,0.2397,,CONTRADICTS AI hypothesis (slope < 0)
+simple,Simple Okun (no rate control),BTOS %,9,-0.0098,0.0078,-1.26,0.248,,-0.0281,0.0086,-0.430,0.3951,,CONTRADICTS AI hypothesis (slope < 0)
+rc_lag0,Rate Control: ΔFFR (lag 0),AIIE,9,-0.1191,0.0560,-2.13,0.071,.,-0.2515,0.0134,-0.626,0.2094,,CONTRADICTS AI hypothesis (slope < 0)
+rc_lag0,Rate Control: ΔFFR (lag 0),BTOS %,9,-0.0063,0.0057,-1.09,0.312,,-0.0199,0.0073,-0.381,0.3047,,CONTRADICTS AI hypothesis (slope < 0)
+rc_lag2,Rate Control: ΔFFR (lag 2Q),AIIE,9,-0.0919,0.0483,-1.90,0.099,.,-0.2060,0.0222,-0.584,0.1618,,CONTRADICTS AI hypothesis (slope < 0)
+rc_lag2,Rate Control: ΔFFR (lag 2Q),BTOS %,9,-0.0055,0.0047,-1.18,0.277,,-0.0166,0.0056,-0.407,0.2495,,CONTRADICTS AI hypothesis (slope < 0)
+rc_lag4,Rate Control: ΔFFR (lag 4Q),AIIE,9,-0.1121,0.0736,-1.52,0.171,,-0.2861,0.0618,-0.499,0.1919,,CONTRADICTS AI hypothesis (slope < 0)
+rc_lag4,Rate Control: ΔFFR (lag 4Q),BTOS %,9,-0.0065,0.0069,-0.94,0.380,,-0.0229,0.0099,-0.334,0.2935,,CONTRADICTS AI hypothesis (slope < 0)
+rc_level,Rate Control: FFR level,AIIE,9,-0.1333,0.0899,-1.48,0.182,,-0.3460,0.0794,-0.489,0.2360,,CONTRADICTS AI hypothesis (slope < 0)
+rc_level,Rate Control: FFR level,BTOS %,9,-0.0073,0.0085,-0.86,0.419,,-0.0273,0.0128,-0.308,0.3479,,CONTRADICTS AI hypothesis (slope < 0)
+rc_dev_rolling,Rate Control: FFR dev from rolling mean,AIIE,9,-0.0967,0.0537,-1.80,0.115,,-0.2237,0.0304,-0.562,0.1826,,CONTRADICTS AI hypothesis (slope < 0)
+rc_dev_rolling,Rate Control: FFR dev from rolling mean,BTOS %,9,-0.0050,0.0053,-0.95,0.372,,-0.0175,0.0075,-0.339,0.2589,,CONTRADICTS AI hypothesis (slope < 0)
+
+--- Expected result under 'AI breaks Okun' hypothesis: γ > 0 (higher AI exposure → larger Δβ1) ---
+--- Actual result: slope is negative in most specs for both measures → contradicts simple AI story ---
+
+=== SECTION 7 — ΔΒ1 RAW DATA BY INDUSTRY × SPEC (LONG FORMAT) ===
+
+Industry,AIIE,AIIE_Rank,BTOS_pct,BTOS_Rank,Spec,Δβ1,β1_pre,SE_pre,t_pre,p_pre,Sig_pre,β1_post,SE_post,t_post,p_post,Sig_post
+Financial Activities,1.538,1,28.10,2,simple,-0.0351,-0.0224,0.0137,-1.63,0.108,,-0.0574,0.0362,-1.59,0.141,
+Financial Activities,1.538,1,28.10,2,rc_lag0,-0.0864,0.0054,0.0133,0.41,0.685,,-0.0810,0.0800,-1.01,0.335,
+Financial Activities,1.538,1,28.10,2,rc_lag2,0.0237,-0.0153,0.0112,-1.36,0.178,,0.0084,0.0506,0.17,0.872,
+Financial Activities,1.538,1,28.10,2,rc_lag4,-0.0052,-0.0385,0.0118,-3.27,0.002,**,-0.0437,0.0300,-1.46,0.176,
+Financial Activities,1.538,1,28.10,2,rc_level,-0.0176,-0.0216,0.0141,-1.54,0.130,,-0.0393,0.0299,-1.31,0.218,
+Financial Activities,1.538,1,28.10,2,rc_dev_rolling,0.0106,-0.0023,0.0119,-0.20,0.845,,0.0083,0.0949,0.09,0.932,
+Information,1.268,2,38.41,1,simple,0.3142,-0.1339,0.0497,-2.69,0.009,**,0.1804,0.1754,1.03,0.326,
+Information,1.268,2,38.41,1,rc_lag0,0.2843,-0.0981,0.0450,-2.18,0.033,*,0.1863,0.1656,1.12,0.287,
+Information,1.268,2,38.41,1,rc_lag2,0.2054,-0.0196,0.0455,-0.43,0.667,,0.1858,0.1874,0.99,0.345,
+Information,1.268,2,38.41,1,rc_lag4,0.2725,-0.0496,0.0480,-1.03,0.306,,0.2230,0.1521,1.47,0.173,
+Information,1.268,2,38.41,1,rc_level,0.2975,-0.1329,0.0518,-2.57,0.013,*,0.1646,0.1644,1.00,0.340,
+Information,1.268,2,38.41,1,rc_dev_rolling,0.2590,-0.0761,0.0436,-1.74,0.087,.,0.1829,0.1756,1.04,0.322,
+Education & Health,0.775,3,25.98,4,simple,-0.1879,-0.0339,0.0578,-0.59,0.559,,-0.2218,0.3109,-0.71,0.490,
+Education & Health,0.775,3,25.98,4,rc_lag0,0.1578,-0.1169,0.0479,-2.44,0.018,*,0.0410,0.2452,0.17,0.871,
+Education & Health,0.775,3,25.98,4,rc_lag2,-0.0215,-0.0868,0.0403,-2.16,0.035,*,-0.1083,0.3066,-0.35,0.731,
+Education & Health,0.775,3,25.98,4,rc_lag4,-0.1743,0.0014,0.0438,0.03,0.975,,-0.1730,0.3172,-0.55,0.597,
+Education & Health,0.775,3,25.98,4,rc_level,-0.2043,-0.0315,0.0581,-0.54,0.590,,-0.2358,0.3236,-0.73,0.483,
+Education & Health,0.775,3,25.98,4,rc_dev_rolling,0.0630,-0.0997,0.0426,-2.34,0.023,*,-0.0367,0.2650,-0.14,0.893,
+Professional & Business,0.654,4,26.61,3,simple,0.1140,-0.3407,0.0378,-9.02,0.000,***,-0.2266,0.0733,-3.09,0.010,*
+Professional & Business,0.654,4,26.61,3,rc_lag0,0.0074,-0.2801,0.0313,-8.95,0.000,***,-0.2727,0.0818,-3.33,0.008,**
+Professional & Business,0.654,4,26.61,3,rc_lag2,0.0215,-0.2240,0.0371,-6.04,0.000,***,-0.2026,0.0756,-2.68,0.023,*
+Professional & Business,0.654,4,26.61,3,rc_lag4,0.0975,-0.2825,0.0449,-6.29,0.000,***,-0.1850,0.1184,-1.56,0.149,
+Professional & Business,0.654,4,26.61,3,rc_level,0.2039,-0.3455,0.0384,-9.00,0.000,***,-0.1417,0.1063,-1.33,0.212,
+Professional & Business,0.654,4,26.61,3,rc_dev_rolling,0.0074,-0.2536,0.0328,-7.74,0.000,***,-0.2463,0.0762,-3.23,0.009,**
+Wholesale Trade,0.264,5,15.15,5,simple,0.2324,-0.1668,0.0242,-6.90,0.000,***,0.0657,0.0697,0.94,0.366,
+Wholesale Trade,0.264,5,15.15,5,rc_lag0,0.1303,-0.1231,0.0218,-5.64,0.000,***,0.0073,0.0699,0.10,0.919,
+Wholesale Trade,0.264,5,15.15,5,rc_lag2,0.1434,-0.0875,0.0267,-3.28,0.002,**,0.0559,0.1453,0.38,0.708,
+Wholesale Trade,0.264,5,15.15,5,rc_lag4,0.3080,-0.1225,0.0251,-4.88,0.000,***,0.1855,0.0986,1.88,0.089,.
+Wholesale Trade,0.264,5,15.15,5,rc_level,0.4059,-0.1677,0.0246,-6.82,0.000,***,0.2382,0.0816,2.92,0.015,*
+Wholesale Trade,0.264,5,15.15,5,rc_dev_rolling,0.0658,-0.1068,0.0214,-4.99,0.000,***,-0.0410,0.0818,-0.50,0.627,
+Leisure & Hospitality,-0.315,6,13.06,7,simple,0.0544,-0.3561,0.0395,-9.01,0.000,***,-0.3017,0.0586,-5.15,0.000,***
+Leisure & Hospitality,-0.315,6,13.06,7,rc_lag0,0.0684,-0.3022,0.0502,-6.02,0.000,***,-0.2338,0.0995,-2.35,0.041,*
+Leisure & Hospitality,-0.315,6,13.06,7,rc_lag2,0.0007,-0.3029,0.0472,-6.41,0.000,***,-0.3022,0.0650,-4.65,0.001,***
+Leisure & Hospitality,-0.315,6,13.06,7,rc_lag4,0.0098,-0.3176,0.0392,-8.10,0.000,***,-0.3078,0.0640,-4.81,0.001,***
+Leisure & Hospitality,-0.315,6,13.06,7,rc_level,0.0625,-0.3594,0.0399,-9.00,0.000,***,-0.2969,0.0612,-4.85,0.001,***
+Leisure & Hospitality,-0.315,6,13.06,7,rc_dev_rolling,0.0302,-0.2771,0.0491,-5.64,0.000,***,-0.2469,0.0833,-2.96,0.014,*
+Transportation & Utilities,-0.342,7,10.05,8,simple,0.4121,-0.2554,0.0416,-6.15,0.000,***,0.1566,0.0996,1.57,0.144,
+Transportation & Utilities,-0.342,7,10.05,8,rc_lag0,0.3493,-0.1809,0.0485,-3.73,0.000,***,0.1684,0.1067,1.58,0.146,
+Transportation & Utilities,-0.342,7,10.05,8,rc_lag2,0.2559,-0.1499,0.0482,-3.11,0.003,**,0.1060,0.1056,1.00,0.339,
+Transportation & Utilities,-0.342,7,10.05,8,rc_lag4,0.1965,-0.2125,0.0417,-5.10,0.000,***,-0.0159,0.0906,-0.18,0.864,
+Transportation & Utilities,-0.342,7,10.05,8,rc_level,0.1170,-0.2557,0.0419,-6.10,0.000,***,-0.1387,0.1238,-1.12,0.289,
+Transportation & Utilities,-0.342,7,10.05,8,rc_dev_rolling,0.3258,-0.1599,0.0475,-3.37,0.001,**,0.1659,0.1004,1.65,0.129,
+Manufacturing,-0.484,8,14.34,6,simple,0.4373,-0.3270,0.0475,-6.89,0.000,***,0.1104,0.0402,2.75,0.019,*
+Manufacturing,-0.484,8,14.34,6,rc_lag0,0.3136,-0.2526,0.0582,-4.34,0.000,***,0.0610,0.0416,1.47,0.173,
+Manufacturing,-0.484,8,14.34,6,rc_lag2,0.2869,-0.1674,0.0648,-2.58,0.012,*,0.1195,0.0386,3.10,0.011,*
+Manufacturing,-0.484,8,14.34,6,rc_lag4,0.3916,-0.2651,0.0511,-5.19,0.000,***,0.1265,0.0616,2.05,0.067,.
+Manufacturing,-0.484,8,14.34,6,rc_level,0.5029,-0.3758,0.0483,-7.79,0.000,***,0.1271,0.0553,2.30,0.044,*
+Manufacturing,-0.484,8,14.34,6,rc_dev_rolling,0.3077,-0.2205,0.0582,-3.79,0.000,***,0.0872,0.0388,2.25,0.048,*
+Construction,-0.997,9,9.93,9,simple,0.4393,-0.3933,0.0464,-8.48,0.000,***,0.0460,0.0113,4.06,0.002,**
+Construction,-0.997,9,9.93,9,rc_lag0,0.3790,-0.3261,0.0524,-6.22,0.000,***,0.0528,0.0141,3.76,0.004,**
+Construction,-0.997,9,9.93,9,rc_lag2,0.3232,-0.2788,0.0525,-5.31,0.000,***,0.0444,0.0117,3.81,0.003,**
+Construction,-0.997,9,9.93,9,rc_lag4,0.3663,-0.3236,0.0481,-6.72,0.000,***,0.0427,0.0177,2.41,0.037,*
+Construction,-0.997,9,9.93,9,rc_level,0.4417,-0.3990,0.0473,-8.44,0.000,***,0.0426,0.0156,2.73,0.021,*
+Construction,-0.997,9,9.93,9,rc_dev_rolling,0.3457,-0.2963,0.0521,-5.69,0.000,***,0.0493,0.0124,3.99,0.003,**
+
+=== SECTION 8 — INFORMATION SECTOR: OVERHANG-CORRECTION HYPOTHESIS TEST ===
+
+--- ΔU = α + β1·(%ΔY) + β2·(ΔFFR) + β3·(Overhang or ΔOverhang) ---
+--- Hypothesis: 2020-21 overhiring correction explains post-2022 Okun breakdown ---
+--- M3 = Overhang level (% above trend); M4 = ΔOverhang QoQ (rate of correction) ---
+
+Model,Period,n,df,R²,Parameter,Coef,SE,t,p,Sig,95% CI_lo,95% CI_hi,Predicted sign,Sign correct?
+M1: Simple Okun,pre,2,57,0.113,intercept,0.5982,0.3777,1.58,0.119,,-0.1580,1.3550,any,N/A
+,,,,,%ΔY,-0.1339,0.0497,-2.69,0.009,**,-0.2330,-0.0340,negative,YES
+
+M2: Okun + ΔFFR,pre,59,56,0.314,intercept,0.3486,0.3406,1.02,0.310,,-0.3340,1.0310,any,N/A
+,,,,,%ΔY,-0.0981,0.0450,-2.18,0.034,*,-0.1880,-0.0080,negative,YES
+,,,,,ΔFFR,-0.6917,0.1705,-4.06,0.000,***,-1.0330,-0.3500,negative,YES
+
+M3: Okun + ΔFFR + Overhang level,pre,59,55,0.325,intercept,0.2506,0.3563,0.70,0.485,,-0.4630,0.9650,any,N/A
+,,,,,%ΔY,-0.1004,0.0451,-2.23,0.030,*,-0.1910,-0.0100,negative,YES
+,,,,,ΔFFR,-0.6679,0.1725,-3.87,0.000,***,-1.0140,-0.3220,negative,YES
+,,,,,Overhang,0.0286,0.0301,0.95,0.348,,-0.0320,0.0890,positive (M3: excess stock → more unemp),YES
+
+M4: Okun + ΔFFR + ΔOverhang QoQ,pre,59,55,0.436,intercept,-0.4406,0.3867,-1.14,0.259,,-1.2150,0.3340,any,N/A
+,,,,,%ΔY,-0.0157,0.0476,-0.33,0.743,,-0.1110,0.0800,negative,YES
+,,,,,ΔFFR,-0.3204,0.1896,-1.69,0.097,.,-0.7000,0.0600,negative,YES
+,,,,,ΔOverhang,-1.1839,0.3433,-3.45,0.001,**,-1.8720,-0.4960,negative (M4: faster correction → more unemp),YES
+
+M1: Simple Okun,post,13,11,0.088,intercept,-0.6918,1.2621,-0.55,0.595,,-3.4700,2.0860,any,N/A
+,,,,,%ΔY,0.1804,0.1754,1.03,0.326,,-0.2060,0.5670,negative,NO
+
+M2: Okun + ΔFFR,post,13,10,0.261,intercept,-0.4814,1.1992,-0.40,0.697,,-3.1530,2.1910,any,N/A
+,,,,,%ΔY,0.1863,0.1656,1.12,0.287,,-0.1830,0.5550,negative,NO
+,,,,,ΔFFR,-0.2386,0.1558,-1.53,0.157,,-0.5860,0.1090,negative,YES
+
+M3: Okun + ΔFFR + Overhang level,post,13,9,0.263,intercept,-0.4429,1.2920,-0.34,0.740,,-3.3660,2.4800,any,N/A
+,,,,,%ΔY,0.1630,0.2403,0.68,0.514,,-0.3800,0.7070,negative,NO
+,,,,,ΔFFR,-0.1434,0.6966,-0.21,0.842,,-1.7190,1.4320,negative,YES
+,,,,,Overhang,-0.0607,0.4318,-0.14,0.891,,-1.0370,0.9160,positive (M3: excess stock → more unemp),NO
+
+M4: Okun + ΔFFR + ΔOverhang QoQ,post,13,9,0.388,intercept,-0.8367,1.1796,-0.71,0.496,,-3.5050,1.8320,any,N/A
+,,,,,%ΔY,0.1504,0.1611,0.93,0.375,,-0.2140,0.5150,negative,NO
+,,,,,ΔFFR,-0.3321,0.1644,-2.02,0.074,.,-0.7040,0.0400,negative,YES
+,,,,,ΔOverhang,-0.8487,0.6216,-1.37,0.205,,-2.2550,0.5570,negative (M4: faster correction → more unemp),YES
+
+
+=== SECTION 9 — COLLINEARITY DIAGNOSTICS: INFORMATION OVERHANG TEST (POST-2022) ===
+
+
+"--- Pearson Correlations Among Regressors (post-2022, n=13) ---"
+Variable A,Variable B,r,p-value,Interpretation
+Overhang level,ΔFFR,+0.948,0.000,Near-perfect collinearity — both decline monotonically post-2022
+Overhang level,%ΔY,-0.197,0.520,Low correlation
+ΔFFR,%ΔY,+0.023,0.940,Low correlation
+
+"--- Variance Inflation Factors (VIF = 1/(1-R²_j), R²_j from regressing each var on others) ---"
+Model,Regressor,VIF,Flagged?,Implication
+M3 (Overhang level),pct_dy,1.90,No,Acceptable
+M3 (Overhang level),delta_ffr,18.05,YES (>5),SE inflated ~4x; β estimate unreliable
+M3 (Overhang level),overhang,18.77,YES (>5),SE inflated ~4x; β estimate unreliable
+M4 (ΔOverhang QoQ),pct_dy,1.03,No,Excellent — differencing resolved collinearity
+M4 (ΔOverhang QoQ),delta_ffr,1.21,No,Excellent
+M4 (ΔOverhang QoQ),delta_overhang,1.24,No,Excellent
+
+--- Overhang Variable Summary (Information sector) ---
+Metric,Value
+Overhang at AI cutoff (Q4 2022),+6.13% above trend
+Overhang latest (Q4 2025),-4.68% below trend
+ΔOverhang QoQ range (post-2022),-1.89% to +0.04% per quarter
+Trend: monotonically declining post-2022 → collinear with ΔFFR (also declining)
+
+=== SECTION 10 — Β1 (%ΔY) STABILITY ACROSS MODELS: INFORMATION SECTOR ===
+
+--- Key diagnostic: does β1 (Okun coefficient) move when overhang controls added? ---
+"--- If overhang explains the breakdown, β1 should return toward pre-period value when controlled. ---"
+
+Period,Model,Spec,β1 (%ΔY),Δ from M2,SE,p,β3 (Overhang/ΔOverhang),β3 p,VIF (overhang var),Verdict
+Pre-2022,M1 (no controls),Info-sector,-0.1339,,,,,,,baseline — pre-period
+Pre-2022,M2 (+ΔFFR),Info-sector,-0.0981,0.0000,,,,,,benchmark for pre-period
+Pre-2022,M3 (+ΔFFR + Overhang),Info-sector,-0.1004,-0.0023,,,0.0286,0.348,18.77,β1 barely moves; β3 wrong sign; VIF=19
+Pre-2022,M4 (+ΔFFR + ΔOverhang),Info-sector,-0.0157,0.0824,,,-1.1839,0.001,1.24,β1 collapses — ΔOverhang absorbs Okun in pre-period
+
+Post-2022,M1 (no controls),Info-sector,0.1804,,,,,,,baseline post-period
+Post-2022,M2 (+ΔFFR),Info-sector,0.1863,0.0000,,,,,,benchmark — Okun INVERTED post-AI
+Post-2022,M3 (+ΔFFR + Overhang),Info-sector,0.1630,-0.0233,,,-0.0607,0.891,18.77,β1 barely moves (−0.023); β3 wrong sign; VIF=19 ← impaired
+Post-2022,M4 (+ΔFFR + ΔOverhang),Info-sector,0.1504,-0.0359,,,-0.8487,0.205,1.24,β1 barely moves (−0.036); β3 right sign but p=0.205 ← CLEAN TEST
+
+--- CONCLUSION: β1 remains +0.150 to +0.186 in all post-period models. ---
+--- The overhiring-correction hypothesis does NOT explain Information's Okun breakdown. ---
+"--- The clean test (M4, VIF≈1.2) confirms: right sign on ΔOverhang, p=0.205, β1 barely moves. ---"
+
+=== SECTION 11 — R² PROGRESSION ACROSS MODELS (INFORMATION SECTOR) ===
+
+
+Period,M1 (Simple),M2 (+ΔFFR),M3 (+Overhang),M4 (+ΔOverhang),M2-M1 gain,M3-M2 gain,M4-M2 gain,Notes
+Pre-2022,0.113,0.314,0.325,0.436,+0.201,+0.011,+0.122,M4 adds substantial R² in pre-period (ΔOverhang historically important)
+Post-2022,0.088,0.261,0.263,0.388,+0.173,+0.002,+0.127,M3 adds almost nothing; M4 adds 0.127 but β3 not significant (n=13)
+
+=== SECTION 12 — BTOS DATA AVAILABILITY AND METHODOLOGY NOTES ===
+
+
+Topic,Finding
+BTOS core AI question start,September 2023 (national level)
+BTOS Dec 2023-Feb 2024 supplement,Sector-level AI data POOLED across 6 biweekly panels — single cross-section per sector; not biweekly time series
+BTOS core question end (national),August 2024 — not available in standard download files as sector-level
+BTOS sector-level AI data (continuous),Begins November 2025 (period 202524) — 14 biweekly panels available as of Q1 2026
+Data gap,February 2024 – October 2025 (20 months) — no sector-level AI adoption data publicly available
+Files checked,"National.xlsx (Q1-Q9, Q11-Q24), Sector.xlsx (Q3-Q23, Q24), Subsector.xlsx (Q3-Q23, Q24)"
+AI question code,Question ID = 7 (Q7: 'Did this business use AI in the past two weeks?') — Yes responses by sector
+BTOS panel approach verdict,Infeasible with available public data — 20-month gap precludes continuous panel identification
+BTOS approach used,Cross-sectional: average sector-level AI adoption rate (Nov 2025–May 2026) as static exposure measure
+AIIE-BTOS validation,"Spearman ρ = 0.917, p = 0.001 — 2021 theoretical exposure score closely matches 2025 self-reported adoption"
+Cross-section result,Negative slope Δβ1 ~ AIIE and Δβ1 ~ BTOS% in most specs — contradicts 'AI causes Okun breakdown' story

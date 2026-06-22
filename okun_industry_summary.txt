@@ -1,0 +1,52 @@
+================================================================================
+WRITTEN SUMMARY — Okun's Law in the AI Era: Industry Pipeline
+================================================================================
+
+INDUSTRIES ANALYZED: 9
+  Financial Activities, Information, Education & Health, Professional & Business, Wholesale Trade, Leisure & Hospitality, Transportation & Utilities, Manufacturing, Construction
+
+Δβ = β_post − β_pre.  β < 0 = law holds (output up → unemployment down).
+Δβ > 0 means β became LESS negative → law WEAKENED (output no longer pulls unemployment down).
+Δβ < 0 means β became MORE negative → law STRENGTHENED.
+
+RANKED BY LAW WEAKENING (most weakened first):
+  Construction                        Δβ = +0.4393  ← LAW WEAKENED
+  Manufacturing                       Δβ = +0.4373  ← LAW WEAKENED
+  Transportation & Utilities          Δβ = +0.4121  ← LAW WEAKENED
+  Information                         Δβ = +0.3142  ← LAW WEAKENED
+  Wholesale Trade                     Δβ = +0.2324  ← LAW WEAKENED
+  Professional & Business             Δβ = +0.1140  ← LAW WEAKENED
+  Leisure & Hospitality               Δβ = +0.0544  ← LAW WEAKENED
+  Financial Activities                Δβ = -0.0351  ← little change
+  Education & Health                  Δβ = -0.1879  ← law strengthened
+
+CROSS-SECTIONAL RESULT (beta_change ~ AIIE_score):
+  n=9  slope=-0.1594  r=-0.607  p=0.0831  (significant at 90%)
+  CONTRADICTS simple AI hypothesis: low-AIIE industries (Construction, Manufacturing) show the LARGEST Okun weakening. High-AIIE sectors (Financial, Professional & Business) show stable or strengthening law.
+
+WHAT THIS CAN AND CANNOT ESTABLISH:
+  Post-2022 sample: ~13 clean quarters per industry.
+
+  FINDING: The Okun's law breakdown is concentrated in LOW-AI sectors.
+  Construction and Manufacturing show the largest β drift toward zero.
+  High-AI sectors (Financial Activities, Professional & Business,
+  Education & Health) show the relationship holding or strengthening.
+
+  THREE ALTERNATIVE EXPLANATIONS FOR THE PATTERN:
+  1. Fiscal policy effect: post-2022 infrastructure/industrial investment
+     (IIJA, CHIPS Act, IRA) boosted Construction and Manufacturing OUTPUT
+     without equivalent employment (labor shortages, supply constraints).
+     This would produce exactly the observed pattern independent of AI.
+  2. AI augmentation vs displacement: the AIIE score measures occupational
+     exposure to AI capabilities, not actual displacement. High-AIIE workers
+     (analysts, managers, finance professionals) may be using AI as a tool
+     that boosts their productivity — strengthening rather than breaking
+     the output-employment link. True displacement may lag exposure.
+  3. Sectoral composition of the AGGREGATE breakdown: GDPUnemployment.py
+     shows aggregate Okun breaking down post-2022. This analysis suggests
+     the aggregate signal may originate in physical sectors, not tech —
+     which challenges the narrative that AI is the primary driver.
+
+  CANNOT establish causality from this analysis alone. Revisit as
+  post-2022 sample grows toward 20+ quarters (2026–2027).
+================================================================================

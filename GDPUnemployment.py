@@ -77,12 +77,17 @@ print("Chart 1 saved: gdp_unemployment_analysis.png")
 # 2. GAP DIVERGENCE: timeline + scatter relationship (2010–present)
 # ===============================================================
 # Use clean data (COVID quarters excluded) from 2010 onward.
-# For the timeline we also grab the COVID quarters so we can shade
-# the exclusion window without connecting across the gap.
-df_post2010       = df_clean[df_clean.index >= "2010-01-01"].copy()
-df_covid_post2010 = df_covid[df_covid.index >= "2010-01-01"].copy()
+# Insert NaN rows at the COVID dates so matplotlib breaks the line
+# instead of drawing a misleading straight connection across the gap.
+df_post2010 = df_clean[df_clean.index >= "2010-01-01"].copy()
 
-# Era labels for the scatter panel
+nan_rows = pd.DataFrame(
+    {"y_gap": np.nan, "u_gap": np.nan},
+    index=pd.date_range("2020-04-01", "2021-01-01", freq="QS")
+)
+df_post2010 = pd.concat([df_post2010, nan_rows]).sort_index()
+
+# Era labels for the scatter panel (NaN rows get a label too — filtered out in scatter)
 df_post2010["era"] = "2010–2022"
 df_post2010.loc[df_post2010.index >= "2022-10-01", "era"] = "Q4 2022–Present"
 
@@ -128,7 +133,7 @@ for era, color in era_colors.items():
 
 # Regression line for each era
 for era, color in era_colors.items():
-    sub = df_post2010[df_post2010["era"] == era]
+    sub = df_post2010[df_post2010["era"] == era].dropna(subset=["y_gap", "u_gap"])
     if len(sub) < 4:
         continue
     m, b = np.polyfit(sub["y_gap"], sub["u_gap"], 1)
@@ -190,12 +195,12 @@ ax_abs.grid(True, linestyle="--", alpha=0.4)
 
 # ── Bottom panel: scatter of |y_gap| vs |u_gap| by era ─────────
 for era, color in era_colors.items():
-    sub = df_post2010[df_post2010["era"] == era]
+    sub = df_post2010[df_post2010["era"] == era].dropna(subset=["y_gap", "u_gap"])
     ax_scat2.scatter(sub["y_gap"].abs(), sub["u_gap"].abs(),
                      color=color, alpha=0.75, s=55, zorder=3, label=era)
 
 for era, color in era_colors.items():
-    sub = df_post2010[df_post2010["era"] == era]
+    sub = df_post2010[df_post2010["era"] == era].dropna(subset=["y_gap", "u_gap"])
     if len(sub) < 4:
         continue
     m, b = np.polyfit(sub["y_gap"].abs(), sub["u_gap"].abs(), 1)
@@ -225,7 +230,7 @@ print()
 # ===============================================================
 
 # Fit the historical Okun relationship on pre-2022 clean data only
-pre22 = df_post2010[df_post2010.index < "2022-10-01"]
+pre22 = df_post2010[df_post2010.index < "2022-10-01"].dropna(subset=["y_gap", "u_gap"])
 okun_m, okun_b = np.polyfit(pre22["y_gap"], pre22["u_gap"], 1)
 
 # Residual for every quarter: actual U_gap minus what Okun predicts
@@ -264,11 +269,10 @@ ax_resid.grid(True, linestyle="--", alpha=0.4)
 
 # ── Bottom panel: quadrant scatter colored by time ─────────────
 # Color gradient: earlier quarters = blue, recent = orange
-n = len(df_post2010)
-cmap = plt.cm.RdYlBu_r
-colors_grad = [cmap(i / (n - 1)) for i in range(n)]
+df_quad = df_post2010.dropna(subset=["y_gap", "u_gap"]).copy()
+n = len(df_quad)
 
-sc = ax_quad.scatter(df_post2010["y_gap"], df_post2010["u_gap"],
+sc = ax_quad.scatter(df_quad["y_gap"], df_quad["u_gap"],
                      c=range(n), cmap="RdYlBu_r", s=60, zorder=3, alpha=0.85)
 
 # Quadrant shading
@@ -280,8 +284,8 @@ ax_quad.fill_between([0, 6], [0, 0], [6, 6], alpha=0.06, color="firebrick")    #
 ax_quad.fill_between([-6, 0], [-6, -6], [0, 0], alpha=0.06, color="firebrick") # Q3: law broken
 
 # Quadrant labels
-xlim = df_post2010["y_gap"].abs().max() * 1.15
-ylim = df_post2010["u_gap"].abs().max() * 1.25
+xlim = df_quad["y_gap"].abs().max() * 1.15
+ylim = df_quad["u_gap"].abs().max() * 1.25
 ax_quad.text( xlim * 0.55,  ylim * 0.75, "Q1: Law Broken\n(economy above potential,\nunemployment rising)",
               fontsize=8, color="firebrick", ha="center", style="italic")
 ax_quad.text(-xlim * 0.55,  ylim * 0.75, "Q2: Law Holding\n(economy below potential,\nunemployment elevated)",
@@ -294,23 +298,164 @@ ax_quad.text(-xlim * 0.55, -ylim * 0.75, "Q3: Law Broken\n(economy below potenti
 ax_quad.set_xlim(-xlim, xlim)
 ax_quad.set_ylim(-ylim, ylim)
 
+# ── Trajectory arrows: connect consecutive post-2022 dots ──────
+post22_pts = df_quad[df_quad.index >= "2022-10-01"]
+xs = post22_pts["y_gap"].values
+ys = post22_pts["u_gap"].values
+for i in range(len(xs) - 1):
+    ax_quad.annotate("",
+        xy=(xs[i + 1], ys[i + 1]),
+        xytext=(xs[i], ys[i]),
+        arrowprops=dict(arrowstyle="-|>", color="black", lw=1.2,
+                        mutation_scale=10))
+
+# Label first and last post-2022 point
+ax_quad.annotate(str(post22_pts.index[0].date())[:7],
+                 xy=(xs[0], ys[0]), xytext=(xs[0] + 0.1, ys[0] - 0.25),
+                 fontsize=7, color="black")
+ax_quad.annotate(str(post22_pts.index[-1].date())[:7],
+                 xy=(xs[-1], ys[-1]), xytext=(xs[-1] + 0.1, ys[-1] + 0.1),
+                 fontsize=7, color="black")
+
 cbar = plt.colorbar(sc, ax=ax_quad, orientation="vertical", pad=0.02)
 cbar.set_label("Time (blue = 2010, orange = present)", fontsize=9)
 tick_positions = [0, n // 4, n // 2, 3 * n // 4, n - 1]
-tick_labels    = [str(df_post2010.index[i].year) for i in tick_positions]
+tick_labels    = [str(df_quad.index[i].year) for i in tick_positions]
 cbar.set_ticks(tick_positions)
 cbar.set_ticklabels(tick_labels)
 
 ax_quad.set_xlabel("Output Gap $Y_{gap}$ (% of potential GDP)", fontsize=12)
 ax_quad.set_ylabel("Unemployment Gap $U_{gap}$ (pp above natural rate)", fontsize=12)
 ax_quad.set_title("Quadrant Map: Where Does Each Quarter Land?\n"
-                  "Blue/Q2+Q4 = Okun holds  |  Red/Q1+Q3 = Okun broken",
+                  "Blue/Q2+Q4 = Okun holds  |  Red/Q1+Q3 = Okun broken  |  Arrows = post-2022 trajectory",
                   fontsize=13, fontweight="bold")
 ax_quad.grid(True, linestyle="--", alpha=0.3)
 
 plt.tight_layout(pad=2.5)
 plt.savefig("gap_okun_residual_quadrant.png", dpi=150, bbox_inches="tight")
 print("Chart 2c saved: gap_okun_residual_quadrant.png")
+print()
+
+
+# ===============================================================
+# 2d. CALCULUS-BASED PROJECTION: Okun residual to 2030
+#     Fit a polynomial to the residual over time (post-2010).
+#     First derivative = rate of decoupling.
+#     Project forward with 95% confidence band.
+# ===============================================================
+
+# Use quarterly Okun residuals from df_post2010 (no NaNs)
+df_proj = df_post2010.dropna(subset=["okun_resid"]).copy()
+
+# Convert dates to numeric (quarters since 2010-Q1) for polynomial fitting
+t0 = df_proj.index[0]
+df_proj["t"] = [(d - t0).days / 91.25 for d in df_proj.index]
+
+t_vals  = df_proj["t"].values
+r_vals  = df_proj["okun_resid"].values
+
+# Fit degree-2 polynomial: residual = a*t² + b*t + c
+deg   = 2
+coeffs = np.polyfit(t_vals, r_vals, deg)
+poly   = np.poly1d(coeffs)
+dpoly  = poly.deriv()      # first derivative  (rate of change)
+d2poly = poly.deriv(2)     # second derivative (acceleration)
+
+# 95% confidence band from residuals of the fit
+fit_vals  = poly(t_vals)
+residuals = r_vals - fit_vals
+sigma     = residuals.std()
+z95       = 1.96
+
+print("=== Polynomial Fit: Okun Residual over Time ===")
+print(f"  f(t)  = {coeffs[0]:.5f}·t² + {coeffs[1]:.5f}·t + {coeffs[2]:.5f}")
+print(f"  f'(t) = {dpoly.coeffs[0]:.5f}·t + {dpoly.coeffs[1]:.5f}  (rate of decoupling)")
+print(f"  f''   = {d2poly.coeffs[0]:.5f}  (acceleration — positive = speeding up)")
+print(f"  Fit σ = {sigma:.4f} pp")
+print()
+
+# Project to 2030-Q4
+last_date  = df_proj.index[-1]
+proj_dates = pd.date_range(last_date + pd.DateOffset(months=3), "2030-10-01", freq="QS")
+proj_t     = np.array([(d - t0).days / 91.25 for d in proj_dates])
+
+proj_mean  = poly(proj_t)
+proj_upper = proj_mean + z95 * sigma
+proj_lower = proj_mean - z95 * sigma
+
+# Value at key future dates
+for yr in [2026, 2027, 2028, 2029, 2030]:
+    target = pd.Timestamp(f"{yr}-01-01")
+    t_q    = (target - t0).days / 91.25
+    val    = poly(t_q)
+    drv    = dpoly(t_q)
+    print(f"  {yr}: projected residual = {val:+.2f} pp  |  rate = {drv:+.3f} pp/quarter")
+print()
+
+# Current rate of change at last observed point
+t_now  = t_vals[-1]
+rate_now = dpoly(t_now)
+print(f"  Current rate of change: {rate_now:+.4f} pp/quarter  ({rate_now*4:+.3f} pp/year)")
+print(f"  Acceleration:           {d2poly.coeffs[0]:+.5f} pp/quarter²")
+print()
+
+# ── Plot ────────────────────────────────────────────────────────
+fig2d, ax_proj = plt.subplots(figsize=(13, 7))
+
+# Historical residual
+ax_proj.plot(df_proj.index, r_vals, color="black", linewidth=1.5,
+             zorder=4, label="Observed Okun Residual")
+
+# Fitted curve over historical period
+t_hist_fine = np.linspace(t_vals[0], t_vals[-1], 300)
+d_hist_fine = [t0 + pd.DateOffset(days=int(t * 91.25)) for t in t_hist_fine]
+ax_proj.plot(d_hist_fine, poly(t_hist_fine), color="steelblue", linewidth=2,
+             linestyle="--", zorder=3, label=f"Polynomial fit (degree {deg})")
+
+# Projection
+ax_proj.plot(proj_dates, proj_mean, color="firebrick", linewidth=2.5,
+             linestyle="--", zorder=3, label="Projected residual (to 2030)")
+ax_proj.fill_between(proj_dates, proj_lower, proj_upper,
+                     color="firebrick", alpha=0.15, label="95% confidence band")
+
+# Derivative annotation: draw tangent line at last data point
+t_tan   = np.linspace(t_now - 6, t_now + 8, 100)
+d_tan   = [t0 + pd.DateOffset(days=int(t * 91.25)) for t in t_tan]
+tan_val = poly(t_now) + dpoly(t_now) * (t_tan - t_now)
+ax_proj.plot(d_tan, tan_val, color="darkorange", linewidth=1.5,
+             linestyle=":", alpha=0.8,
+             label=f"Tangent at last obs. (rate = {rate_now:+.3f} pp/qtr)")
+
+# Zero line and annotations
+ax_proj.axhline(0, color="black", linewidth=0.8, linestyle="--")
+ax_proj.axvspan(pd.Timestamp("2020-04-01"), pd.Timestamp("2021-04-01"),
+                alpha=0.12, color="crimson", label="COVID quarters excluded")
+ax_proj.axvspan(pd.Timestamp("2022-10-01"), pd.Timestamp(last_date),
+                alpha=0.06, color="gold")
+ax_proj.axvspan(pd.Timestamp(last_date), pd.Timestamp("2030-12-01"),
+                alpha=0.10, color="gold", label="Post-ChatGPT era / projection")
+
+# Annotate 2030 projected value
+val_2030 = poly((pd.Timestamp("2030-01-01") - t0).days / 91.25)
+ax_proj.annotate(f"2030 projection:\n{val_2030:+.2f} pp\n(±{z95*sigma:.2f})",
+                 xy=(pd.Timestamp("2030-01-01"), val_2030),
+                 xytext=(pd.Timestamp("2028-01-01"), val_2030 + 0.4),
+                 arrowprops=dict(arrowstyle="->", color="firebrick"),
+                 fontsize=9, color="firebrick",
+                 bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="firebrick", alpha=0.9))
+
+ax_proj.set_xlabel("Quarter", fontsize=12)
+ax_proj.set_ylabel("Okun Residual (pp)\nActual $U_{gap}$ − Predicted $U_{gap}$", fontsize=12)
+ax_proj.set_title("Okun's Law Breakdown — Polynomial Projection to 2030\n"
+                  "Positive residual = unemployment higher than output gap alone predicts",
+                  fontsize=13, fontweight="bold")
+ax_proj.legend(fontsize=9, loc="upper left")
+ax_proj.grid(True, linestyle="--", alpha=0.4)
+ax_proj.set_xlim(pd.Timestamp("2010-01-01"), pd.Timestamp("2031-01-01"))
+
+plt.tight_layout()
+plt.savefig("okun_projection_2030.png", dpi=150, bbox_inches="tight")
+print("Chart 2d saved: okun_projection_2030.png")
 print()
 
 
