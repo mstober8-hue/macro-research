@@ -50,7 +50,7 @@ from scipy import stats as sp_stats
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 # ─── CONFIG ──────────────────────────────────────────────────────────────────
-DATA_DIR  = "Fred Fed Data /"
+DATA_DIR  = "FRED-Data/"
 AI_CUTOFF = pd.Timestamp("2022-10-01")
 EXCLUDE   = pd.date_range("2020-04-01", "2022-01-01", freq="QS")
 
@@ -436,11 +436,19 @@ for ax, spec in zip(axes_flat, spec_order):
     y_fit  = cs_row["intercept"] + cs_row["slope"] * x_r
     ax.plot(x_r, y_fit, color="firebrick", linewidth=1.5, linestyle="--")
 
-    # 95% CI band on regression line
-    se_sl  = cs_row["se_slope"]
-    ax.fill_between(x_r,
-                    cs_row["intercept"] + (cs_row["slope"] - 1.96 * se_sl) * x_r,
-                    cs_row["intercept"] + (cs_row["slope"] + 1.96 * se_sl) * x_r,
+    # 95% CI band on the fitted mean line: ŷ ± t·s·√(1/n + (x−x̄)²/Sxx).
+    # The band is narrowest at x̄ and widens toward the edges; a band built
+    # from slope±SE alone would wrongly pinch to zero width at x = 0 and
+    # ignore intercept uncertainty.
+    xs_cs  = sub["aiie"].values
+    ys_cs  = sub[dβ_col].values
+    resid  = ys_cs - (cs_row["intercept"] + cs_row["slope"] * xs_cs)
+    n_cs   = len(xs_cs)
+    s_err  = np.sqrt(np.sum(resid ** 2) / (n_cs - 2))
+    t_cr   = sp_stats.t.ppf(0.975, df=n_cs - 2)
+    sxx    = np.sum((xs_cs - xs_cs.mean()) ** 2)
+    band   = t_cr * s_err * np.sqrt(1.0 / n_cs + (x_r - xs_cs.mean()) ** 2 / sxx)
+    ax.fill_between(x_r, y_fit - band, y_fit + band,
                     color="firebrick", alpha=0.10, label="_nolegend_")
 
     if   p < 0.01: p_tag = f"p={p:.3f} ***"

@@ -39,7 +39,8 @@ def fmtpct(x, d=1):
 
 # ── load raw data ─────────────────────────────────────────────────────────────
 
-BASE = "/Users/maxstober/Developer/Macro Research /"
+# Relative to the repo root — run this script from the repository directory.
+BASE = ""
 
 p2  = pd.read_csv(BASE + "phase2_results.csv")
 bt  = pd.read_csv(BASE + "btos_beta1_table.csv")

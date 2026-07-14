@@ -5,9 +5,11 @@ Okun's Law in the AI Era — Full BLS/BEA Industry Pipeline
 Methodology:
   - Difference form of Okun's Law: ΔU = α + β·(%ΔY) + ε
   - YoY (4-quarter) differences to cancel seasonality in NSA unemployment series
-  - COVID quarters (2020-Q2 through 2021-Q1) dropped from raw data before
-    differencing — this naturally NaNs out the rebound quarters (2021-Q2 through
-    2022-Q1) as well, since their YoY denominator falls in the COVID window
+  - YoY differences computed FIRST on the intact series (pct_change is
+    positional — differencing after row removal would silently compare
+    wrong years), THEN the COVID quarters (2020-Q2 through 2021-Q1) and
+    the rebound quarters (2021-Q2 through 2022-Q1, whose YoY denominator
+    falls in the COVID window) are dropped
   - Era split at 2022-Q4 (ChatGPT launch / post-AI cutoff)
   - Rolling 12-quarter window for β and r (matching GDPUnemployment.py)
   - AIIE scores: Felten, Raj, Seamans (2023), mean across 4-digit NAICS
@@ -26,7 +28,7 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 # ----------------------------------------------------------------
 # CONFIG
 # ----------------------------------------------------------------
-DATA_DIR   = "Fred Fed Data /"
+DATA_DIR   = "FRED-Data/"
 AI_CUTOFF  = pd.Timestamp("2022-10-01")   # Q4 2022
 COVID_DROP = pd.date_range("2020-04-01", "2021-01-01", freq="QS")  # Q2–Q4 2020 + Q1 2021
 WINDOW     = 12   # rolling regression quarters
@@ -227,7 +229,7 @@ def load_ffr_control():
     Try to load FEDFUNDS.csv. Returns a quarterly YoY-differenced Series,
     or None if the file is not found.
     To enable: download FEDFUNDS from https://fred.stlouisfed.org/series/FEDFUNDS
-    and save as 'Fred Fed Data /FEDFUNDS.csv'.
+    and save as 'FRED-Data/FEDFUNDS.csv'.
     """
     try:
         ffr = load_series("FEDFUNDS.csv", "ffr")

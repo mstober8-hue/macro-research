@@ -1,5 +1,6 @@
 # macOS
 .DS_Store
+myDocuments.cannedSearch/
 
 # Python
 __pycache__/
@@ -7,11 +8,12 @@ __pycache__/
 *.pyo
 
 # Raw data files (large, proprietary source data — not versioned)
-Fred Fed Data /
+FRED-Data/
 
 # Claude internal files
 .claude/
 
 # Screenshots / Word docs
 Screenshot *.png
+Macro-Research-Reference.png
 *.docx

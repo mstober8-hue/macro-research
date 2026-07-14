@@ -46,7 +46,9 @@ A positive `Y_gap` means the economy is running above potential; a positive `U_g
 ΔU = β × %ΔY + ε
 ```
 
-where `ΔU` is the quarter-over-quarter change in the sector's unemployment rate and `%ΔY` is the quarter-over-quarter growth of its real output. Classic Okun's Law implies β ≈ −0.3 to −0.5; β drifting toward zero (or flipping positive) means growth has stopped pulling unemployment down.
+where `ΔU` is the change in the sector's unemployment rate and `%ΔY` is the growth of its real output. Classic Okun's Law implies β ≈ −0.3 to −0.5; β drifting toward zero (or flipping positive) means growth has stopped pulling unemployment down.
+
+The differencing horizon matters because the BLS industry unemployment series are **not seasonally adjusted**. The early two-sector script (`IndustryAnalysis.py`) uses quarter-over-quarter differences, which leave some seasonal pattern in the data — a known weakness. The 9-industry pipeline and everything downstream of it (`industry_okun_pipeline.py`, `okun_phase2_3.py`, `info_overhang.py`) use **year-over-year (4-quarter) differences**, which cancel seasonality exactly by comparing each quarter to the same quarter a year earlier. YoY differencing is computed on the intact series *before* any rows are excluded (pandas differencing is positional, so excluding first would silently compare wrong years), and the exclusion window for these scripts extends through Q1 2022 to also drop the rebound quarters whose year-ago baseline falls inside COVID.
 
 **Excluding COVID.** Q2 2020 – Q1 2021 is dropped from every regression and rolling statistic. GDP cratered and unemployment spiked because businesses were legally closed, not because of any organic output-employment relationship — including these quarters would corrupt every downstream regression. They're kept in the raw dataset and plotted as red diamonds for transparency, just excluded from fitting.
 
@@ -112,7 +114,7 @@ Two honest caveats travel with this chart. A 12-quarter window is only three yea
 
 ![Two-sector rolling Okun comparison](industry_rolling_okun.png)
 
-If AI is really the mechanism, the breakdown should show up most strongly in industries most exposed to it and weakly or not at all in industries that are hard to automate. The first cut compares Information (software, cloud, media — high exposure) against Leisure & Hospitality (restaurants, hotels, entertainment — low exposure), using the difference form of Okun's Law since sector-level potential output and natural rates don't exist. Post-2022, Information's rolling coefficient turns extremely variable and drifts toward a slightly positive slope, while Leisure & Hospitality stays predictably negative throughout — directionally the AI story. But two industries are a small comparison set, and industry-level data is far more volatile than aggregate GDP, so this motivates the real test rather than settling it.
+If AI is really the mechanism, the breakdown should show up most strongly in industries most exposed to it and weakly or not at all in industries that are hard to automate. The first cut compares Information (software, cloud, media — high exposure) against Leisure & Hospitality (restaurants, hotels, entertainment — low exposure), using the difference form of Okun's Law since sector-level potential output and natural rates don't exist. Post-2022, Information's rolling coefficient turns extremely variable and drifts toward a slightly positive slope, while Leisure & Hospitality stays predictably negative throughout — directionally the AI story. But two industries are a small comparison set, and industry-level data is far more volatile than aggregate GDP, so this motivates the real test rather than settling it. One additional caveat specific to this script: it differences quarter-over-quarter on unemployment series that are not seasonally adjusted, so some seasonal noise remains in these estimates — the 9-industry pipeline below switches to year-over-year differences, which cancel seasonality exactly.
 
 ### Chart 7 — Nine industries against their AI-exposure score
 
@@ -152,7 +154,7 @@ So `FEDFUNDS` is added as a control across six specifications (no control, conte
 
 ### Chart 9 — Does reported AI adoption match theoretical exposure? (`btos_cross_section.png`, `btos_interaction.py`)
 
-AIIE measures theoretical *exposure*; it is not the same as firms actually *using* AI. The Census Bureau's Business Trends and Outlook Survey has asked firms directly about AI adoption since late 2025, giving a short (~3-quarter) but real adoption measure to check the exposure ranking against. Financial Activities and Information top both lists, and the rest reorder only modestly — too short a series to run its own time-series regression, but the rank agreement is a modest validation that the Felten et al. exposure score is a reasonable, if imperfect, proxy for where AI is actually landing.
+AIIE measures theoretical *exposure*; it is not the same as firms actually *using* AI. The Census Bureau's Business Trends and Outlook Survey asks firms directly about AI adoption; sector-level responses to that question are only available from November 2025 onward in the file used here, giving a short (~3-quarter) but real adoption measure to check the exposure ranking against. Financial Activities and Information top both lists, and the rest reorder only modestly — too short a series to run its own time-series regression, but the rank agreement is a modest validation that the Felten et al. exposure score is a reasonable, if imperfect, proxy for where AI is actually landing.
 
 ### Chart 10 — Was the Information break just an overhiring correction? (`info_overhang_regression.png`, `info_overhang.py`)
 
@@ -167,12 +169,14 @@ One alternative specific to Information: tech firms over-hired 15–20% above tr
 ## Limitations
 
 - Post-ChatGPT sample is short (~10–13 clean quarters); rolling-window statistics from that few points are noisy, and overlapping windows violate the independence assumption behind the reported p-values (making them somewhat optimistic, though likely still small).
+- Rolling windows slide over the COVID-excluded dataset, so windows ending in 2022–2024 stitch together quarters from before Q2 2020 and after the exclusion — they span more than 3 calendar years, and the earliest "post-ChatGPT" windows still contain pre-COVID quarters.
+- The two-sector script (`IndustryAnalysis.py`) differences quarter-over-quarter on non-seasonally-adjusted unemployment series, leaving seasonal noise in its estimates; the 9-industry pipeline's YoY differencing supersedes it for anything quantitative.
 - The Q4 2022 cutoff is a convenient, visible marker (ChatGPT's launch date), not a measured adoption date — actual enterprise AI adoption was gradual and is itself confounded with the 2022–2023 rate-hiking cycle.
 - Industry-level data is more volatile than aggregate GDP/unemployment, and a 9-industry cross-section is a small sample for a regression-based test.
 - This project documents a correlation-level break and tests one candidate explanation (AI exposure) against two obvious confounds (interest rates, overhiring correction). It does not establish causality.
 
 ## Reproducing this
 
-1. Download the FRED series listed above (plus the industry-level and `FEDFUNDS` series referenced in each script's header) as CSVs into the data directory each script expects (`Fred Fed Data/`).
+1. Download the FRED series listed above (plus the industry-level and `FEDFUNDS` series referenced in each script's header) as CSVs into `FRED-Data/` at the repo root (the directory is gitignored; every script reads from it).
 2. `pip install pandas numpy matplotlib scipy openpyxl`
 3. Run scripts in this order for the full pipeline: `GDPUnemployment.py` → `IndustryAnalysis.py` → `industry_okun_pipeline.py` → `okun_phase2_3.py` → `btos_interaction.py` → `info_overhang.py` → `generate_results_csv.py`.

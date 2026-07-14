@@ -25,19 +25,21 @@ from scipy import stats as sp_stats
 # ----------------------------------------------------------------
 # 1. LOAD DATA — four FRED series, all quarterly except UNRATE
 # ----------------------------------------------------------------
-gdp = pd.read_csv("GDPC1.csv", parse_dates=["observation_date"])
+DATA_DIR = "FRED-Data/"
+
+gdp = pd.read_csv(DATA_DIR + "GDPC1.csv", parse_dates=["observation_date"])
 gdp.columns = ["date", "gdp"]
 gdp = gdp.set_index("date")
 
-gdppot = pd.read_csv("GDPPOT.csv", parse_dates=["observation_date"])
+gdppot = pd.read_csv(DATA_DIR + "GDPPOT.csv", parse_dates=["observation_date"])
 gdppot.columns = ["date", "gdppot"]
 gdppot = gdppot.set_index("date")
 
-unrate = pd.read_csv("UNRATE.csv", parse_dates=["observation_date"])
+unrate = pd.read_csv(DATA_DIR + "UNRATE.csv", parse_dates=["observation_date"])
 unrate.columns = ["date", "unrate"]
 unrate = unrate.set_index("date")
 
-nrou = pd.read_csv("NROU.csv", parse_dates=["observation_date"])
+nrou = pd.read_csv(DATA_DIR + "NROU.csv", parse_dates=["observation_date"])
 nrou.columns = ["date", "nrou"]
 nrou = nrou.set_index("date")
 
@@ -517,6 +519,14 @@ print()
 # The companion rolling correlation (r) is tested against the pre-2022
 # historical distribution below to see whether any post-2022 inversion
 # is statistically surprising or just short-window noise.
+#
+# CAVEAT — WINDOWS SPAN THE COVID GAP: the window slides over the
+# COVID-excluded dataset, so a "12-quarter" window ending in 2022–2024
+# stitches together quarters from before Q2 2020 and after Q1 2021.
+# Those windows cover more than 3 calendar years, and the early
+# "post-ChatGPT" windows still contain pre-COVID quarters. The r = +0.81
+# peak lands late enough that its window is mostly post-rebound data,
+# but window composition should be kept in mind when reading the chart.
 # ===============================================================
 WINDOW = 12   # quarters
 

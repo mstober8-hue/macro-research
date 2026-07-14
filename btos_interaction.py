@@ -39,7 +39,7 @@ import warnings
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
-DATA_DIR    = "Fred Fed Data /"
+DATA_DIR    = "FRED-Data/"
 SECTOR_FILE = os.path.join(DATA_DIR, "Sector.xlsx")
 
 # AIIE scores (Felten, Raj, Seamans 2023)

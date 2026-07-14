@@ -36,7 +36,7 @@ from scipy import stats as sp_stats
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
-DATA_DIR  = "Fred Fed Data /"
+DATA_DIR  = "FRED-Data/"
 AI_CUTOFF = pd.Timestamp("2022-10-01")
 EXCLUDE   = pd.date_range("2020-04-01", "2022-01-01", freq="QS")
 
@@ -95,6 +95,13 @@ trend_proj  = trend_full.copy()
 
 # ─── STEP 2: EMPLOYMENT OVERHANG ─────────────────────────────────────────────
 
+# CAVEAT: the trend is fit on 2010-2019 only, but the overhang series is
+# computed over the full sample. Post-2019 values are the intended forward
+# extrapolation (the overhiring test). Pre-2010 values are a BACKCAST of
+# that trend into the dot-com era, where it is a poor model of the sector —
+# so the pre-period regressions' overhang control mostly captures the
+# sector's secular decline through 2009, not overhiring. Only the
+# post-period results are used to evaluate the hypothesis.
 overhang    = ((emp_q - trend_proj) / trend_proj * 100).rename("overhang_pct")
 
 peak_idx    = overhang.idxmax()

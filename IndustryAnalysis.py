@@ -26,13 +26,22 @@ from scipy import stats as sp_stats
 #
 # The rolling regression, COVID exclusion, era split (pre/post Q4 2022),
 # and chart style all match GDPUnemployment.py exactly.
+#
+# KNOWN LIMITATION — SEASONALITY: the BLS industry unemployment series
+# used here (LNU04032237, LNU04032241) are NOT seasonally adjusted, and
+# this script differences quarter-over-quarter. Quarterly averaging damps
+# but does not remove the seasonal pattern, so some of the QoQ variation
+# is seasonal rather than cyclical. industry_okun_pipeline.py supersedes
+# this script for inference: it uses 4-quarter (YoY) differences, which
+# cancel seasonality exactly. This script is kept as the original
+# two-sector exploration; read its numbers with that caveat.
 # ================================================================
 
 
 # ----------------------------------------------------------------
 # 1. LOAD DATA
 # ----------------------------------------------------------------
-DATA_DIR = "Fred Fed Data /"
+DATA_DIR = "FRED-Data/"
 
 # Real Value Added: Information sector (quarterly, billions of chained $)
 # High-AI industry — software, cloud, data, media
@@ -135,8 +144,8 @@ print()
 # This is the direct industry equivalent of Chart 2 (gap divergence
 # scatter) in GDPUnemployment.py.
 #
-# Each dot is one quarter. X-axis = output growth, Y-axis = change in1
-# unemployment. Under Okun's Law the cloud should slope downward (top-lef1t
+# Each dot is one quarter. X-axis = output growth, Y-axis = change in
+# unemployment. Under Okun's Law the cloud should slope downward (top-left
 # to bottom-right). If the post-2022 dots cluster near zero ΔU regardless
 # of output growth, the law is weakening in that sector.
 #
