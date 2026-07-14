@@ -1,10 +1,30 @@
+"""
+GDPUnemployment.py
+Okun's Law in the AI Era — Aggregate (economy-wide) analysis
+
+Tests whether the historical inverse relationship between the output gap
+(how far GDP sits above/below its sustainable potential) and the unemployment
+gap (how far unemployment sits above/below its natural rate) has weakened
+since Q4 2022 (ChatGPT's public release, used as the AI-era cutoff).
+
+Methodology: gap form of Okun's Law, U_gap = C * Y_gap + intercept, fit on a
+rolling 12-quarter (3-year) window so the coefficient C can be tracked over
+time rather than assumed constant. COVID quarters (Q2 2020-Q1 2021) are
+excluded from all regressions since the pandemic shock was a policy-driven
+shutdown, not an organic output-employment relationship.
+
+See README.md for the full plain-language walkthrough of each chart.
+"""
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats as sp_stats
 
 
-# --- Load data ---
+# ----------------------------------------------------------------
+# 1. LOAD DATA — four FRED series, all quarterly except UNRATE
+# ----------------------------------------------------------------
 gdp = pd.read_csv("GDPC1.csv", parse_dates=["observation_date"])
 gdp.columns = ["date", "gdp"]
 gdp = gdp.set_index("date")
@@ -22,16 +42,33 @@ nrou.columns = ["date", "nrou"]
 nrou = nrou.set_index("date")
 
 # --- Align frequencies: resample monthly unemployment to quarterly ---
+# UNRATE is published monthly; averaging the three months in each quarter
+# lines it up with the quarterly GDP/NROU series before merging.
 unrate_q = unrate.resample("QS").mean()
 
-# Merge on shared dates
+# Merge on shared dates — inner join keeps only quarters where all four
+# series report a value; any gaps at the edges of a series are dropped.
 df = gdp.join(gdppot, how="inner").join(unrate_q, how="inner").join(nrou, how="inner").dropna()
 
-# --- Compute Okun's Law gap variables ---
-# Output Gap: percentage deviation of actual GDP from potential GDP
+# ----------------------------------------------------------------
+# 2. COMPUTE OKUN'S LAW GAP VARIABLES
+# ----------------------------------------------------------------
+# Raw GDP can't be compared across decades (the economy is simply bigger
+# now), so both output and unemployment are converted into deviations from
+# "normal" — this is the transformation that makes Okun's Law comparable
+# across eras.
+#
+# Output Gap: % deviation of actual GDP from potential GDP.
+#   Positive = economy running above sustainable potential (overheating).
+#   Negative = economy has slack (resources/workers underutilized).
 df["y_gap"] = (df["gdp"] - df["gdppot"]) / df["gdppot"] * 100   # expressed in %
 
-# Unemployment Gap: actual unemployment minus natural rate
+# Unemployment Gap: actual unemployment minus the natural rate (NROU).
+#   Positive = more people out of work than the natural-rate baseline.
+#   Negative = labor market tighter than normal.
+# Under Okun's Law, u_gap should move opposite to y_gap (rising output ->
+# falling unemployment gap). That inverse relationship is what every
+# regression below is testing for stability.
 df["u_gap"] = df["unrate"] - df["nrou"]
 
 print(f"Full dataset: {len(df)} quarters ({df.index[0].date()} – {df.index[-1].date()})\n")
@@ -39,6 +76,11 @@ print("=== Gap Variables (first 5 rows) ===")
 print(df[["gdp", "gdppot", "y_gap", "unrate", "nrou", "u_gap"]].head().round(4), "\n")
 
 # --- Exclude COVID quarters: Q2 2020 through Q1 2021 ---
+# GDP cratered and unemployment spiked because businesses were legally
+# closed, not because of any organic output-employment relationship.
+# Including these quarters would let the model mistake a policy shock for
+# a structural pattern, corrupting every regression below. They're kept
+# in df_covid (not deleted) so charts can still show them for transparency.
 covid_quarters = pd.date_range("2020-04-01", "2021-01-01", freq="QS")
 df_clean = df[~df.index.isin(covid_quarters)].copy()
 df_covid  = df[df.index.isin(covid_quarters)].copy()
@@ -462,6 +504,19 @@ print()
 # ===============================================================
 # 3. ROLLING REGRESSION: Okun's constant C — 2000 to present
 #    Window = 12 quarters (3 years), rolling forward 1 quarter
+# ----------------------------------------------------------------
+# This is the main finding of the script. Rather than fitting one
+# regression across all history, C is re-estimated on every trailing
+# 12-quarter window so its stability over time is visible.
+#
+# C = how much u_gap changes per 1pp change in y_gap.
+#   C < 0   -> Okun's Law holds (more output, less unemployment).
+#   C ~= 0  -> the relationship has weakened.
+#   C > 0   -> the relationship has inverted.
+#
+# The companion rolling correlation (r) is tested against the pre-2022
+# historical distribution below to see whether any post-2022 inversion
+# is statistically surprising or just short-window noise.
 # ===============================================================
 WINDOW = 12   # quarters
 
