@@ -23,7 +23,7 @@ All data is from [FRED](https://fred.stlouisfed.org/) (Federal Reserve Economic 
 | Series | What it is | Source |
 |---|---|---|
 | `GDPC1` | Real GDP (2017 dollars) | BEA, quarterly |
-| `GDPPOT` | Potential GDP — what GDP would be at max sustainable output | CBO estimate, quarterly |
+| `GDPPOT` | Potential GDP, what GDP would be at max sustainable output | CBO estimate, quarterly |
 | `UNRATE` | Civilian unemployment rate | BLS, monthly (resampled to quarterly mean) |
 | `NROU` | Natural rate of unemployment | CBO estimate, quarterly |
 
@@ -31,7 +31,7 @@ Industry-level analysis adds BEA real value-added and BLS unemployment series pe
 
 ## Methodology
 
-**Converting to gaps.** Raw GDP can't be compared across decades — the economy is just bigger now. Both series are converted to deviations from normal:
+**Converting to gaps.** Raw GDP can't be compared across decades, the economy is just bigger now. Both series are converted to deviations from normal:
 
 ```
 Output gap:        Y_gap = (GDPC1 − GDPPOT) / GDPPOT × 100
@@ -48,11 +48,11 @@ A positive `Y_gap` means the economy is running above potential; a positive `U_g
 
 where `ΔU` is the change in the sector's unemployment rate and `%ΔY` is the growth of its real output. Classic Okun's Law implies β ≈ −0.3 to −0.5; β drifting toward zero (or flipping positive) means growth has stopped pulling unemployment down.
 
-The differencing horizon matters because the BLS industry unemployment series are **not seasonally adjusted**. The early two-sector script (`IndustryAnalysis.py`) uses quarter-over-quarter differences, which leave some seasonal pattern in the data — a known weakness. The 9-industry pipeline and everything downstream of it (`industry_okun_pipeline.py`, `okun_phase2_3.py`, `info_overhang.py`) use **year-over-year (4-quarter) differences**, which cancel seasonality exactly by comparing each quarter to the same quarter a year earlier. YoY differencing is computed on the intact series *before* any rows are excluded (pandas differencing is positional, so excluding first would silently compare wrong years), and the exclusion window for these scripts extends through Q1 2022 to also drop the rebound quarters whose year-ago baseline falls inside COVID.
+The differencing horizon matters because the BLS industry unemployment series are **not seasonally adjusted**. The early two-sector script (`IndustryAnalysis.py`) uses quarter-over-quarter differences, which leave some seasonal pattern in the data, a known weakness. The 9-industry pipeline and everything downstream of it (`industry_okun_pipeline.py`, `okun_phase2_3.py`, `info_overhang.py`) use **year-over-year (4-quarter) differences**, which cancel seasonality exactly by comparing each quarter to the same quarter a year earlier. YoY differencing is computed on the intact series *before* any rows are excluded (pandas differencing is positional, so excluding first would silently compare wrong years), and the exclusion window for these scripts extends through Q1 2022 to also drop the rebound quarters whose year-ago baseline falls inside COVID.
 
-**Excluding COVID.** Q2 2020 – Q1 2021 is dropped from every regression and rolling statistic. GDP cratered and unemployment spiked because businesses were legally closed, not because of any organic output-employment relationship — including these quarters would corrupt every downstream regression. They're kept in the raw dataset and plotted as red diamonds for transparency, just excluded from fitting.
+**Excluding COVID.** Q2 2020 – Q1 2021 is dropped from every regression and rolling statistic. GDP cratered and unemployment spiked because businesses were legally closed, not because of any organic output-employment relationship, including these quarters would corrupt every downstream regression. They're kept in the raw dataset and plotted as red diamonds for transparency, just excluded from fitting.
 
-**Era split.** Q4 2022 (ChatGPT's public release) is used throughout as the pre/post-AI cutoff. This is a useful, visible marker but an admittedly imperfect one — enterprise AI adoption happened gradually, and it also happens to sit right on top of the start of the Fed's most aggressive hiking cycle in ~40 years, which is a real confound addressed in Phase 2 below.
+**Era split.** Q4 2022 (ChatGPT's public release) is used throughout as the pre/post-AI cutoff. This is a useful, visible marker but an admittedly imperfect one, enterprise AI adoption happened gradually, and it also happens to sit right on top of the start of the Fed's most aggressive hiking cycle in ~40 years, which is a real confound addressed in Phase 2 below.
 
 ## Repository guide
 
