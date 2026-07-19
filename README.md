@@ -2,9 +2,9 @@
 
 **Is the historical link between economic output and unemployment weakening because of AI?**
 
-This project tests whether generative AI (using ChatGPT's release in Q4 2022 as a marker) has started to break Okun's Law — the 60-year-old relationship where GDP growth above potential reliably pulls unemployment down. If firms can now produce more output without proportionally hiring more workers, a core tool of macroeconomic policy is becoming less reliable.
+This project tests whether generative AI (using ChatGPT's release in Q4 2022 as a marker) has started to break Okun's Law, the 60-year-old relationship where GDP growth above potential reliably pulls unemployment down. If firms can now produce more output without proportionally hiring more workers, a core tool of macroeconomic policy is becoming less reliable.
 
-**Status: the aggregate break is real and well-documented. The claim that AI specifically causes it is not yet established** — the one test built to isolate AI (ranking industries by AI exposure) came back pointing the other way. See [What This Does and Doesn't Show](#what-this-does-and-doesnt-show).
+**Status: the aggregate break is real and well-documented. The claim that AI specifically causes it is not yet established**, the one test built to isolate AI (ranking industries by AI exposure) came back pointing the other way. See [What This Does and Doesn't Show](#what-this-does-and-doesnt-show).
 
 > 📄 **The full write-up is in [`docs/Okuns-Law-in-the-AI-Era-paper.pdf`](docs/Okuns-Law-in-the-AI-Era-paper.pdf).** It walks through every chart in narrative form with its limitations stated inline. This README is the companion to that paper: the same story, plus the code that produces each figure. The [chart-by-chart walkthrough](#the-charts-one-by-one) below mirrors the paper's structure.
 
@@ -12,9 +12,9 @@ This project tests whether generative AI (using ChatGPT's release in Q4 2022 as 
 
 ## The core idea: what is Okun's Law?
 
-Okun's Law, first observed by economist Arthur Okun in 1962, says that when an economy grows faster than its sustainable pace, unemployment tends to fall — and when growth slows, unemployment tends to rise. It's the connection between *how much the economy is producing* and *how many people have jobs*. Every 1 percentage point of GDP growth above trend has historically been associated with roughly a 0.5 point fall in unemployment.
+Okun's Law, first observed by economist Arthur Okun in 1962, says that when an economy grows faster than its sustainable pace, unemployment tends to fall, and when growth slows, unemployment tends to rise. It's the connection between *how much the economy is producing* and *how many people have jobs*. Every 1 percentage point of GDP growth above trend has historically been associated with roughly a 0.5 point fall in unemployment.
 
-It's intuitive: rising demand means firms need more labor to meet it, so they hire. This research asks whether that's stopped being true — whether AI now lets firms meet rising demand without proportionally hiring.
+It's intuitive: rising demand means firms need more labor to meet it, so they hire. This research asks whether that's stopped being true, whether AI now lets firms meet rising demand without proportionally hiring.
 
 ## Data sources
 
