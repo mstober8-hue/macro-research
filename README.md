@@ -407,25 +407,6 @@ The Phase 3 confidence band was drawn from `slope ± 1.96·SE` alone, which wron
 - **No fiscal-policy control has been run yet.** The current best guess for construction and manufacturing is IIJA/CHIPS/IRA exposure, which is a hypothesis, not a tested claim.
 - **Correlation, not causation.** The project documents a break, tests three named alternative causes against it, and identifies which sectors' breaks survive which tests. It does not establish that AI caused tech's break in any strict causal sense, only that the alternatives tested so far do not explain it.
 
-## Next steps, ordered by expected value
-
-**1. Fiscal-spending control for construction and manufacturing.** The single most valuable untested hypothesis. For each industry, build a fiscal-exposure variable: federal outlays under IIJA/CHIPS/IRA directed at that sector's NAICS codes, quarter by quarter. Sources are USAspending.gov (obligated federal awards by NAICS) plus CBO's scoring memos for target-sector attribution. Re-run each industry's regression adding this as a third control. Prediction: construction and manufacturing's positive Δβ shrinks while tech's stays where it is. Difficulty is medium, and the data engineering is the real work.
-
-**2. Continuous BTOS interaction model (queued).** Replace the discrete Q4 2022 dummy with a continuous BTOS adoption variable, testing whether Okun's slope changes smoothly with adoption rather than stepping at one date. Blocked until roughly late 2026, when another year of BTOS panels has accumulated.
-
-**3. A generative-AI-specific exposure measure.** AIIE and BTOS agree on the ranking, but both measure "AI use" broadly. Taking Eloundou et al. (2023) SOC-level GPT exposure scores or the Anthropic Economic Index task-level scores, aggregating to industry level using BLS OEWS employment weights, and rerunning the Phase 3 test would be the cleanest replacement. The SOC-to-NAICS crosswalk and suppressed-cell handling are the tricky pieces.
-
-**4. Extend the aggregate rolling window as time passes.** Every additional quarter narrows the confidence bands and lets a longer post-AI window replace the current thin 13. This requires essentially nothing except rerunning the pipeline with fresh FRED data. The strongest thing the project has going for it is that its main finding gets more defensible over time, not less.
-
-**5. Turn the PDF into a submittable working paper.** What's missing is framing and formatting: a proper abstract, an extended literature review, appendix tables with full regression outputs, consistent chart styling, and page-numbered citations.
-
-## Open questions
-
-- How to build the fiscal-exposure variable cleanly: CBO scoring versus actual USAspending obligations versus announced awards, and how to attribute cross-sector spending (a CHIPS-funded fab is manufacturing output but construction jobs during buildout).
-- Whether n = 13 post-quarters is publishable now or worth waiting a second year.
-- Whether the "sign consistency across specs but no single-spec Bonferroni pass" framing on the cross-sectional test is defensible under peer review, or whether a formal permutation test would be a better robustness argument.
-- Reading on the fiscal-versus-AI framing. Autor, Acemoglu, and Restrepo on task-based automation are the obvious starting points; less obvious is who is writing carefully on how the 2021-22 fiscal stack landed on physical sectors' unemployment.
-
 ## Glossary
 
 <details>
