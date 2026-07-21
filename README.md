@@ -157,6 +157,12 @@ The project ran in six phases. Each one either confirmed or complicated what the
 
 **Key finding.** After 2022, tech's rolling relationship turns very unstable and drifts toward a slightly positive slope, while hospitality's stays predictably negative throughout. Directionally, this is the AI story: high-exposure sector breaks, low-exposure sector doesn't.
 
+The clearest picture of what that actually looks like is the output-versus-unemployment chart below. The left panel indexes each sector's real output to 100 at Q4 2019 (so growth is comparable regardless of dollar size) with each sector's unemployment rate overlaid. The right panel plots cumulative output growth against the unemployment rate for every quarter since Q4 2022.
+
+![Output growth vs unemployment, tech vs hospitality](industry_output_vs_unemployment.png)
+
+Tech's output more than doubled relative to its pre-pandemic base while its unemployment rate barely moved, which is the dose of "output up, jobs flat" the whole project is chasing. Hospitality's output grew far less, and its dots in the right panel still trace the expected downward slope. Read plainly: tech produced dramatically more without hiring proportionally more; hospitality didn't produce much more, so there was nothing for its labor market to decouple from.
+
 **Why this can't stand alone.** A general claim about AI can't rest on two data points. Either industry might have broken, or held, for reasons completely unrelated to AI. This chart showed the aggregate break from P1 split into two components that both looked consistent with the AI story, and that apparent confirmation is exactly why P3 was necessary.
 
 > **Bridge, P2 → P3.** Two industries looked like the AI story predicts. But that is the equivalent of flipping a coin twice, getting heads twice, and calling the coin biased. The next step is the actual test: run the same setup on all nine major industries and see whether industries with more AI exposure show bigger breaks in a proper statistical sense.
@@ -194,11 +200,46 @@ The AI Industry Exposure Index (Felten, Raj & Seamans 2023) rates each industry 
 
 **Key finding.** Only tech and Wholesale Trade behaved the way the AI story predicts. The three sectors with genuinely high exposure, Finance, Professional & Business, and Education & Health, held steady or got stronger. The three biggest breakdowns landed on low-exposure, physical, interest-rate-sensitive sectors: construction, manufacturing, and transportation. Run as a formal test: **r = −0.607, p = 0.083.** The correlation runs the opposite direction from the AI hypothesis. This is the single result that reshaped the whole project.
 
+The static scatter above is a snapshot of one number (Δβ) per industry. The chart below shows the full time series behind those nine numbers: every industry's rolling Okun coefficient (top) and rolling correlation (bottom) from 2008 to today, colored warm for high-AI-exposure industries and cool for low-exposure ones. If the AI story were right, warm lines should visibly separate from cool lines after the gold shading starts. Mostly they don't; the two loudest lines after 2022 (dark blue Construction, dark red Information) sit on opposite ends of the exposure scale.
+
+![Rolling Okun coefficient, all nine industries](industry_rolling_overlay.png)
+
 **Three cases worth understanding:**
 
 - **Construction's** correlation flipped from −0.73 to +0.78, a tight and reliable inversion, but its actual slope barely moved off zero (+0.046). The relationship became very predictable without becoming economically large. Its pre-2022 fit is also anchored by extreme housing-crash data points, which raises real questions about how much of the baseline reflects one crisis rather than a stable relationship.
+
+  <details>
+  <summary>Construction's full four-panel breakdown</summary>
+
+  ![Construction Okun detail](okun_construction.png)
+
+  The bottom-right panel is the clearest version of the story: real output (blue) has climbed well past its pre-pandemic level since 2022, while the unemployment rate (red, right axis) has stayed low and flat rather than falling further, which is what growth this strong would historically have done.
+
+  </details>
+
 - **Education & Health** shows a weak relationship in both periods, which is unsurprising since it is driven by demographics and public funding rather than the business cycle. Its data has an additional known problem: the employment series covers Education plus Health combined, while the output series covers only Health.
+
+  <details>
+  <summary>Education & Health's full four-panel breakdown</summary>
+
+  ![Education & Health Okun detail](okun_education_health.png)
+
+  The scatter (top-left) is a formless cloud rather than a clean line in either period, and the rolling β and r (top-right) drift close to zero for most of the sample. This is a sector where Okun's Law was never a strong fit to begin with, AI era or not.
+
+  </details>
+
 - **Finance** is the most interesting case. Real output has nearly doubled since 2019 while employment has been flat and low since roughly 2013, a genuine and dramatic output/jobs divergence, but one building gradually over a decade rather than appearing at the cutoff. A test built to detect a sharp break at a single date can't see gradual multi-decade decoupling. Finance may have absorbed most of its AI-driven labor adjustment during the algorithmic-trading and automated-underwriting era, decades before Q4 2022.
+
+  <details>
+  <summary>Financial Activities' full four-panel breakdown</summary>
+
+  ![Financial Activities Okun detail](okun_financial_activities.png)
+
+  The bottom-right panel shows exactly this: output (blue) has been climbing steadily since 2007 with barely a dent from COVID, while unemployment (red) fell hard after the 2008 crisis and has stayed low and flat ever since. The divergence is real, but it is a decade-long trend, not a Q4 2022 event, which is why the sharp-break test built for this project doesn't flag it.
+
+  </details>
+
+
 
 > **Bridge, P3 → P4.** P3's surprising scatter needs a serious alternative explanation before it can be trusted, and there is one sitting exactly on the cutoff date. The Fed's most aggressive rate-hiking cycle in 40 years began at almost the same moment as ChatGPT, and the sectors that broke most (construction, manufacturing, transportation) are exactly the sectors most sensitive to interest rates. A test that can't tell rates apart from AI will silently blame the wrong thing.
 
@@ -232,6 +273,12 @@ The AI Industry Exposure Index (Felten, Raj & Seamans 2023) rates each industry 
 | Leisure & Hospitality | +0.05 | +0.07 | +0.00 | +0.01 | +0.06 | +0.03 | 0.07 | Barely moved, law held |
 | Financial Activities | −0.04 | −0.09 | +0.02 | −0.01 | −0.02 | +0.01 | 0.11 | No shift, law held |
 | Education & Health | −0.19 | +0.16 | −0.02 | −0.17 | −0.20 | +0.06 | 0.36 | Weak signal, inconclusive |
+
+The table above summarizes each industry's Δβ range; the chart below shows the actual cross-sectional test (Phase 3's Δβ ~ AIIE regression) redrawn once for each of the six rate specifications, so the whole robustness check is visible at a glance rather than read off a table. The fitted line's slope stays negative, the wrong direction for the AI hypothesis, in every single panel.
+
+![AIIE cross-section across all six rate specifications](phase3_cross_section.png)
+
+The chart below shows a different slice of the same data: instead of the AIIE regression, it plots each industry's rate-sensitivity coefficient (β2) directly, comparing pre- and post-2022 bars side by side for every rate specification.
 
 ![Rate-controlled sensitivity](phase2_rate_sensitivity.png)
 
@@ -336,6 +383,12 @@ Range across all eight specs: **+0.150 to +0.223.** It never crosses zero and ne
 # Where the whole thing stands
 
 The project split what looked like one question into three questions with three different answers.
+
+The single chart that makes the counterintuitive result easiest to see combines Phase 3's Δβ with Phase 5's real BTOS adoption numbers on one axis: if AI explained the break, the tall bars (biggest breakdowns) should line up with the industries that report high AI usage today. Mostly they don't.
+
+![Δβ bars against real AI adoption percentages](summary_chart.png)
+
+Construction and Transportation both broke hard while reporting only 10% AI usage. Information is the one case where a tall bar and high usage (38%) line up. Financial Activities and Education & Health, both with usage above 25%, sit below the zero line, meaning the law held or strengthened there.
 
 ### The aggregate break in Okun's Law → **ESTABLISHED**
 
