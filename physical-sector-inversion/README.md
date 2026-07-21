@@ -41,6 +41,22 @@ Read each panel left to right. All three lines sit negative for most of history,
 
 **The timing rules things out.** Because the inversion arrives in 2024, it is far too late to be a direct COVID effect, and it postdates the late-2022 arrival of generative AI by roughly two years. It lines up instead with two forces that peaked in 2023-2025: federal infrastructure and industrial spending actually flowing into projects, and interest rates held high for an extended stretch.
 
+## Do they move together, and does anyone else?
+
+The three charts above look almost interchangeable, which raises the question of whether these are really three separate findings or one common factor showing up three times. They co-move strongly. Correlating the rolling Okun coefficient across industries, Manufacturing and Transportation are nearly the same series (0.92), with Construction a looser third (0.73 to 0.78). At the raw-data level their year-over-year unemployment changes correlate 0.80 to 0.89 even with COVID removed, so this is a shared labor-market driver, not a coincidence of chart smoothing.
+
+One caveat keeps this honest: every sector's unemployment moves together to some degree because of the shared business cycle, so co-movement by itself is not unique to these three. The distinctive feature is the specific shape, holding for years and then inverting in 2024-2025.
+
+Scanning all nine industries on both tests at once (does it co-move with the cluster, and did it invert recently and stay inverted) turns up one clear extra member.
+
+![Rolling-beta correlation heatmap and the four goods sectors overlaid](comovement.png)
+
+**Wholesale Trade repeats the pattern.** It correlates with the cluster (rolling-beta 0.66) and its rolling correlation reaches +0.44 in 2025, the same late inversion as the other three. That extends the group to four, and the four have an obvious common identity: they are the physical goods economy. Construction builds it, Manufacturing makes it, Transportation moves it, and Wholesale distributes it.
+
+The service sectors do not repeat it. Financial Activities, Professional & Business, Education & Health, and Leisure & Hospitality all stay negative through 2025 (their Okun relationship held). Information's coefficient shape correlates with the cluster, but its recent inversion is marginal (+0.12) and it sits with the high-AI service sectors, so it belongs to the [AI story in the root analysis](../README.md), not this goods cluster.
+
+That the inverting sectors are exactly the goods-producing ones, and the holding sectors are exactly the service ones, is the strongest hint so far about cause. It points at something specific to physical production and distribution rather than a whole-economy shift.
+
 ## What this does not show
 
 - **The sample is very short.** Each inversion rests on only four to six quarters of post-onset data. The confidence around every number here is wide.
@@ -61,7 +77,8 @@ These are hypotheses to test, not findings. This document exists to establish th
 From this directory:
 
 ```
-python3 rolling_okun_inversion.py
+python3 rolling_okun_inversion.py   # the three-sector rolling coefficients + probabilities
+python3 comovement.py               # co-movement heatmap + the four-sector overlay
 ```
 
-It reads the FRED CSVs from `../FRED-Data/` and writes `rolling_okun_inversion.png` plus the console table above. Requires `pandas`, `numpy`, `matplotlib`, and `scipy`.
+Both read the FRED CSVs from `../FRED-Data/` and write their charts (`rolling_okun_inversion.png`, `comovement.png`) plus the console tables above. Requires `pandas`, `numpy`, `matplotlib`, and `scipy`.
