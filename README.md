@@ -111,7 +111,7 @@ YoY differencing is computed on the intact series *before* any rows are excluded
 |---|---|---|
 | [`GDPUnemployment.py`](GDPUnemployment.py) | Phase 1: aggregate Okun's Law, rolling 12-quarter coefficient | `gdp_unemployment_analysis.png`, `gap_divergence.png`, `gap_divergence_abs.png`, `gap_okun_residual_quadrant.png`, `rolling_okuns_coefficient.png` |
 | [`IndustryAnalysis.py`](IndustryAnalysis.py) | Phase 2: two-sector comparison, tech vs. hospitality | `industry_scatter.png`, `industry_rolling_okun.png`, `industry_okun_residual.png`, `industry_unemployment_correlation.png`, `industry_output_vs_unemployment.png` |
-| [`industry_okun_pipeline.py`](industry_okun_pipeline.py) | Phase 3: full 9-industry pipeline, Δβ regressed against AIIE | `okun_industry_summary.csv/.txt`, `okun_industry_detail.xlsx`, `industry_aiie_scatter.png`, `industry_rolling_overlay.png`, per-industry charts |
+| [`industry_okun_pipeline.py`](industry_okun_pipeline.py) | Phase 3: full 9-industry pipeline, Δβ regressed against AIIE | `okun_industry_summary.csv/.txt`, `okun_industry_detail.xlsx`, `industry_aiie_scatter.png`, per-industry charts |
 | [`okun_phase2_3.py`](okun_phase2_3.py) | Phase 4: six Federal Funds Rate control specifications | `phase2_results.csv`, `phase2_rate_sensitivity.png`, `phase3_cross_section.csv`, `phase3_cross_section.png` |
 | [`btos_interaction.py`](btos_interaction.py) | Phase 5: validates AIIE against real reported AI adoption | `btos_beta1_table.csv`, `btos_sector_ranking.csv`, `btos_cross_section.png` |
 | [`info_overhang.py`](info_overhang.py) | Phase 6: tests the pandemic-overhiring alternative for tech | `info_overhang_sanity.png`, `info_overhang_regression.png` |
@@ -200,9 +200,7 @@ The AI Industry Exposure Index (Felten, Raj & Seamans 2023) rates each industry 
 
 **Key finding.** Only tech and Wholesale Trade behaved the way the AI story predicts. The three sectors with genuinely high exposure, Finance, Professional & Business, and Education & Health, held steady or got stronger. The three biggest breakdowns landed on low-exposure, physical, interest-rate-sensitive sectors: construction, manufacturing, and transportation. Run as a formal test: **r = −0.607, p = 0.083.** The correlation runs the opposite direction from the AI hypothesis. This is the single result that reshaped the whole project.
 
-The static scatter above is a snapshot of one number (Δβ) per industry. The chart below shows the full time series behind those nine numbers: every industry's rolling Okun coefficient (top) and rolling correlation (bottom) from 2008 to today, colored warm for high-AI-exposure industries and cool for low-exposure ones. If the AI story were right, warm lines should visibly separate from cool lines after the gold shading starts. Mostly they don't; the two loudest lines after 2022 (dark blue Construction, dark red Information) sit on opposite ends of the exposure scale.
-
-![Rolling Okun coefficient, all nine industries](industry_rolling_overlay.png)
+The three physical sectors that broke hardest get their own separate, COVID-inclusive analysis in [`physical-sector-inversion/`](physical-sector-inversion/README.md), which dates each inversion to 2024-2025 and sets up the fiscal-versus-rates question.
 
 **Three cases worth understanding:**
 
