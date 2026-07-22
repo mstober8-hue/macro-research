@@ -460,9 +460,9 @@ The Phase 3 confidence band was drawn from `slope ± 1.96·SE` alone, which wron
 
 ---
 
-# Postscript: the Finance result never sat right, and it turned out the test was blind
+ Finance Results UPDATE
 
-Everything above measures Okun's law with the **unemployment rate**. That choice is buried in the methodology, and it looked harmless. Chasing one sector that would not stop nagging is what exposed it. This section walks through that, because the conclusion at the end may matter more than anything in the six phases.
+Everything above measures Okun's law with the **unemployment rate**. 
 
 **The thing that did not add up.** Phase 3 put Financial Activities in the "law held or strengthened" column, one of the results that made the AI story look wrong. But Finance is the sector whose real output has nearly *doubled* since 2013 while its unemployment sat at rock bottom. A sector producing twice as much with a flat labor market is the single most vivid picture of "more output without more workers" in the whole dataset. Filing that under "the law held" felt backwards.
 
