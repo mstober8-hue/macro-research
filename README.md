@@ -226,7 +226,7 @@ The three physical sectors that broke hardest get their own separate, COVID-incl
 
   </details>
 
-- **Finance** is the most interesting case. Real output has nearly doubled since 2019 while employment has been flat and low since roughly 2013, a genuine and dramatic output/jobs divergence, but one building gradually over a decade rather than appearing at the cutoff. A test built to detect a sharp break at a single date can't see gradual multi-decade decoupling. Finance may have absorbed most of its AI-driven labor adjustment during the algorithmic-trading and automated-underwriting era, decades before Q4 2022.
+- **Finance** is the most interesting case. Real output has nearly doubled since 2019 while employment has been flat and low since roughly 2013, a genuine and dramatic output/jobs divergence, but one building gradually over a decade rather than appearing at the cutoff. A test built to detect a sharp break at a single date can't see gradual multi-decade decoupling. Finance may have absorbed most of its AI-driven labor adjustment during the algorithmic-trading and automated-underwriting era, decades before Q4 2022. Finance turned out to expose a blind spot in the whole method: measured on unemployment it looks like "the law held," but measured on employment it is the largest output-to-jobs decoupling in the project. That re-measurement, plus whether the rate of productivity growth is accelerating, gets its own separate analysis in [`finance/`](finance/README.md).
 
   <details>
   <summary>Financial Activities' full four-panel breakdown</summary>
@@ -457,38 +457,6 @@ The Phase 3 confidence band was drawn from `slope ± 1.96·SE` alone, which wron
 - **A 9-industry cross-section is a small sample** for a regression-based test. Any single test's p-value should be treated as directional, not definitive.
 - **No fiscal-policy control has been run yet.** The current best guess for construction and manufacturing is IIJA/CHIPS/IRA exposure, which is a hypothesis, not a tested claim.
 - **Correlation, not causation.** The project documents a break, tests three named alternative causes against it, and identifies which sectors' breaks survive which tests. It does not establish that AI caused tech's break in any strict causal sense, only that the alternatives tested so far do not explain it.
-
----
-
-### Finance Results UPDATE
-
-Everything above measures Okun's law with the **unemployment rate**. 
-
-**The thing that did not add up.** Phase 3 put Financial Activities in the "law held or strengthened" column, one of the results that made the AI story look wrong. But Finance is the sector whose real output has nearly *doubled* since 2013 while its unemployment sat at rock bottom. A sector producing twice as much with a flat labor market is the single most vivid picture of "more output without more workers" in the whole dataset. Filing that under "the law held" felt backwards.
-
-**The challenge that cracked it.** If output keeps rising while the labor measure stays flat, is that not the literal definition of Okun's law breaking? If so, calling Finance "held" is not a nuance, it is the wrong sign. That objection is correct, and running it down showed the test had been looking at the wrong variable the entire time.
-
-**Why unemployment could not see it.** Okun's law says output up means unemployment down. Finance unemployment is welded to its structural floor, roughly 2 percent, the frictional minimum for a professional-services sector. Finance output grew about 7 percent a year since 2022; a normal Okun slope would drive unemployment down about 2.8 points a year. Finance unemployment went from 2.1 percent to 2.0 percent. It had nowhere left to fall. So the test read "no response" and scored it "held." The catch is that flat unemployment at full employment hides two opposite worlds: a sector hiring a lot of workers and absorbing them without adding to unemployment, or a sector hiring almost nobody while productivity soars. Unemployment cannot tell those apart. Employment can.
-
-**Re-measuring on employment.** With the Financial Activities headcount, hours, and JOLTS series added to `FRED-Data/`, the picture is unambiguous (2013 = 100):
-
-| | 2013 | 2019 | 2025 |
-|---|---:|---:|---:|
-| Real output | 100 | 144 | **209** |
-| Employment (headcount) | 100 | 111 | **117** |
-| Output per worker | 100 | 130 | **179** |
-| Unemployment | 4.8% | 2.6% | 2.3% (floored) |
-
-![Finance output vs employment vs productivity, and the employment elasticity](finance_employment.png)
-
-Output more than doubled, headcount grew 17 percent, and output per worker rose 79 percent. Measured properly, this is the largest output-labor decoupling in the project, not the smallest. The formal version is the output-elasticity of employment, `%ΔEmployment = γ · %ΔOutput`, where classic Okun implies γ around +0.5 to +0.7:
-
-- **Pre-2022 γ = +0.02.** Finance employment barely tracked output even before AI. Most of the decoupling is a long structural trend from the automation era, electronic trading and automated underwriting and back-office software, largely complete before our window opens.
-- **The rolling γ then fell from about +0.5 in 2022 to −0.24 by 2025.** Output growth accelerated (5.2 to 7.0 percent a year) while employment growth slowed (1.7 to 1.1 percent a year). The link did not merely stay weak, it inverted, on the same 2024-2025 clock as the goods sectors.
-
-**Honest caveats.** Finance real value added is a noisy output measure that includes imputed and market-linked value, so part of the doubling reflects financial conditions rather than more work, and the productivity gain is probably somewhat overstated. The output series is Finance and Insurance while the labor series are Financial Activities, which also includes Real Estate, so the coverage does not line up exactly. JOLTS is mixed rather than a clean hiring freeze: hires slipped from 2.5 to 2.2 percent while openings actually rose from 4.1 to 4.5 percent. And the post-2022 window is 13 quarters, so the negative elasticity is suggestive, not settled.
-
-**Why this may matter more than the six phases.** The entire nine-industry cross-section, the result that produced the headline "AI exposure predicts *less* breakdown, which contradicts the AI story," was measured on unemployment. But the highest-AI sectors, Finance and Professional & Business, are exactly the low-unemployment service sectors where the unemployment test is saturated and cannot register a decoupling. Finance looked like "the law held" on unemployment and turns out to be the biggest decoupling in the dataset on employment. If the other high-AI service sectors hide the same thing, the wrong-direction correlation at the heart of Phase 3 could weaken or flip when the cross-section is rerun on the employment elasticity γ. That test is the next step. Reproduce this section with `python3 finance_employment.py`.
 
 ## Glossary
 

@@ -31,18 +31,20 @@ Data series (FRED / BLS), placed in FRED-Data/:
   JTU510099JOR.csv    JOLTS job openings rate, Financial Activities
 """
 
+import os
 import numpy as np
 import pandas as pd
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-DATA_DIR  = "FRED-Data/"
+HERE      = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR  = os.path.join(HERE, "..", "FRED-Data") + os.sep
 AI_CUTOFF = pd.Timestamp("2022-10-01")
 
 
 def load(filename, label):
-    df = pd.read_csv(DATA_DIR + filename)
+    df = pd.read_csv(os.path.join(DATA_DIR, filename))
     df.columns = [c.strip() for c in df.columns]
     df[df.columns[0]] = pd.to_datetime(df[df.columns[0]])
     df = df.set_index(df.columns[0])
@@ -120,5 +122,5 @@ ax2.set_title("Output-elasticity of Finance employment fell from ~0.5 to negativ
               fontsize=12, fontweight="bold")
 ax2.set_xlabel("Quarter", fontsize=11); ax2.legend(fontsize=9); ax2.grid(True, ls="--", alpha=0.3)
 plt.tight_layout()
-plt.savefig("finance_employment.png", dpi=150, bbox_inches="tight")
+plt.savefig(os.path.join(HERE, "finance_employment.png"), dpi=150, bbox_inches="tight")
 print("\nChart saved: finance_employment.png")
