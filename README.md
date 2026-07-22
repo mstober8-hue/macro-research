@@ -460,7 +460,7 @@ The Phase 3 confidence band was drawn from `slope ± 1.96·SE` alone, which wron
 
 ---
 
- Finance Results UPDATE
+### Finance Results UPDATE
 
 Everything above measures Okun's law with the **unemployment rate**. 
 
