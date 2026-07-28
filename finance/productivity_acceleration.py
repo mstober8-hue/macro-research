@@ -15,11 +15,17 @@ two very different places:
   - output growing faster with flat hiring (an output/demand story), or
   - employment being cut while output holds up (a labor-shedding story).
 
-Finding: both sectors show productivity growth roughly doubling in 2024-2025,
-but for opposite reasons. Finance accelerates because output re-accelerates
-while hiring freezes. Tech accelerates because it cuts jobs while output growth
-actually slows. Only the tech pattern looks like "producing the same with fewer
-people," the signature you would expect from labor-substituting AI.
+Finding: both sectors show a sharp productivity-growth acceleration in
+2024-2025, reached by different routes. Finance: real output re-accelerates
+(~+7%/yr GDP-deflated) while hiring goes flat-to-negative. Tech: output growth
+holds while employment turns negative (outright job cuts). Both are the
+"more output without more workers" signature; tech's, driven by shrinking
+headcount, is the cleaner labor-substitution shape.
+
+REAL TERMS: finance output (VAFI) is NOMINAL and BEA's finance-specific
+deflator is FISIM-contaminated, so finance is deflated here with the neutral
+GDP deflator (GDPDEF) and paired with Finance & Insurance (NAICS 52)
+employment. Information uses BEA real value added (RVAI) directly.
 
 Reads FRED CSVs from ../FRED-Data/. Writes productivity_acceleration.png.
 """
@@ -34,9 +40,12 @@ import matplotlib.pyplot as plt
 HERE     = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(HERE, "..", "FRED-Data") + os.sep
 
+# output_file, deflate?, employment_file, color
 SECTORS = {
-    "Financial Activities": ("FnceservcGDP.csv", "USFIRE.csv", "#1f4e79"),
-    "Information (tech)":    ("RVAI.csv",         "USINFO.csv", "#c0392b"),
+    "Financial Activities": ("financial_activities_value_added_VAFI.csv", True,
+                             "finance_insurance_employment_CES5552000001.csv", "#1f4e79"),
+    "Information (tech)":   ("information_sector_value_added_RVAI.csv", False,
+                             "information_sector_employment_USINFO.csv", "#c0392b"),
 }
 PERIODS = [("2013-2019", "2013-01-01", "2019-12-31"),
            ("2022-2023", "2022-01-01", "2023-12-31"),
@@ -50,8 +59,11 @@ def load(f, l):
     return d[c].rename(l)
 
 
-def build(out_f, emp_f):
+def build(out_f, deflate, emp_f):
     out = load(out_f, "out")
+    if deflate:  # nominal series -> real via the neutral GDP deflator
+        gd = load("gdp_deflator_GDPDEF.csv", "gd")
+        out = out / gd.reindex(out.index).interpolate() * 100
     emp = load(emp_f, "emp").resample("QS").mean()
     df = pd.DataFrame({"out": out, "emp": emp}).dropna()
     df["prod_g"] = (df["out"] / df["emp"]).pct_change(4) * 100
@@ -60,7 +72,7 @@ def build(out_f, emp_f):
     return df.dropna()
 
 
-data = {name: build(of, ef) for name, (of, ef, _) in SECTORS.items()}
+data = {name: build(of, defl, ef) for name, (of, defl, ef, _) in SECTORS.items()}
 
 print("Productivity growth = output growth - employment growth (avg YoY, %/yr)\n")
 print(f"  {'sector':<22}{'period':<12}{'prod':>8}{'output':>9}{'emp':>8}")
@@ -74,7 +86,7 @@ for name, df in data.items():
 fig, (axL, axR) = plt.subplots(1, 2, figsize=(17, 6.5), gridspec_kw={"width_ratios": [1.25, 1]})
 
 # left: rolling 4q-smoothed YoY productivity growth over time
-for name, (of, ef, color) in SECTORS.items():
+for name, (of, defl, ef, color) in SECTORS.items():
     df = data[name]
     sm = df["prod_g"].rolling(4, min_periods=2).mean()
     axL.plot(df.index, sm, color=color, lw=2.3, label=name)
@@ -101,8 +113,8 @@ for k, (lbl, a, z) in enumerate([PERIODS[0], PERIODS[2]]):
 axR.axhline(0, color="black", lw=0.9)
 axR.set_xticks(x); axR.set_xticklabels(labels, fontsize=9)
 axR.set_ylabel("Avg YoY growth (%/yr)", fontsize=11)
-axR.set_title("Same acceleration, opposite mechanism\n"
-              "Finance: output speeds up, hiring freezes.  Tech: output slows, jobs cut.",
+axR.set_title("The decomposition, 2013-2019 vs 2024-2025 (real terms)\n"
+              "Finance: real output speeds up, hiring stalls.  Tech: output holds, jobs cut.",
               fontsize=11, fontweight="bold")
 axR.legend(fontsize=8, ncol=1, loc="upper right"); axR.grid(True, axis="y", ls="--", alpha=0.35)
 

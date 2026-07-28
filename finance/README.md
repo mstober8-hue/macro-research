@@ -2,7 +2,7 @@
 
 **A separate analysis from the [main AI-exposure study](../README.md).** The nine-phase analysis in the repository root measures Okun's law with the unemployment rate, and on that measure Finance looked like the calmest sector in the study. This folder shows the unemployment rate was the wrong instrument for Finance, re-measures the sector on employment, and settles how much of the result is real versus inflation.
 
-Reproduce with `python3 finance_unemployment.py`, `python3 finance_employment.py`, `python3 finance_real_vs_nominal.py`, and `python3 finance_real_bracket.py`.
+Reproduce with `python3 finance_unemployment.py`, `python3 finance_employment.py`, `python3 finance_real_vs_nominal.py`, `python3 finance_real_bracket.py`, and `python3 productivity_acceleration.py`. All five now measure finance output in real terms (nominal `VAFI` deflated in-script by `GDPDEF`).
 
 > **Correction notice.** An earlier version of this document reported that finance output "doubled" and productivity rose "79 percent." Those were **nominal** figures: the output series in use (`VAFI`) is current-dollar value added, not real. Deflated properly, the decoupling is real but much smaller than the nominal illusion, and it hinges critically on which price index you use. The corrected numbers are below.
 
@@ -43,17 +43,23 @@ The gap between the two real lines is the decoupling the finance deflator hides.
 
 ## Is the decoupling accelerating? Yes, and it survives deflation
 
-The sharper question is whether the **rate** is speeding up recently. Measured in real terms with the neutral deflator (productivity growth = real output growth − employment growth):
+The sharper question is whether the **rate** is speeding up recently. Measured in real terms with the neutral deflator and Finance & Insurance employment, averaging year-over-year growth within each period (`productivity_acceleration.py`; productivity growth = real output growth − employment growth):
 
 | Period | Real output | Employment | Real productivity |
 |---|---:|---:|---:|
-| 2013-2019 | +4.9%/yr | +1.5%/yr | +3.4%/yr |
-| 2022-2023 | +0.6%/yr | +0.6%/yr | ~0%/yr |
-| **2024-2025** | **+6.9%/yr** | **−0.1%/yr** | **+7.0%/yr** |
+| 2013-2019 | +3.6%/yr | +1.4%/yr | +2.1%/yr |
+| 2022-2023 | +0.2%/yr | +1.3%/yr | −1.1%/yr |
+| **2024-2025** | **+5.6%/yr** | **+0.2%/yr** | **+5.5%/yr** |
 
-This is the finding that matters. Even after removing inflation with a neutral price index, finance real productivity **accelerated sharply in 2024-2025**, and it did so with employment flat-to-falling: real output grew about 7 percent while headcount slightly shrank. Output up, workers not, in the exact window generative AI was deploying. That is the labor-substitution signature, and it is not a nominal artifact.
+(Endpoint-to-endpoint CAGRs give a similar shape with a somewhat larger 2024-2025 figure, about +7%/yr; the avg-YoY numbers above are the ones the committed script reproduces.)
 
-The [`productivity_acceleration.py`](productivity_acceleration.py) chart shows the decomposition next to Information (tech). Both of the two most AI-exposed sectors show a 2024-2025 productivity acceleration reached with flat or negative hiring, which is the pattern labor-substituting AI would produce and which does not appear in the low-AI goods sectors.
+This is the finding that matters. Even after removing inflation with a neutral price index, finance real productivity **accelerated sharply in 2024-2025**, and it did so with employment nearly flat: real output grew about 5.6 percent a year while headcount grew 0.2 percent. Output up, workers not, in the exact window generative AI was deploying. That is the labor-substitution signature, and it is not a nominal artifact.
+
+![Productivity acceleration and decomposition, finance vs tech](productivity_acceleration.png)
+
+The decomposition next to Information (tech) adds the key nuance. Both of the two most AI-exposed sectors accelerate in 2024-2025, but by different routes: **finance from the output side** (real output speeds up while hiring stalls) and **tech from the labor side** (output growth holds around +6.7%/yr while employment turns outright negative, −2.5%/yr). Tech's shape, producing as much with fewer people, is the cleaner labor-substitution signature; finance's is consistent with AI but also with a strong financial market.
+
+One further caution from `finance_employment.py`: the rolling employment-elasticity's spike to ~+0.5 in windows ending 2022 is a COVID-rebound artifact (output and employment recovering together inside the window), not an AI signal. The informative feature of that series is its long stay near zero and its recent drift negative.
 
 ---
 

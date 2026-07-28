@@ -16,19 +16,22 @@ decoupling: employment (headcount). It computes:
     pre vs post Q4 2022 and as a 12-quarter rolling series
   - a JOLTS read (hires and openings) on whether hiring slowed while output grew
 
-Finding: Finance real output more than doubled (index 209 by 2025) while
-headcount grew only 17% and output-per-worker rose ~79%. The employment
-elasticity was already near zero before 2022 (a long automation-era trend) and
-fell to negative by 2025. The decoupling is real and large; the unemployment
-test simply could not see it.
+Finding (REAL terms; the nominal series is deflated with the neutral GDP
+deflator GDPDEF because BEA's finance-specific deflator is FISIM-broken):
+finance real output grew ~56% since 2013 while headcount grew ~13-17%, a
+genuine output-to-jobs decoupling the unemployment test could not see.
+CAUTION on the rolling elasticity gamma: its spike to ~+0.5 in windows ending
+2022 is a COVID-rebound artifact (output and employment recovering together
+inside the window), not an AI signal; the informative feature is gamma's
+long stay near zero and its recent drift negative.
 
 Data series (FRED / BLS), placed in FRED-Data/:
-  USFIRE.csv          All Employees, Financial Activities (thousands, headcount)
-  CEU5500000002.csv   Average Weekly Hours, Financial Activities
-  FnceservcGDP.csv    Real value added, Finance & Insurance (output)
-  LNU04032238.csv     Unemployment rate, Financial Activities
-  JTU510099HIR.csv    JOLTS hires rate, Financial Activities
-  JTU510099JOR.csv    JOLTS job openings rate, Financial Activities
+  financial_activities_employment_USFIRE.csv          All Employees, Financial Activities (thousands, headcount)
+  financial_activities_avg_weekly_hours_CEU5500000002.csv   Average Weekly Hours, Financial Activities
+  financial_activities_value_added_VAFI.csv    NOMINAL value added (deflated in-script via GDPDEF)
+  financial_activities_unemployment_rate_LNU04032238.csv     Unemployment rate, Financial Activities
+  financial_activities_hires_rate_JTU510099HIR.csv    JOLTS hires rate, Financial Activities
+  financial_activities_job_openings_rate_JTU510099JOR.csv    JOLTS job openings rate, Financial Activities
 """
 
 import os
@@ -52,12 +55,14 @@ def load(filename, label):
     return df.iloc[:, 0].rename(label)
 
 
-emp = load("USFIRE.csv", "emp").resample("QS").mean()          # headcount, thousands
-out = load("FnceservcGDP.csv", "out")                          # real output
-u   = load("LNU04032238.csv", "u").resample("QS").mean()       # unemployment rate
-hrs = load("CEU5500000002.csv", "hrs").resample("QS").mean()   # avg weekly hours
-hir = load("JTU510099HIR.csv", "hires").resample("QS").mean()  # JOLTS hires rate
-jor = load("JTU510099JOR.csv", "openings").resample("QS").mean()
+emp = load("financial_activities_employment_USFIRE.csv", "emp").resample("QS").mean()          # headcount, thousands
+out_nom = load("financial_activities_value_added_VAFI.csv", "out")   # NOMINAL value added
+gdpdef  = load("gdp_deflator_GDPDEF.csv", "gd")                       # neutral GDP deflator
+out     = (out_nom / gdpdef.reindex(out_nom.index).interpolate() * 100).rename("out")  # REAL output
+u   = load("financial_activities_unemployment_rate_LNU04032238.csv", "u").resample("QS").mean()       # unemployment rate
+hrs = load("financial_activities_avg_weekly_hours_CEU5500000002.csv", "hrs").resample("QS").mean()   # avg weekly hours
+hir = load("financial_activities_hires_rate_JTU510099HIR.csv", "hires").resample("QS").mean()  # JOLTS hires rate
+jor = load("financial_activities_job_openings_rate_JTU510099JOR.csv", "openings").resample("QS").mean()
 
 df = pd.DataFrame({"emp": emp, "out": out, "u": u, "hrs": hrs}).dropna()
 df["opw"] = df["out"] / df["emp"]
