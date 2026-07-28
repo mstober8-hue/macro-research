@@ -74,6 +74,22 @@ The natural next step, and the reason these three sectors were pulled out togeth
 
 These are hypotheses to test, not findings. This document exists to establish the pattern cleanly first.
 
+## The fiscal hypothesis, tested
+
+> **Verdict: NOT SUPPORTED, but the test is structurally weak.**
+
+`fiscal_control.py` pulls federal obligations by NAICS from the USAspending API (quarterly, back to 2008) and adds fiscal intensity, obligations as a share of the sector's value added, as a third control alongside the rate control. If fiscal spending inflated goods-sector output without hiring, adding it should shrink those sectors' Δβ toward zero and leave the service sectors alone.
+
+![Testing the fiscal hypothesis](fiscal_control.png)
+
+**The acts themselves cannot be isolated.** IIJA carries fund code 1 and CHIPS code 8, so both are directly taggable, but the tagged obligations reach only about 0.08% of construction value added and 0.00% elsewhere. Nearly all IIJA money goes to states as formula grants and is never booked against a construction NAICS in federal contract data. The IRA has no fund code at all and works mainly through tax credits, which never appear in obligation data. So the specific 2021-2022 acts are effectively invisible here.
+
+**Total federal obligations are meaningful but do not explain the breakdown.** They are economically large (4-6% of construction value added, 9-11% of manufacturing) and did rise roughly 2 points in the goods sectors after 2021. But adding them as a control moves the goods sectors' mean Δβ only from +0.218 to +0.189, and the fiscal coefficient is statistically significant in just 1 of 8 sectors (Transportation).
+
+**A lagged specification appears to work, then fails falsification.** Lagging fiscal intensity four quarters, on the theory that obligations become activity about a year later, appears to collapse the goods breakdown (+0.218 to +0.022). That is exactly what the fiscal story predicts, so it deserved a check. On the common lagged sample the control shrinks the **non-goods** sectors more than the goods sectors (−0.068 against −0.042), and the single largest move is Information, which has no plausible fiscal story. The apparent collapse is a sample artifact of lagging, not a fiscal effect.
+
+**What this leaves.** The fiscal explanation is not refuted, because federal contract data structurally cannot see the money that matters, and obligations are not the same thing as activity. But it is no longer an untested assumption presented as the leading candidate. The honest position is that the goods-sector inversion has no confirmed explanation: it is not COVID, not interest rates, not AI exposure, and not federal contract spending as far as this test can measure it.
+
 ## Reproducing this
 
 From this directory:
@@ -81,6 +97,7 @@ From this directory:
 ```
 python3 rolling_okun_inversion.py   # the three-sector rolling coefficients + probabilities
 python3 comovement.py               # co-movement heatmap + the four-sector overlay
+python3 fiscal_control.py           # tests the fiscal hypothesis (fetches USAspending on first run)
 ```
 
 Both read the FRED CSVs from `../FRED-Data/` and write their charts (`rolling_okun_inversion.png`, `comovement.png`) plus the console tables above. Requires `pandas`, `numpy`, `matplotlib`, and `scipy`.
