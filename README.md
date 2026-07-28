@@ -8,7 +8,7 @@ This project set out to test that, reached a conclusion that seemed to *contradi
 
 ## The bottom line
 
-1. **A real, statistically extreme break in the growth-to-jobs relationship appears after Q4 2022 in the aggregate U.S. economy.** The rolling output-unemployment correlation, near −1.0 for two decades, inverts to +0.81, something the historical distribution essentially never produces.
+1. **A real, statistically extreme break in the growth-to-jobs relationship appears after Q4 2022 in the aggregate U.S. economy.** The rolling output-unemployment correlation, near −1.0 for two decades, inverts to +0.81. A distribution-free bootstrap puts the odds of that under a continuation of the pre-2022 regime at about 1 in 2,000 (p ≈ 0.0005).
 2. **Whether that break looks like AI depends entirely on how you measure labor.** Measured on unemployment, AI exposure predicts *less* breakdown (the "contradicts AI" result). But unemployment is saturated for the high-AI service sectors, which sit at their unemployment floor and cannot register a decoupling. Measured on **real productivity** (real output per worker, the variable AI actually targets), AI exposure significantly *predicts* the output-to-jobs decoupling (r = +0.77, p = 0.016). A purpose-built job-replaceability score predicts it even better (r = +0.90, p = 0.001). **But this is a claim about levels, not timing:** a direct test of whether replaceable sectors *accelerated* after AI arrived comes back insignificant, so the result cannot be pinned to generative AI specifically.
 3. **There is a second, separate story in the physical economy.** The biggest unemployment-side inversions landed in Construction, Manufacturing, Transportation, and Wholesale, the low-AI goods sectors, and arrived in 2024-2025. Those most likely reflect the 2021-2022 fiscal spending wave (IIJA, CHIPS Act, IRA), not AI.
 
@@ -86,6 +86,7 @@ Finance originally had a fourth mismatch (employment included Real Estate); it i
 | [`real_productivity_ai_crosssection.py`](real_productivity_ai_crosssection.py) | The correction: the cross-section on real productivity (the flip) |
 | [`ai_replaceability_score.py`](ai_replaceability_score.py) | The job-replaceability score that improves on AIIE |
 | [`recency_test.py`](recency_test.py) | Tests whether the AI result is timed to AI (it is not: levels hold, acceleration does not) |
+| [`permutation_test.py`](permutation_test.py) | Distribution-free bootstrap replacing every normal-approximation p-value |
 | [`finance/`](finance/README.md) | Finance deep dive (all content also summarized in Part 3 below) |
 | [`physical-sector-inversion/`](physical-sector-inversion/README.md) | Goods-sector deep dive (all content also summarized in Part 4 below) |
 | [`generate_results_csv.py`](generate_results_csv.py) | Compiles all regression results into `results_comprehensive.csv` (12 labeled sections) |
@@ -104,9 +105,11 @@ Take real GDP, potential GDP, the unemployment rate, and the natural rate; conve
 
 ![Rolling Okun coefficient and correlation](rolling_okuns_coefficient.png)
 
-From 2000 to 2019 the coefficient stays firmly negative and the rolling correlation sits near −1.0, the rule working almost mechanically for two decades. **After Q4 2022 the coefficient swings wildly and the correlation inverts to +0.81.** Under the pre-2022 distribution, a value that positive has probability ~0.0000. The sign of the relationship flipped, its magnitude became unstable, and the inversion is far into the tail of history. The same inversion appears in the difference form of the aggregate data (peak r ≈ +0.55), so it is not an artifact of the gap specification.
+From 2000 to 2019 the coefficient stays firmly negative and the rolling correlation sits near −1.0, the rule working almost mechanically for two decades. **After Q4 2022 the coefficient swings wildly and the correlation inverts to +0.81.** The same inversion appears in the difference form of the aggregate data (peak r ≈ +0.55), so it is not an artifact of the gap specification.
 
-Caveats: the post-2022 sample is short (~10-13 clean quarters), rolling windows overlap (which makes the p-value optimistic), and the windows splice across the COVID gap. This documents a break; it does not identify a cause. Every later phase tries to.
+**How unlikely is that, properly measured?** The normal approximation used elsewhere in this project reports p ≈ 0.0000, but it assumes normality and ignores that overlapping windows are autocorrelated, both of which understate the tail. A distribution-free circular block bootstrap (null: the pre-2022 regime simply continued, resampling the actual pre-2022 data in blocks) gives **p ≈ 0.0005**, roughly 1 in 2,000. That is orders of magnitude larger than the naive figure and still decisive, so the aggregate break survives the stricter test. See `permutation_test.py`.
+
+Caveats: the post-2022 sample is short (~10-13 clean quarters) and the windows splice across the COVID gap. This documents a break; it does not identify a cause. Every later phase tries to.
 
 <details>
 <summary>The three supporting aggregate charts (level scatter, gap divergence, residual quadrant)</summary>
@@ -394,23 +397,25 @@ The goods sectors are their own story, and it is not AI. This part deliberately 
 
 ![Rolling Okun coefficient and correlation for the three goods sectors, COVID included](physical-sector-inversion/rolling_okun_inversion.png)
 
-| Sector | AIIE | Rolling r through COVID | Inversion onset | Peak r | p(r ≥ peak) | Δβ |
-|---|---:|---|---|---:|---:|---:|
-| Construction | −1.00 | −0.68 to −0.91 | 2024 Q2 | +0.82 | 0.019 | +0.45 |
-| Manufacturing | −0.48 | −0.87 to −0.92 | 2024 Q3 | +0.68 | 0.007 | +0.49 |
-| Transportation & Utilities | −0.34 | −0.91 to −0.97 | 2024 Q4 | +0.60 | 0.007 | +0.51 |
+| Sector | AIIE | Rolling r through COVID | Inversion onset | Peak r | p (normal) | **p (bootstrap)** | Δβ |
+|---|---:|---|---|---:|---:|---:|---:|
+| Construction | −1.00 | −0.68 to −0.91 | 2024 Q2 | +0.82 | 0.018 | **0.036** | +0.45 |
+| Manufacturing | −0.48 | −0.87 to −0.92 | 2024 Q3 | +0.68 | 0.006 | **0.031-0.046** | +0.49 |
+| Transportation & Utilities | −0.34 | −0.91 to −0.97 | 2024 Q4 | +0.60 | 0.007 | **0.034-0.058** | +0.51 |
+
+**These probabilities were revised down in significance by the bootstrap** (`permutation_test.py`). The normal approximation originally reported 0.006 to 0.018; the distribution-free version gives roughly 0.03 to 0.058, and a Bonferroni correction across the three sectors would require p < 0.017, which none of them clear. The inversions are real and simultaneous, but they should be described as **marginal** rather than clearly significant.
 
 Three findings:
 
 **During COVID the law held harder than ever.** Output and jobs collapsed together, then recovered together, driving the rolling correlation to its most negative values in the sample (−0.68 to −0.97). Whatever inverted these sectors, it was not the pandemic.
 
-**The inversion is a 2024-2025 event.** Construction first (2024 Q2), then Manufacturing (2024 Q3), then Transportation (2024 Q4), reaching correlations of +0.60 to +0.82, values with probability 0.007 to 0.019 under each sector's own pre-2022 history. That timing postdates COVID by years and generative AI by roughly two years.
+**The inversion is a 2024-2025 event.** Construction first (2024 Q2), then Manufacturing (2024 Q3), then Transportation (2024 Q4), reaching correlations of +0.60 to +0.82, values with bootstrap probability roughly 0.03 to 0.058 under each sector's own pre-2022 history. That timing postdates COVID by years and generative AI by roughly two years.
 
 **They move as one cluster, and Wholesale joins it.** Manufacturing and Transportation's rolling coefficients are nearly the same series (correlation 0.92), Construction a looser third (0.73-0.78), and their raw YoY unemployment changes correlate 0.80-0.89 even with COVID removed. Scanning all nine industries for the same signature (co-moves with the cluster and inverted recently) adds exactly one member: **Wholesale Trade** (cluster correlation 0.66, 2025 rolling r +0.44). The four are the physical goods economy: build it, make it, move it, distribute it. The service sectors all stay negative through 2025, and Information's marginal inversion (+0.12) belongs to the AI story in Part 3.
 
 ![Rolling-beta correlation heatmap and the four goods sectors overlaid](physical-sector-inversion/comovement.png)
 
-That the inverters are exactly the goods producers and the holders are exactly the services is the strongest hint about cause: something specific to physical production, not a whole-economy shift. Two candidates fit the 2023-2025 timing, and neither has been tested directly yet: **federal fiscal spending** (IIJA 2021, CHIPS 2022, IRA 2022 money reaching construction sites and factories as output without proportional hiring; testable with a fiscal-exposure control built from USAspending.gov outlays by NAICS) and **the sustained high-rate environment** (rate-sensitive sectors producing on already-financed backlogs while new hiring stalls). Honest limits: each inversion rests on four to six post-onset quarters, overlapping windows make the probabilities optimistic, and co-movement alone is not unique to these sectors (all unemployment co-moves somewhat); the distinctive feature is the shared hold-then-invert shape on the same clock.
+That the inverters are exactly the goods producers and the holders are exactly the services is the strongest hint about cause: something specific to physical production, not a whole-economy shift. Two candidates fit the 2023-2025 timing, and neither has been tested directly yet: **federal fiscal spending** (IIJA 2021, CHIPS 2022, IRA 2022 money reaching construction sites and factories as output without proportional hiring; testable with a fiscal-exposure control built from USAspending.gov outlays by NAICS) and **the sustained high-rate environment** (rate-sensitive sectors producing on already-financed backlogs while new hiring stalls). Honest limits: each inversion rests on four to six post-onset quarters, the bootstrap-corrected probabilities are only marginal (0.03 to 0.058, none surviving Bonferroni), and co-movement alone is not unique to these sectors (all unemployment co-moves somewhat); the distinctive feature is the shared hold-then-invert shape on the same clock.
 
 ---
 
@@ -419,7 +424,7 @@ That the inverters are exactly the goods producers and the holders are exactly t
 The project split one question into pieces with different answers.
 
 ### The aggregate break → **ESTABLISHED**
-The output-unemployment correlation inverted from about −1.0 to +0.81 after Q4 2022 (+0.55 in the difference form), with near-zero historical probability. Stands on its own.
+The output-unemployment correlation inverted from about −1.0 to +0.81 after Q4 2022 (+0.55 in the difference form). A distribution-free block bootstrap puts this at p ≈ 0.0005 under the null that the pre-2022 regime continued, so it survives the stricter test that replaced the project's original normal approximation. Stands on its own.
 
 ### AI is driving a real output-to-jobs decoupling in the high-replaceability sectors → **SUPPORTED, once measured correctly**
 On unemployment the dose-response test contradicts AI, but that is an artifact of the unemployment floor in the high-AI service sectors. On real productivity, AI exposure predicts the decoupling (r = +0.77, p = 0.016), and the job-replaceability score predicts it better (r = +0.90, p = 0.001). Information and Finance are the clearest cases: both accelerate sharply in 2024-2025, tech by cutting jobs while output holds, finance by growing real output ~+5.6%/yr with hiring at +0.2%/yr.
@@ -427,13 +432,13 @@ On unemployment the dose-response test contradicts AI, but that is an artifact o
 **Important limit, established by direct test.** This is a levels claim. When the same nine sectors are tested on whether replaceable industries *accelerated* more after AI arrived (2024-2025 versus their own 2013-2019 baseline), the relationship is not significant (r = +0.45, p = 0.22), because three of the four least-replaceable sectors accelerated just as much. So the evidence supports "sectors with replaceable work sustain higher productivity growth" but not "AI caused a break in 2022."
 
 ### The goods-sector inversions → **SEPARATE MECHANISM (likely fiscal)**
-Construction, Manufacturing, Transportation, and Wholesale inverted together in 2024-2025, survive all rate specifications, and have the lowest AI exposure and replaceability in the sample. Most likely IIJA/CHIPS/IRA, still untested directly.
+Construction, Manufacturing, Transportation, and Wholesale inverted together in 2024-2025, survive all rate specifications, and have the lowest AI exposure and replaceability in the sample. Most likely IIJA/CHIPS/IRA, still untested directly. Note the bootstrap downgrade: individually these inversions are marginal (p ≈ 0.03-0.058, none surviving a Bonferroni correction), so the cluster's strength rests on all four moving together rather than on any single sector's significance.
 
 ### Tech's break survived everything thrown at it → **BEST-STRESS-TESTED SINGLE RESULT**
 Information's post-2022 slope stays inside +0.150 to +0.223 across eight specifications (baseline, five rate controls, two overhang controls), and its real productivity (+7.2%/yr, with genuine falling deflators, no FISIM issue) is the highest in the sample while its 2024-2025 employment is shrinking.
 
 ### What this is not
-Correlation, at n = 9. The long-run-automation objection is not a hypothetical: it was tested directly (see the recency test) and **survived**, since exposure does not significantly predict the post-2022 acceleration in productivity growth. AIIE and the replaceability score are both built from task automatability, so "automatable sectors show labor-saving productivity" carries some circularity. Finance's magnitude depends on a deflator judgment. The defensible claim is precise and narrow: the original "contradicts AI" headline does not survive correct measurement, and sectors whose jobs are more replaceable by AI sustain materially higher real productivity growth, including in 2024-2025. What is *not* established is that generative AI caused a discontinuity at its arrival.
+Correlation, at n = 9. Two objections were tested directly rather than left as caveats, and both bit: the overlapping-window problem (a block bootstrap raised the aggregate p from 0.0000 to 0.0005, and the physical sectors from ~0.007 to ~0.04) and the long-run-automation objection, which was tested via the recency test and **survived**, since exposure does not significantly predict the post-2022 acceleration in productivity growth. AIIE and the replaceability score are both built from task automatability, so "automatable sectors show labor-saving productivity" carries some circularity. Finance's magnitude depends on a deflator judgment. The defensible claim is precise and narrow: the original "contradicts AI" headline does not survive correct measurement, and sectors whose jobs are more replaceable by AI sustain materially higher real productivity growth, including in 2024-2025. What is *not* established is that generative AI caused a discontinuity at its arrival.
 
 ## Methodology bugs and errors caught
 
