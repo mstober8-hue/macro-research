@@ -6,9 +6,9 @@ For 60 years there has been a reliable rule in economics: when the economy grows
 
 ## The bottom line
 
-A real, statistically extreme break in the growth-to-jobs relationship shows up after Q4 2022 in the aggregate U.S. economy. But once the pattern is broken down industry by industry, "AI broke everything" does not hold. The test built specifically to check it runs the wrong direction across nine industries.
+A real, statistically extreme break in the growth-to-jobs relationship shows up after Q4 2022 in the aggregate U.S. economy. Breaking it down industry by industry, the answer turns on how you measure labor. Measured on unemployment, the dose-response test runs the wrong direction and looks like it contradicts the AI story. But unemployment is the wrong instrument for the high-AI service sectors, which sit at their unemployment floor. Measured on real productivity, the variable AI actually targets, AI exposure significantly predicts the output-to-jobs decoupling (r = +0.77, p = 0.016), which reverses the headline. See [where the whole thing stands](#where-the-whole-thing-stands).
 
-What survives closer inspection is a two or three mechanism story. Tech shows a break that survived every alternative explanation tried against it, which leaves AI as the standing candidate. Meanwhile the biggest breakdowns actually landed in construction and manufacturing, which also survived interest-rate controls and most likely reflect the 2021-2022 fiscal spending wave (IIJA, CHIPS Act, IRA) inflating physical-sector output without proportional hiring.
+The rest of the story is a two or three mechanism picture. Tech shows a break that survived every alternative explanation tried against it, which leaves AI as the standing candidate, and finance turns out to decouple in real terms too once its output is deflated properly. Meanwhile the biggest unemployment-side breakdowns landed in construction and manufacturing, which survived interest-rate controls and most likely reflect the 2021-2022 fiscal spending wave (IIJA, CHIPS Act, IRA) inflating physical-sector output without proportional hiring.
 
 | | |
 |---|---|
@@ -396,9 +396,20 @@ The correlation inverted from about −1.0 to +0.81 after Q4 2022, with a probab
 
 Tech's post-period slope stayed positive across eight distinct model specifications (six rate plus two overhang), with a range of just +0.150 to +0.223. Ruled out: rate shocks measured six ways, sustained rate drag, contemporaneous overhiring, and the dissipating overhiring correction. The standing candidate is AI-driven productivity substitution.
 
-### "AI is breaking Okun's Law economy-wide" → **NOT SUPPORTED**
+### "AI is breaking Okun's Law economy-wide" → **THE VERDICT DEPENDS ENTIRELY ON THE LABOR VARIABLE**
 
-The cross-sectional test, which is the actual test built to check whether AI exposure predicts breakdown, runs the wrong direction across every rate specification and under both AIIE and BTOS as the exposure measure. Sign consistency across specs is real, but consistently in the wrong direction, and none survive Bonferroni correction. This doesn't disprove an AI role, but the direct dose-response evidence points the opposite way.
+This was originally reported as NOT SUPPORTED, and on the unemployment measure it is: the cross-sectional test runs the wrong direction across every rate specification and under both AIIE and BTOS (r = −0.61, p = 0.08). But that result turned out to be an artifact of the instrument. Unemployment is saturated for the high-AI service sectors (Finance, Professional & Business), which sit at their unemployment floor and cannot register a decoupling no matter how much output outruns hiring. Re-measured on **real productivity** (real output per worker, the variable AI actually targets), the same nine industries reverse:
+
+| Labor variable | r vs AI exposure | p | verdict |
+|---|---:|---:|---|
+| Unemployment Δβ (original Phase 3) | −0.61 | 0.083 | contradicts AI |
+| Real productivity growth 2013-25 | **+0.77** | **0.016** | **supports AI** |
+
+![The headline reverses depending on the labor variable](real_productivity_ai_crosssection.png)
+
+The three highest-AI sectors (Information +7.2%/yr, Finance +2.8%/yr, Professional & Business +2.8%/yr) have the three highest real productivity growth rates; the lowest-exposure sectors (Construction, Transportation) have the lowest. That is the dose-response the AI hypothesis predicts, and it is significant. Reproduce with `real_productivity_ai_crosssection.py`.
+
+Two corrections were required to get here honestly, both documented in [`finance/`](finance/README.md): finance output had to be deflated (its `VAFI` series is nominal), and specifically *not* with BEA's own finance value-added deflator, which is FISIM-broken and understates real finance output in exactly the recent window. Caveats that keep this from being a victory lap: n = 9, so p = 0.016 is fragile; the productivity measure spans 2013-2025 and so partly reflects long-run automation rather than generative AI specifically; AIIE is built from task automatability, so "automatable sectors show labor-saving productivity" carries some circularity; and this is correlation, not proof of AI causation. The honest statement is that the project's central "contradicts AI" headline does not survive being measured on the right variable, and the corrected evidence leans the other way.
 
 ### Construction, manufacturing, and probably transportation → **POINTS TOWARD FISCAL POLICY**
 
