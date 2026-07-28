@@ -2,607 +2,341 @@
 
 **Is the historical link between economic output and unemployment weakening because of AI, and if so, where?**
 
-For 60 years there has been a reliable rule in economics: when the economy grows faster than usual, more people get hired and unemployment falls. Every 1 extra point of growth has historically pulled unemployment down by about half a point. If AI now lets companies produce more without hiring proportionally more workers, that rule should start to fail. Every policymaker who leans on it, including the Federal Reserve, the CBO, and the White House, would have to rebuild their playbook.
+For 60 years there has been a reliable rule in economics: when the economy grows faster than usual, more people get hired and unemployment falls. Every 1 extra point of growth has historically pulled unemployment down by about half a point. If AI now lets firms produce more without hiring proportionally more workers, that rule should start to fail, and every policymaker who leans on it (the Federal Reserve, the CBO, the White House) would have to rebuild their playbook.
+
+This project set out to test that, reached a conclusion that seemed to *contradict* the AI story, and then discovered the conclusion was an artifact of measuring the wrong labor variable. The corrected answer supports the AI story. The whole arc, including the wrong turn and the correction, is documented below, because how the answer flipped is as important as the answer.
 
 ## The bottom line
 
-A real, statistically extreme break in the growth-to-jobs relationship shows up after Q4 2022 in the aggregate U.S. economy. Breaking it down industry by industry, the answer turns on how you measure labor. Measured on unemployment, the dose-response test runs the wrong direction and looks like it contradicts the AI story. But unemployment is the wrong instrument for the high-AI service sectors, which sit at their unemployment floor. Measured on real productivity, the variable AI actually targets, AI exposure significantly predicts the output-to-jobs decoupling (r = +0.77, p = 0.016), which reverses the headline. See [where the whole thing stands](#where-the-whole-thing-stands).
+1. **A real, statistically extreme break in the growth-to-jobs relationship appears after Q4 2022 in the aggregate U.S. economy.** The rolling output-unemployment correlation, near −1.0 for two decades, inverts to +0.81, something the historical distribution essentially never produces.
+2. **Whether that break looks like AI depends entirely on how you measure labor.** Measured on unemployment, AI exposure predicts *less* breakdown (the "contradicts AI" result). But unemployment is saturated for the high-AI service sectors, which sit at their unemployment floor and cannot register a decoupling. Measured on **real productivity** (real output per worker, the variable AI actually targets), AI exposure significantly *predicts* the output-to-jobs decoupling (r = +0.77, p = 0.016). A purpose-built job-replaceability score predicts it even better (r = +0.90, p = 0.001).
+3. **There is a second, separate story in the physical economy.** The biggest unemployment-side inversions landed in Construction, Manufacturing, Transportation, and Wholesale, the low-AI goods sectors, and arrived in 2024-2025. Those most likely reflect the 2021-2022 fiscal spending wave (IIJA, CHIPS Act, IRA), not AI. This has its own [sub-project](physical-sector-inversion/README.md).
 
-The rest of the story is a two or three mechanism picture. Tech shows a break that survived every alternative explanation tried against it, which leaves AI as the standing candidate, and finance turns out to decouple in real terms too once its output is deflated properly. Meanwhile the biggest unemployment-side breakdowns landed in construction and manufacturing, which survived interest-rate controls and most likely reflect the 2021-2022 fiscal spending wave (IIJA, CHIPS Act, IRA) inflating physical-sector output without proportional hiring.
-
-| | |
-|---|---|
-| **Data window** | 2000 Q1 to 2026 Q1 |
-| **Pre-AI sample** | 59 clean quarters |
-| **Post-AI sample** | 13 clean quarters |
-| **Excluded (COVID)** | Q2 2020 to Q1 2021 |
-| **Cutoff** | Q4 2022 (ChatGPT launch) |
-
-> 📄 **The formal write-up is in [`docs/Okuns-Law-in-the-AI-Era-paper.pdf`](docs/Okuns-Law-in-the-AI-Era-paper.pdf).** This README is the companion: the same story in more depth, plus the code that produces every figure and the reasoning that connects each phase to the next.
+So the honest headline is: the aggregate break is real; the AI-driven part of it lives in the high-replaceability sectors (Information and Finance most clearly) and is visible in productivity, not unemployment; and a fiscal-driven part lives in the goods sectors.
 
 ---
 
 ## How to read this
 
-Findings in this project are not all equally solid, so each phase carries a verdict label saying what it actually stands on:
+Findings carry a verdict label for what they actually stand on:
 
-| Label | What it means |
+| Label | Meaning |
 |---|---|
-| **Established** | Held up to every test tried against it. Report it as the finding. |
-| **Contradicts** | The evidence points the opposite way from what was expected. Reported honestly rather than buried. |
-| **Uncertain** | Suggestive but underpowered. Do not build load-bearing claims on it. |
-| **Mixed / Open** | Reshapes the question rather than answering it. |
+| **Established** | Held up to every test tried against it. |
+| **Reversed** | An earlier conclusion that a later correction overturned. Both are shown. |
+| **Supports / Contradicts** | The evidence points toward or against the AI hypothesis. |
+| **Uncertain** | Suggestive but underpowered or measurement-fragile. |
+| **Separate mechanism** | Real, but points at something other than AI. |
 
-Two conventions used throughout the tables:
-
-- **Positive Δβ** means Okun's Law weakened in that industry. This is the direction that would support the AI story.
-- **Negative Δβ** means the law actually got stronger.
-
-Technical detail is tucked into expandable sections like this one, so the main text stays readable without them:
-
-<details>
-<summary><b>Example: the same question stated precisely</b></summary>
-
-Test whether Okun's Law, the empirical negative relationship between the output gap `Y_gap = (GDP − GDP_pot)/GDP_pot` and the unemployment gap `U_gap = U − NROU`, has structurally weakened since Q4 2022, and whether that weakening is attributable to AI exposure as opposed to rival mechanisms such as monetary tightening, post-COVID labor stock corrections, and fiscal spending.
-
-</details>
-
-## The chart map
-
-Six main charts do most of the work. Each answers a different question, and each exists because the previous chart's result raised the next question. Reading this table first makes the whole logic visible at a glance.
-
-| Phase | What it shows | Chart | What it raises next |
-|---|---|---|---|
-| **P1** | The output-employment relationship, stable for 20 years, becomes unstable and inverts after Q4 2022. Establishes that something happened. | `rolling_okuns_coefficient.png` | Which industries drove this? |
-| **P2** | Tech (high AI exposure) breaks the way P1 shows; hospitality (low exposure) stays fine. Suggestive of AI. | `industry_rolling_okun.png` | Does this scale to all 9 industries? |
-| **P3** | Nine data points, one line. The line slopes the opposite way from what the AI story predicts. Physical, non-AI sectors broke the most. | `industry_aiie_scatter.png` | Was it the Fed's rate hikes, not AI? |
-| **P4** | The same test run six ways of controlling for rates. Some breaks survive every control; others fall apart. | `phase2_rate_sensitivity.png` | Maybe the AI-exposure measure itself is broken? |
-| **P5** | Real 2025-26 AI adoption vs. the 2021 theoretical score. They line up almost perfectly. | `btos_cross_section.png` | For tech, is the break just the pandemic hiring bubble correcting? |
-| **P6** | Tech's break tested against a pandemic-overhiring correction. Overhiring is real but does not explain the break. | `info_overhang_regression.png` | Feeds the final verdict. |
+Two conventions in the tables: **positive Δβ** means Okun's law weakened in a sector (measured on unemployment); **higher real productivity growth** means output outran labor (the decoupling, measured properly).
 
 ## Data sources
 
-All data is from [FRED](https://fred.stlouisfed.org/) (Federal Reserve Economic Data). Two series measure output, two measure jobs, all resampled to quarterly frequency.
-
-| Series | What it is | Source |
-|---|---|---|
-| `GDPC1` | Real GDP (2017 dollars) | BEA, quarterly |
-| `GDPPOT` | Potential GDP: what GDP would be at maximum sustainable output | CBO estimate, quarterly |
-| `UNRATE` | Civilian unemployment rate | BLS, monthly (resampled to quarterly mean) |
-| `NROU` | Natural rate of unemployment | CBO estimate, quarterly |
-
-Industry-level analysis adds BEA real value-added and BLS unemployment series per sector, the [Felten, Raj & Seamans (2023)](https://onlinelibrary.wiley.com/doi/10.1002/soej.12558) AI Industry Exposure (AIIE) score, the Census Bureau's Business Trends and Outlook Survey (BTOS) AI-adoption question, and `FEDFUNDS` for interest-rate controls.
+All macro data is from [FRED](https://fred.stlouisfed.org/). The aggregate analysis uses real GDP (`GDPC1`), potential GDP (`GDPPOT`), the unemployment rate (`UNRATE`), and the natural rate (`NROU`). The industry analysis adds, per sector, BEA real value added, BLS unemployment, BLS employment (headcount) and hours, and JOLTS hires and openings, plus `FEDFUNDS` for rate controls and `GDPDEF` (the GDP deflator) for real-terms corrections. The exposure measures are the [Felten, Raj & Seamans (2023)](https://onlinelibrary.wiley.com/doi/10.1002/soej.12558) AI Industry Exposure (AIIE) index, the Census Bureau's BTOS AI-adoption survey, and, for the replaceability score, [Eloundou et al. (2023)](https://github.com/openai/GPTs-are-GPTs) GPT exposure, O\*NET Work Context, and the BLS OEWS industry-occupation matrix. Raw data lives in a gitignored `FRED-Data/` folder.
 
 ## Methodology
 
-**Converting to gaps.** Raw GDP can't be compared across decades, because the economy is simply bigger now than it was in 1990. A $1 billion deviation today means something completely different than it did in the 1990s. So both output and unemployment are converted into deviations from normal:
+**Gaps (aggregate).** Raw GDP cannot be compared across decades, so both output and unemployment are converted to deviations from normal: the output gap `(GDP − GDP_potential)/GDP_potential` and the unemployment gap `U − NROU`. Under Okun's law they move in opposite directions.
 
-```
-Output gap:        Y_gap = (GDPC1 − GDPPOT) / GDPPOT × 100
-Unemployment gap:   U_gap = UNRATE − NROU
-```
+**Difference form (industry).** Sectors have no published potential output or natural rate, so the industry work uses `ΔU = β·%ΔY`, the change in a sector's unemployment against its output growth, both as year-over-year differences (which cancel the seasonality in the not-seasonally-adjusted sector unemployment series). YoY differences are computed before any rows are dropped, since pandas differencing is positional.
 
-A positive `Y_gap` means the economy is running above potential; a positive `U_gap` means unemployment is above its natural rate. Under Okun's Law, `U_gap` should move in the opposite direction of `Y_gap`.
+**Excluding COVID.** Q2 2020 through Q1 2021 is dropped from the aggregate regressions (the shutdown was a policy shock, not an economic relationship). The industry pipeline also drops the rebound quarters through Q1 2022, whose year-ago baseline falls inside COVID. One sub-project deliberately *keeps* COVID, see below.
 
-**Industry-level analysis uses a simpler form.** Individual industries don't have their own published "potential output" or "natural unemployment rate," so the gap form can't be applied to them. The difference form uses changes instead:
+**Real, not nominal.** This turned out to be the load-bearing methodological point. Output must be measured in **real** (inflation-adjusted) terms. Most sectors use BEA real value added directly. Finance was the exception that nearly sank the analysis: its output series is nominal, and BEA's own finance deflator is broken (see the finance section), so finance is deflated with the neutral GDP deflator.
 
-```
-ΔU = β × %ΔY + ε
-```
-
-This just asks: when an industry's output moved, how much did its unemployment move? Classic Okun's Law implies β ≈ −0.3 to −0.5. A β drifting toward zero, or flipping positive, means growth has stopped pulling unemployment down.
-
-<details>
-<summary><b>Why the differencing horizon matters</b></summary>
-
-The BLS industry unemployment series are **not seasonally adjusted**. The early two-sector script (`IndustryAnalysis.py`) uses quarter-over-quarter differences, which leave some seasonal pattern in the data. That is a known weakness. The 9-industry pipeline and everything downstream of it use **year-over-year (4-quarter) differences**, which cancel seasonality exactly by comparing each quarter to the same quarter a year earlier.
-
-YoY differencing is computed on the intact series *before* any rows are excluded, since pandas differencing is positional and excluding first would silently compare wrong years. The exclusion window for these scripts extends through Q1 2022 to also drop the rebound quarters whose year-ago baseline falls inside COVID.
-
-</details>
-
-**Excluding COVID.** Q2 2020 through Q1 2021 is dropped from every regression and rolling statistic. GDP cratered and unemployment spiked because businesses were legally closed and people were legally prohibited from working, not because of any organic output-employment relationship. Including these quarters would corrupt every downstream regression by making the model look for economic structure in what was really a policy shock. They're kept in the raw dataset and plotted as red diamonds for transparency, just excluded from fitting.
-
-**Era split.** Q4 2022 (ChatGPT's public release) is used throughout as the pre/post-AI cutoff. This is a useful, visible marker but an admittedly imperfect one: enterprise AI adoption happened gradually, and the cutoff also sits right on top of the start of the Fed's most aggressive hiking cycle in roughly 40 years, which is a real confound addressed in Phase 4.
+**Era split.** Q4 2022 (ChatGPT's release) is the pre/post-AI marker throughout. It is a visible cutoff, not a measured adoption date, and it sits on top of the Fed's 2022-2023 hiking cycle, a confound addressed directly in Phase 4.
 
 ## Repository guide
 
-| Script | What it tests | Key outputs |
-|---|---|---|
-| [`GDPUnemployment.py`](GDPUnemployment.py) | Phase 1: aggregate Okun's Law, rolling 12-quarter coefficient | `gdp_unemployment_analysis.png`, `gap_divergence.png`, `gap_divergence_abs.png`, `gap_okun_residual_quadrant.png`, `rolling_okuns_coefficient.png` |
-| [`IndustryAnalysis.py`](IndustryAnalysis.py) | Phase 2: two-sector comparison, tech vs. hospitality | `industry_scatter.png`, `industry_rolling_okun.png`, `industry_okun_residual.png`, `industry_unemployment_correlation.png`, `industry_output_vs_unemployment.png` |
-| [`industry_okun_pipeline.py`](industry_okun_pipeline.py) | Phase 3: full 9-industry pipeline, Δβ regressed against AIIE | `okun_industry_summary.csv/.txt`, `okun_industry_detail.xlsx`, `industry_aiie_scatter.png`, per-industry charts |
-| [`okun_phase2_3.py`](okun_phase2_3.py) | Phase 4: six Federal Funds Rate control specifications | `phase2_results.csv`, `phase2_rate_sensitivity.png`, `phase3_cross_section.csv`, `phase3_cross_section.png` |
-| [`btos_interaction.py`](btos_interaction.py) | Phase 5: validates AIIE against real reported AI adoption | `btos_beta1_table.csv`, `btos_sector_ranking.csv`, `btos_cross_section.png` |
-| [`info_overhang.py`](info_overhang.py) | Phase 6: tests the pandemic-overhiring alternative for tech | `info_overhang_sanity.png`, `info_overhang_regression.png` |
-| [`generate_results_csv.py`](generate_results_csv.py) | Compiles every regression result into one labeled CSV | `results_comprehensive.csv` |
+| Script / folder | What it does |
+|---|---|
+| [`GDPUnemployment.py`](GDPUnemployment.py) | Phase 1: aggregate Okun's law, rolling coefficient, the break |
+| [`IndustryAnalysis.py`](IndustryAnalysis.py) | Phase 2: two-sector comparison, tech vs hospitality |
+| [`industry_okun_pipeline.py`](industry_okun_pipeline.py) | Phase 3: nine-industry cross-section, Δβ vs AIIE (unemployment) |
+| [`okun_phase2_3.py`](okun_phase2_3.py) | Phase 4: six Federal Funds Rate control specifications |
+| [`btos_interaction.py`](btos_interaction.py) | Phase 5: validates AIIE against real reported AI adoption |
+| [`info_overhang.py`](info_overhang.py) | Phase 6: tests the pandemic-overhiring alternative for tech |
+| [`real_productivity_ai_crosssection.py`](real_productivity_ai_crosssection.py) | The correction: the cross-section on real productivity (the flip) |
+| [`ai_replaceability_score.py`](ai_replaceability_score.py) | The job-replaceability score that replaces AIIE |
+| [`finance/`](finance/README.md) | Finance re-examined: unemployment floor, nominal-to-real correction |
+| [`physical-sector-inversion/`](physical-sector-inversion/README.md) | The goods-sector inversion (fiscal, not AI), COVID included |
+| [`generate_results_csv.py`](generate_results_csv.py) | Compiles all regression results into one labeled CSV |
 
-Run any script directly with `python3 <script>.py`; each writes its charts and tables to the repo root. Requires `pandas`, `numpy`, `matplotlib`, `scipy`, and (for the Excel export) `openpyxl`.
+Requires `pandas`, `numpy`, `matplotlib`, `scipy`, `openpyxl`.
 
 ---
 
-# The six phases
+# Part 1: The aggregate break
 
-The project ran in six phases. Each one either confirmed or complicated what the previous phase seemed to show.
-
-## Phase 1: Did Okun's Law actually break?
+## Phase 1: Did Okun's law actually break?
 
 > **Verdict: ESTABLISHED**
 
-**The question.** Has the historical relationship between growth and unemployment measurably weakened since generative AI arrived?
-
-**The method, in plain terms.** Take four government-published series: real GDP, CBO's estimate of the economy's sustainable output, the unemployment rate, and CBO's estimate of the "natural" unemployment rate. Convert both output and unemployment into gaps, meaning how far each sits above or below its normal level. Then, instead of running one big test across all 25+ years of data, re-run the test on a sliding 3-year window that moves quarter by quarter across the whole timeline. This makes it possible to see whether the growth-to-jobs relationship has been stable over time or whether it has changed.
-
-**What the numbers mean.** The relationship's slope (called `C`) answers: when the economy grows above normal, how much does unemployment change? Negative means the rule works, so growth up means unemployment down. Near zero means the rule has weakened. Positive means it has inverted, meaning growth up but unemployment also up, which normally does not happen. The correlation `r` is a −1 to +1 measure of how tightly the two move together.
+Take real GDP, potential GDP, the unemployment rate, and the natural rate; convert output and unemployment to gaps; then, instead of one regression across all history, re-estimate the Okun coefficient on a sliding 12-quarter window so its stability over time is visible.
 
 ![Rolling Okun coefficient and correlation](rolling_okuns_coefficient.png)
 
-**Key finding.** From 2000 to 2019, `C` stays firmly negative and the rolling correlation sits near −1.0, the rule working almost mechanically for two decades straight. After Q4 2022, `C` swings wildly, briefly spiking above +0.5 before collapsing back toward zero. The correlation inverts all the way to **+0.81**. Tested against the historical distribution of pre-2022 correlations, the probability of a value that positive appearing by chance is effectively zero (`p ≈ 0.0000`).
+From 2000 to 2019 the coefficient stays firmly negative and the rolling correlation sits near −1.0, the rule working almost mechanically for two decades. **After Q4 2022 the coefficient swings wildly and the correlation inverts to +0.81.** Under the pre-2022 distribution, a value that positive has probability ~0.0000. The sign of the relationship flipped, its magnitude became unstable, and the inversion is far into the tail of history.
 
-**What this shows:** something changed in the U.S. economy right around when generative AI arrived. The pattern of correlation flip, coefficient instability, and effectively-zero historical probability is not what the pre-2022 data would produce on its own.
+Caveats: the post-2022 sample is short (~10-13 clean quarters), rolling windows overlap (which makes the p-value optimistic), and the windows splice across the COVID gap. This documents a break; it does not identify a cause. Every later phase tries to.
 
-**What it doesn't show:** why it changed. A correlation flipping does not identify a cause. AI, interest rates, fiscal spending, and post-pandemic labor effects all hit at similar timing. Every downstream phase tries to distinguish these.
+<details>
+<summary>The three supporting aggregate charts (level scatter, gap divergence, residual quadrant)</summary>
 
-> **Bridge, P1 → P2.** P1 shows the whole U.S. economy broke, but the whole economy is nine industries mixed together. If any single one of them told a different story, the aggregate picture might be misleading. So the next question was: which industries actually drove this? The obvious starting point is to compare the industry most exposed to AI against the one least exposed.
+`GDPUnemployment.py` also produces `gdp_unemployment_analysis.png` (the level scatter of every quarter, and why COVID must be excluded), `gap_divergence.png` (the two gaps tracking until 2022 then running parallel), and `gap_okun_residual_quadrant.png` (the residual turning persistently red post-2022 and the recent quarters marching into the "law broken" quadrant).
 
-## Phase 2: Does the break show up more in AI-heavy industries?
+</details>
 
-> **Verdict: SUGGESTIVE BUT UNDERPOWERED**
+---
 
-**The question.** If AI is really the cause, the sector with the most exposure should break the rule and the sector with almost none shouldn't.
+# Part 2: Which industries, measured on unemployment
 
-**The method, in plain terms.** Swap in the difference form of Okun's Law described above, since individual industries have no "potential output." Pick two industries at opposite extremes of AI exposure: Information (tech, software, cloud, media) against Leisure & Hospitality (restaurants, hotels, entertainment). Apply the same rolling-window approach as Phase 1 to each industry separately.
+This is the part of the project that reached the wrong conclusion. It is kept in full because the correction only makes sense against it.
+
+## Phase 2: Two industries, high AI vs low AI
+
+> **Verdict: SUGGESTIVE**
+
+Comparing Information (high AI exposure) against Leisure & Hospitality (low), using the difference form: post-2022, tech's rolling coefficient turns unstable and drifts positive while hospitality's stays negative. Directionally the AI story, but two industries cannot carry a general claim.
 
 ![Two-sector rolling Okun comparison](industry_rolling_okun.png)
 
-**Key finding.** After 2022, tech's rolling relationship turns very unstable and drifts toward a slightly positive slope, while hospitality's stays predictably negative throughout. Directionally, this is the AI story: high-exposure sector breaks, low-exposure sector doesn't.
+## Phase 3: Nine industries against AI exposure
 
-The clearest picture of what that actually looks like is the output-versus-unemployment chart below. The left panel indexes each sector's real output to 100 at Q4 2019 (so growth is comparable regardless of dollar size) with each sector's unemployment rate overlaid. The right panel plots cumulative output growth against the unemployment rate for every quarter since Q4 2022.
+> **Verdict: CONTRADICTS AI (on unemployment), later REVERSED**
 
-![Output growth vs unemployment, tech vs hospitality](industry_output_vs_unemployment.png)
+Run the difference-form test on all nine sectors, pre and post Q4 2022, and regress each sector's change in Okun coefficient (Δβ) against its AIIE exposure score.
 
-Tech's output more than doubled relative to its pre-pandemic base while its unemployment rate barely moved, which is the dose of "output up, jobs flat" the whole project is chasing. Hospitality's output grew far less, and its dots in the right panel still trace the expected downward slope. Read plainly: tech produced dramatically more without hiring proportionally more; hospitality didn't produce much more, so there was nothing for its labor market to decouple from.
-
-**Why this can't stand alone.** A general claim about AI can't rest on two data points. Either industry might have broken, or held, for reasons completely unrelated to AI. This chart showed the aggregate break from P1 split into two components that both looked consistent with the AI story, and that apparent confirmation is exactly why P3 was necessary.
-
-> **Bridge, P2 → P3.** Two industries looked like the AI story predicts. But that is the equivalent of flipping a coin twice, getting heads twice, and calling the coin biased. The next step is the actual test: run the same setup on all nine major industries and see whether industries with more AI exposure show bigger breaks in a proper statistical sense.
-
-## Phase 3: The nine-industry dose-response test
-
-> **Verdict: CONTRADICTS THE SIMPLE AI STORY**
-
-**The question.** Across every major U.S. industry, does an industry's AI exposure actually predict how much its version of Okun's rule broke?
-
-**The method, in plain terms.** Run the same growth-versus-unemployment test on each of the nine major U.S. industries, once for the 59 quarters before Q4 2022 and once for the 13 quarters after. The change in each industry's Okun slope (called Δβ) captures how much its rule weakened. Then plot each industry's Δβ against its AI exposure score and fit a single line through the nine dots. If AI is the mechanism, the line should slope up: more exposure, more breakdown.
-
-<details>
-<summary><b>What AIIE is, precisely</b></summary>
-
-The AI Industry Exposure Index (Felten, Raj & Seamans 2023) rates each industry by how well its workforce's core tasks map to documented AI capabilities. It was built before ChatGPT, so it measures theoretical exposure to a broad set of AI applications such as image recognition, translation, and strategic reasoning, rather than LLM adoption specifically. It is validated against real 2025-26 adoption in Phase 5.
-
-</details>
-
-**The nine industries, ranked by AI exposure:**
-
-| Industry | AIIE | Slope pre | Slope post | Δβ (change) | Reading |
-|---|---:|---:|---:|---:|---|
-| Financial Activities | 1.538 | −0.022 | −0.057 | −0.035 | Held / strengthened |
-| **Information (tech)** | 1.268 | −0.134 | +0.180 | **+0.314** | Inverted |
-| Education & Health | 0.775 | −0.034 | −0.222 | −0.188 | Strengthened |
-| Professional & Business | 0.654 | −0.341 | −0.227 | +0.114 | Modestly weakened |
-| Wholesale Trade | 0.264 | −0.167 | +0.066 | +0.232 | Inverted |
-| Leisure & Hospitality | −0.315 | −0.356 | −0.302 | +0.054 | Barely moved |
-| Transportation & Utilities | −0.342 | −0.255 | +0.157 | +0.412 | Large inversion |
-| **Manufacturing** | −0.484 | −0.327 | +0.110 | **+0.437** | Large inversion |
-| **Construction** | −0.997 | −0.393 | +0.046 | **+0.439** | Large inversion |
+| Industry | AIIE | Δβ (unemployment) | Reading |
+|---|---:|---:|---|
+| Construction | −0.997 | +0.44 | large inversion |
+| Manufacturing | −0.484 | +0.44 | large inversion |
+| Transportation & Utilities | −0.342 | +0.41 | large inversion |
+| Information | 1.268 | +0.31 | inverted |
+| Wholesale Trade | 0.264 | +0.23 | inverted |
+| Professional & Business | 0.654 | +0.11 | modest |
+| Leisure & Hospitality | −0.315 | +0.05 | barely moved |
+| Financial Activities | 1.538 | −0.04 | held |
+| Education & Health | 0.775 | −0.19 | strengthened |
 
 ![Nine-industry AIIE cross-section](industry_aiie_scatter.png)
 
-**Key finding.** Only tech and Wholesale Trade behaved the way the AI story predicts. The three sectors with genuinely high exposure, Finance, Professional & Business, and Education & Health, held steady or got stronger. The three biggest breakdowns landed on low-exposure, physical, interest-rate-sensitive sectors: construction, manufacturing, and transportation. Run as a formal test: **r = −0.607, p = 0.083.** The correlation runs the opposite direction from the AI hypothesis. This is the single result that reshaped the whole project.
+The regression runs **the wrong way for the AI hypothesis: r = −0.61, p = 0.08.** The biggest breakdowns are in low-exposure physical sectors; the high-exposure sectors (Finance, Professional & Business, Education & Health) held or strengthened. This looked like a clean refutation of the AI story. It was not. The tell is Financial Activities at the bottom of the Δβ column: "held." Holding that up against the fact that finance is one of the most AI-exposed sectors in the economy is what eventually cracked the whole result open (Part 3).
 
-The three physical sectors that broke hardest get their own separate, COVID-inclusive analysis in [`physical-sector-inversion/`](physical-sector-inversion/README.md), which dates each inversion to 2024-2025 and sets up the fiscal-versus-rates question.
+## Phase 4: Was it interest rates?
 
-**Three cases worth understanding:**
+> **Verdict: Separate mechanism confirmed for the goods sectors**
 
-- **Construction's** correlation flipped from −0.73 to +0.78, a tight and reliable inversion, but its actual slope barely moved off zero (+0.046). The relationship became very predictable without becoming economically large. Its pre-2022 fit is also anchored by extreme housing-crash data points, which raises real questions about how much of the baseline reflects one crisis rather than a stable relationship.
-
-  <details>
-  <summary>Construction's full four-panel breakdown</summary>
-
-  ![Construction Okun detail](okun_construction.png)
-
-  The bottom-right panel is the clearest version of the story: real output (blue) has climbed well past its pre-pandemic level since 2022, while the unemployment rate (red, right axis) has stayed low and flat rather than falling further, which is what growth this strong would historically have done.
-
-  </details>
-
-- **Education & Health** shows a weak relationship in both periods, which is unsurprising since it is driven by demographics and public funding rather than the business cycle. Its data has an additional known problem: the employment series covers Education plus Health combined, while the output series covers only Health.
-
-  <details>
-  <summary>Education & Health's full four-panel breakdown</summary>
-
-  ![Education & Health Okun detail](okun_education_health.png)
-
-  The scatter (top-left) is a formless cloud rather than a clean line in either period, and the rolling β and r (top-right) drift close to zero for most of the sample. This is a sector where Okun's Law was never a strong fit to begin with, AI era or not.
-
-  </details>
-
-- **Finance** is the most interesting case, and it exposes a blind spot in the whole method. Measured on unemployment it looks like "the law held," because finance unemployment is pinned at its ~2% floor and cannot register anything. Measured on employment it is a genuine output-to-jobs decoupling: in real terms (deflated with a neutral price index) finance productivity has grown about 2.6 to 3.0%/yr, double the US average, and accelerated to roughly +7%/yr in 2024-2025 with headcount flat-to-falling. One caution learned the hard way here: the output series must be deflated, and specifically *not* with BEA's own finance value-added deflator, which is FISIM-contaminated and hides the decoupling. The full re-measurement, the nominal-versus-real correction, and the deflator problem get their own separate analysis in [`finance/`](finance/README.md).
-
-  <details>
-  <summary>Financial Activities' full four-panel breakdown</summary>
-
-  ![Financial Activities Okun detail](okun_financial_activities.png)
-
-  The bottom-right panel shows exactly this: output (blue) has been climbing steadily since 2007 with barely a dent from COVID, while unemployment (red) fell hard after the 2008 crisis and has stayed low and flat ever since. The divergence is real, but it is a decade-long trend, not a Q4 2022 event, which is why the sharp-break test built for this project doesn't flag it.
-
-  </details>
-
-
-
-> **Bridge, P3 → P4.** P3's surprising scatter needs a serious alternative explanation before it can be trusted, and there is one sitting exactly on the cutoff date. The Fed's most aggressive rate-hiking cycle in 40 years began at almost the same moment as ChatGPT, and the sectors that broke most (construction, manufacturing, transportation) are exactly the sectors most sensitive to interest rates. A test that can't tell rates apart from AI will silently blame the wrong thing.
-
-## Phase 4: Ruling interest rates in or out
-
-> **Verdict: REDEFINES THE QUESTION**
-
-**The question.** Does the industry-level breakdown survive controlling for the Fed's 2022-23 tightening cycle, which started at almost exactly the same time as AI?
-
-**The method, in plain terms.** Add the Federal Funds Rate to each industry's test as a separate variable, so the growth-versus-unemployment relationship is measured net of the direct effect of rates. But there is no single right way to measure "the effect of interest rates." Rates hurt some sectors on impact, others with a delay, and some sectors react to the *level* of rates rather than the change. So the test is run six different ways, and the key question becomes: which industries' breakdowns survive every way of measuring rates, and which fall apart depending on the choice?
-
-| Rate spec | What it captures |
-|---|---|
-| `simple` | Baseline, no rate control |
-| `rc_lag0` | Contemporaneous change in rates |
-| `rc_lag2` | Rate change 2 quarters ago (policy takes time) |
-| `rc_lag4` | Rate change 4 quarters ago |
-| `rc_level` | The rate level itself (sustained-drag effect) |
-| `rc_dev_rolling` | How far above the recent norm the rate is running |
-
-**The critical robustness diagnostic.** An industry whose Δβ range is narrow and always positive across specs is telling you something trustworthy. An industry whose range crosses zero is telling you the rate-control approach can't separate real signal from noise for that sector.
-
-| Industry | simple | lag0 | lag2 | lag4 | level | dev | Range | Reading |
-|---|---:|---:|---:|---:|---:|---:|---:|---|
-| **Information (tech)** | +0.31 | +0.28 | +0.21 | +0.27 | +0.30 | +0.26 | 0.11 | Tight, always positive, robust |
-| **Construction** | +0.44 | +0.38 | +0.32 | +0.37 | +0.44 | +0.35 | 0.12 | Robust, not a rate artifact |
-| **Manufacturing** | +0.44 | +0.31 | +0.29 | +0.39 | +0.50 | +0.31 | 0.22 | Robust, not a rate artifact |
-| Transportation & Util. | +0.41 | +0.35 | +0.26 | +0.20 | +0.12 | +0.33 | 0.30 | Unstable, inconclusive |
-| Wholesale Trade | +0.23 | +0.13 | +0.14 | +0.31 | +0.41 | +0.07 | 0.34 | Unstable, inconclusive |
-| Prof. & Business | +0.11 | +0.01 | +0.02 | +0.10 | +0.20 | +0.01 | 0.20 | Small breakdown, uncertain |
-| Leisure & Hospitality | +0.05 | +0.07 | +0.00 | +0.01 | +0.06 | +0.03 | 0.07 | Barely moved, law held |
-| Financial Activities | −0.04 | −0.09 | +0.02 | −0.01 | −0.02 | +0.01 | 0.11 | No shift, law held |
-| Education & Health | −0.19 | +0.16 | −0.02 | −0.17 | −0.20 | +0.06 | 0.36 | Weak signal, inconclusive |
-
-The table above summarizes each industry's Δβ range; the chart below shows the actual cross-sectional test (Phase 3's Δβ ~ AIIE regression) redrawn once for each of the six rate specifications, so the whole robustness check is visible at a glance rather than read off a table. The fitted line's slope stays negative, the wrong direction for the AI hypothesis, in every single panel.
-
-![AIIE cross-section across all six rate specifications](phase3_cross_section.png)
-
-The chart below shows a different slice of the same data: instead of the AIIE regression, it plots each industry's rate-sensitivity coefficient (β2) directly, comparing pre- and post-2022 bars side by side for every rate specification.
+The Fed's most aggressive hiking cycle in 40 years began right at the AI cutoff, and the sectors that broke most (Construction, Manufacturing, Transportation) are the most rate-sensitive. Adding the Federal Funds Rate as a control across six specifications does **not** make their breakdown disappear.
 
 ![Rate-controlled sensitivity](phase2_rate_sensitivity.png)
 
-**What Phase 4 actually settled:**
+So the goods-sector breakdown is not a pure rate artifact, but its AI exposure is the lowest in the sample, so AI cannot be the explanation either. The most likely candidate is fiscal spending inflating physical-sector output without proportional hiring. This becomes its own [sub-project](physical-sector-inversion/README.md).
 
-- **Tech's break isn't from interest rates.** Its post-period slope ranges only +0.165 to +0.223 across all six specs, always positive, tighter than any other industry. The best remaining explanation is AI.
-- **Construction and manufacturing also broke, and not from rates either.** But their AI exposure is the lowest in the sample, so AI can't be the explanation. The most likely candidate is federal fiscal spending (IIJA, CHIPS Act, IRA) inflating their output without proportional hiring, because those bills funded contracts and capital projects rather than payroll. This is the biggest untested piece of the project.
-- **Transportation and Wholesale Trade should be dropped from any confident story either way.** Their results cross zero across specs, meaning the modeling can't separate signal from specification choice for those sectors.
+## Phase 5: Is the AI-exposure measure any good?
 
-> **Bridge, P4 → P5.** Rates don't rescue the AI story. But the whole AI-exposure ranking in P3 came from a 2021 academic index built before ChatGPT existed, which is a legitimate concern. If tech isn't really the highest-exposure sector, or construction isn't really the lowest, the surprising cross-sectional finding could be a measurement problem instead of a real one.
+> **Verdict: VALIDATES the measure**
 
-## Phase 5: Is the AI-exposure ranking actually right?
-
-> **Verdict: VALIDATES THE MEASURE**
-
-**The question.** Does the 2021 theoretical exposure score actually match which industries are using AI in 2025-26?
-
-**The method, in plain terms.** The Census Bureau's Business Trends and Outlook Survey asks businesses every two weeks whether they've used AI in the past two weeks. Sector-level results, averaged across 14 biweekly panels from November 2025 onward, produce a real, self-reported adoption rate per industry. Then rank the nine industries by that adoption rate and compare to the AIIE ranking used in P3.
-
-| Industry | AIIE | AIIE rank | BTOS % | BTOS rank |
-|---|---:|---:|---:|---:|
-| Information (tech) | 1.268 | 2 | 38.4% | 1 |
-| Financial Activities | 1.538 | 1 | 28.1% | 2 |
-| Professional & Business | 0.654 | 4 | 26.6% | 3 |
-| Education & Health | 0.775 | 3 | 26.0% | 4 |
-| Wholesale Trade | 0.264 | 5 | 15.2% | 5 |
-| Manufacturing | −0.484 | 8 | 14.3% | 6 |
-| Leisure & Hospitality | −0.315 | 6 | 13.1% | 7 |
-| Transportation & Util. | −0.342 | 7 | 10.1% | 8 |
-| Construction | −0.997 | 9 | 9.9% | 9 |
+AIIE is a 2021 theoretical score. The Census BTOS survey now reports real firm-level AI adoption. Ranking the nine sectors by each and comparing gives **Spearman ρ = 0.917, p = 0.001**: the theoretical exposure and the real 2025-26 adoption agree almost perfectly on sector order. So the surprising Phase 3 result is not a mismeasurement of exposure.
 
 ![BTOS cross-section](btos_cross_section.png)
 
-**Key finding.** Spearman rank correlation = **0.917, p = 0.001.** The 2021 theoretical score and the 2025-26 real-world adoption survey agree almost perfectly on the sector ranking. AIIE is a sound proxy for where AI is actually landing. One meaningful reordering: manufacturing rose from AIIE rank 8 to BTOS rank 6, so it is not the obviously-low-exposure sector that AIIE alone suggested.
+## Phase 6: Was tech's break just pandemic overhiring?
 
-Redrawing P3's cross-section using real adoption instead of the theoretical score produces the same wrong-direction slope. That closes off "the AI ranking is broken" as an easy escape hatch.
+> **Verdict: Overhang is real but does NOT explain tech's break**
 
-<details>
-<summary><b>The continuous-adoption test still can't run yet</b></summary>
+Tech over-hired in 2020-2021 and has been correcting since. Adding an employment-overhang control to tech's regression across nested models does not absorb its post-2022 inversion: the Okun slope stays positive across all eight rate-and-overhang specifications (range +0.150 to +0.223). Overhang is a real phenomenon that fails to explain the break.
 
-The original hope was to replace the harsh Q4 2022 cutoff with a continuously-rising adoption variable per industry, testing whether the Okun slope smoothly changes with real adoption rather than stepping at one date. That would fix the "AI didn't switch on like a light" problem baked into the design.
+![Overhang regression](info_overhang_regression.png)
 
-Data reality: BTOS's sector-level continuous data starts November 2025, so only about 3 quarters exist. A pooled regression with 3 quarters of adoption data per industry can't identify the interaction term. Revisit in late 2026 when another year of readings has accumulated.
+---
 
-</details>
+# Part 3: The correction that reversed the headline
 
-> **Bridge, P5 → P6.** Rates didn't rescue the simple AI story and neither did remeasuring exposure. Both of those results only sharpened tech's own finding. But there is one more common alternative sitting on tech specifically: maybe tech's break isn't AI at all, just the pandemic hiring bubble popping.
+Phase 3 rested entirely on the **unemployment rate**. That is the wrong instrument for the sectors that matter most, and finding out why reversed the project's central conclusion.
 
-## Phase 6: Ruling out the last obvious alternative for tech
+## The turn: unemployment cannot see a full-employment sector
 
-> **Verdict: OVERHANG IS REAL, BUT DOESN'T EXPLAIN THE BREAK**
+Finance was filed under "the law held." But finance real output has grown far faster than its headcount, which is the textbook picture of producing more without hiring more. The reason unemployment missed it: finance unemployment is welded to its ~2% structural floor. When output grows, unemployment there cannot fall any further, so the Okun test reads "no response" and scores it "held." Flat unemployment at full employment hides two opposite worlds, hiring many workers versus hiring almost none while productivity climbs, and unemployment cannot tell them apart. Employment can. The high-AI sectors (Finance, Professional & Business) are exactly the low-unemployment sectors where this blindness bites.
 
-**The question.** Tech firms went on a huge hiring spree in 2020-21 that they've been reversing ever since. Is that layoff correction what makes tech look like a broken Okun's Law, with no actual AI involved?
+## Finance re-examined, and the correction that nearly went wrong twice
 
-**The method, in plain terms.** Build a real "overhang" measure from FRED data: fit a straight-line trend on tech employment from 2010-2019, extend it forward, and measure how far actual tech employment sits above or below that line each quarter. Then run four nested tests on tech's Okun relationship: no controls, then adding rates, then adding overhang as a level, then adding overhang as its rate of change. If the overhiring story is right, adding overhang should absorb tech's post-2022 inversion and pull the slope back toward negative.
+The full story is in [`finance/`](finance/README.md); the short version is a three-stage correction:
 
-**Is the overhang variable real? Yes.** Tech employment peaked at **+6.13% above trend in Q4 2022** and has fallen to **−7.14% below trend by Q2 2026**. That is a real, monotonic post-pandemic correction, so the hypothesis has genuine substance to test.
+1. **Nominal (too big).** The finance output series is nominal. Using it, output looked like it doubled and productivity rose 79%. Mostly inflation.
+2. **BEA finance deflator (too small).** Deflating with BEA's own Finance & Insurance deflator collapses real productivity to ~0.3%/yr, "no decoupling." But that deflator is **FISIM-contaminated**: financial output is imputed from interest-rate spreads, so when the Fed raised rates, BEA dumped the nominal surge into the price term. The finance deflator ran ~4.8%/yr versus ~2.9%/yr economy-wide, understating real output in exactly the recent window.
+3. **Neutral GDP deflator (honest).** Re-deflated properly, finance real productivity is **~2.6 to 3.0%/yr, double the US average**, and it **accelerated to ~+7%/yr in 2024-2025 with headcount flat-to-falling.** That is a genuine, recent output-to-jobs decoupling, on the AI timeline, and it survives deflation.
 
-![Tech employment vs trend](info_overhang_sanity.png)
+## The corrected cross-section: measured on real productivity, AI supports the decoupling
 
-**The critical diagnostic: does tech's slope move when overhang is controlled for?**
+> **Verdict: SUPPORTS AI (reverses Phase 3)**
 
-| Model | β1 (Okun slope) | Δ from M2 | β3 (overhang effect) | β3 p-value | VIF | Verdict |
-|---|---:|---:|---:|---:|---:|---|
-| M1 (baseline) | +0.180 | | | | | Okun inverted |
-| M2 (+ΔFFR) | +0.186 | | | | | Rate-controlled benchmark |
-| M3 (+overhang level) | +0.163 | −0.023 | −0.061 | 0.891 | 18.8 | Collinear, can't be trusted |
-| **M4 (+ΔOverhang QoQ)** | **+0.150** | −0.036 | −0.849 | 0.205 | 1.2 | **Clean test, β1 barely moves** |
+Re-run the nine-industry cross-section on real productivity growth (real output per worker), with finance deflated by the GDP deflator and the other eight using their BEA real value added:
 
-<details>
-<summary><b>Why M3 doesn't work and M4 does</b></summary>
+| Industry | AI exposure | Real productivity 2013-25 |
+|---|---:|---:|
+| Information | 1.27 | +7.2%/yr |
+| Financial Activities | 1.54 | +2.8%/yr |
+| Professional & Business | 0.65 | +2.8%/yr |
+| Education & Health | 0.78 | +1.1%/yr |
+| Manufacturing | −0.48 | +1.0%/yr |
+| Wholesale Trade | 0.26 | +0.3%/yr |
+| Leisure & Hospitality | −0.32 | +0.1%/yr |
+| Transportation & Utilities | −0.34 | −0.3%/yr |
+| Construction | −1.00 | −0.9%/yr |
 
-Overhang and interest rates both drift downward from Q4 2022 through 2026, as the pandemic correction unwinds and the Fed rate falls. That makes them nearly identical in their movements (correlation 0.948) in the post-period, which is why VIF explodes to about 19. When two variables carry the same information, the test can't decide which one deserves credit for what, and neither result is trustworthy.
+![The headline reverses depending on the labor variable](real_productivity_ai_crosssection.png)
 
-Differencing overhang to its quarter-over-quarter change (M4) strips the shared trend out. VIF drops to 1.2 and the test becomes clean.
+The three highest-AI sectors have the three highest real productivity growth rates; the lowest-exposure sectors have the lowest. Same nine industries, opposite conclusion:
 
-</details>
+| Labor variable | r vs AI exposure | p | verdict |
+|---|---:|---:|---|
+| Unemployment Δβ (Phase 3) | −0.61 | 0.083 | contradicts AI |
+| **Real productivity growth** | **+0.77** | **0.016** | **supports AI** |
 
-![Overhang regression comparison](info_overhang_regression.png)
+The project's central "contradicts AI" finding does not survive being measured on the variable AI actually targets.
 
-**Key finding.** In the clean specification (M4), tech's Okun slope moves only −0.036 when overhang is added, smaller than any of the six rate specs produced. The overhang variable has the theoretically right sign (β3 = −0.849) but p = 0.205, which is a real null on a specification that had every opportunity to succeed.
+## A better predictor than AIIE: the job-replaceability score
 
-What makes this null load-bearing rather than incidental: in the *pre*-period, M4's ΔOverhang absorbs almost all of the slope, dropping it to −0.016. So the test demonstrably *can* move the slope when the mechanism is real. In the post-period it stays at +0.150. Overhang is a real phenomenon that fails to explain tech's Okun break.
+> **Verdict: SUPPORTS AI, more cleanly**
 
-**Tech's post-period slope across every test tried:**
+AIIE measures whether AI can *touch* a job. What determines whether Okun's law breaks is whether AI *replaces* the worker (automation) or *assists* them (augmentation). Education and Finance can have similar exposure but opposite substitution: finance tasks are largely substitutable, teaching needs a human in the room. So we built a replaceability score:
 
-| Model | Slope post | What was controlled for |
-|---|---:|---|
-| Simple | +0.180 | Nothing |
-| + ΔFFR (lag 0) | +0.186 | Rate shocks |
-| + ΔFFR (lag 2) | +0.186 | Delayed rate transmission |
-| + ΔFFR (lag 4) | +0.223 | Longer-lag transmission |
-| + FFR level | +0.165 | Sustained-drag effect |
-| + FFR rolling deviation | +0.183 | Restrictiveness vs. recent history |
-| + Overhang level | +0.163 | Post-COVID correction (collinear spec) |
-| + ΔOverhang QoQ | +0.150 | Post-COVID correction (clean spec) |
+```
+Replaceability = Exposure x (1 - Complementarity)
+```
 
-Range across all eight specs: **+0.150 to +0.223.** It never crosses zero and never falls below +0.15. This is the tightest, most stress-tested result in the whole project.
+Exposure comes from Eloundou et al.'s GPT-exposure scores; complementarity from five O\*NET Work Context variables that shield a job (physical presence, face-to-face contact, dealing with the public, responsibility for others' safety, consequence of error); the two are combined per occupation and aggregated to industry with the BLS OEWS employment matrix.
+
+![Job-replaceability score and its fit to real productivity](ai_replaceability_score.png)
+
+It does what it should: **Education & Health drops from 3rd on AIIE to 5th on replaceability**, below Finance, because teaching is complementary rather than substitutable. And it predicts the real decoupling **better than AIIE: r = +0.90, p = 0.001** versus +0.77. The purpose-built substitution measure is the strongest predictor in the project of where output decoupled from labor.
+
+---
+
+# Part 4: The separate physical-sector story
+
+The goods sectors (Construction, Manufacturing, Transportation, Wholesale) are their own story, and it is not AI. The [`physical-sector-inversion/`](physical-sector-inversion/README.md) sub-project examines them with COVID kept in the data, which the root analysis excludes. The findings: all four **held Okun's law hardest during COVID** (output and jobs collapsed together, rolling r near −0.9), then **inverted only in 2024-2025** (peak correlations +0.6 to +0.8, probabilities 0.007 to 0.019 under their own history). They move together tightly, so this is one common factor, not four. Because they are low-AI, physical, and their inversion is recent and rate-surviving, the leading candidate is federal fiscal spending (IIJA, CHIPS, IRA) inflating output without proportional hiring, a hypothesis still to be tested directly.
 
 ---
 
 # Where the whole thing stands
 
-The project split what looked like one question into three questions with three different answers.
+The project split one question into pieces with different answers.
 
-The single chart that makes the counterintuitive result easiest to see combines Phase 3's Δβ with Phase 5's real BTOS adoption numbers on one axis: if AI explained the break, the tall bars (biggest breakdowns) should line up with the industries that report high AI usage today. Mostly they don't.
+### The aggregate break → **ESTABLISHED**
+The output-unemployment correlation inverted from about −1.0 to +0.81 after Q4 2022, with near-zero historical probability. Stands on its own.
 
-![Δβ bars against real AI adoption percentages](summary_chart.png)
+### AI is driving a real output-to-jobs decoupling in the high-replaceability sectors → **SUPPORTED, once measured correctly**
+On unemployment the dose-response test contradicts AI, but that is an artifact of the unemployment floor in the high-AI service sectors. On real productivity, AI exposure predicts the decoupling (r = +0.77, p = 0.016), and a job-replaceability score predicts it better (r = +0.90, p = 0.001). Information and Finance are the clearest cases, and finance's decoupling accelerated to ~7%/yr real in 2024-2025 with flat hiring.
 
-Construction and Transportation both broke hard while reporting only 10% AI usage. Information is the one case where a tall bar and high usage (38%) line up. Financial Activities and Education & Health, both with usage above 25%, sit below the zero line, meaning the law held or strengthened there.
+### The goods-sector inversions → **SEPARATE MECHANISM (likely fiscal)**
+Construction, Manufacturing, Transportation, and Wholesale inverted in 2024-2025, survive rate controls, and have the lowest AI exposure. Most likely IIJA/CHIPS/IRA, not AI.
 
-### The aggregate break in Okun's Law → **ESTABLISHED**
+### What this is not
+Correlation, at n = 9. The productivity window spans 2013-2025, so it partly reflects long-run automation rather than generative AI specifically. AIIE and the replaceability score are both built from task automatability, so "automatable sectors show labor-saving productivity" carries some circularity. And finance's magnitude depends on a deflator judgment. The defensible claim is precise: the original "contradicts AI" headline does not survive correct measurement, and the corrected evidence leans toward AI in the sectors substitution theory says it should.
 
-The correlation inverted from about −1.0 to +0.81 after Q4 2022, with a probability under the historical distribution of effectively zero. This stands on its own regardless of what any of the industry-level work found. It doesn't identify a cause, but it identifies a real break.
+## Methodology bugs and errors caught
 
-### The tech sector as an AI story → **BEST-SUPPORTED CASE**
-
-Tech's post-period slope stayed positive across eight distinct model specifications (six rate plus two overhang), with a range of just +0.150 to +0.223. Ruled out: rate shocks measured six ways, sustained rate drag, contemporaneous overhiring, and the dissipating overhiring correction. The standing candidate is AI-driven productivity substitution.
-
-### "AI is breaking Okun's Law economy-wide" → **THE VERDICT DEPENDS ENTIRELY ON THE LABOR VARIABLE**
-
-This was originally reported as NOT SUPPORTED, and on the unemployment measure it is: the cross-sectional test runs the wrong direction across every rate specification and under both AIIE and BTOS (r = −0.61, p = 0.08). But that result turned out to be an artifact of the instrument. Unemployment is saturated for the high-AI service sectors (Finance, Professional & Business), which sit at their unemployment floor and cannot register a decoupling no matter how much output outruns hiring. Re-measured on **real productivity** (real output per worker, the variable AI actually targets), the same nine industries reverse:
-
-| Labor variable | r vs AI exposure | p | verdict |
-|---|---:|---:|---|
-| Unemployment Δβ (original Phase 3) | −0.61 | 0.083 | contradicts AI |
-| Real productivity growth 2013-25 | **+0.77** | **0.016** | **supports AI** |
-
-![The headline reverses depending on the labor variable](real_productivity_ai_crosssection.png)
-
-The three highest-AI sectors (Information +7.2%/yr, Finance +2.8%/yr, Professional & Business +2.8%/yr) have the three highest real productivity growth rates; the lowest-exposure sectors (Construction, Transportation) have the lowest. That is the dose-response the AI hypothesis predicts, and it is significant. Reproduce with `real_productivity_ai_crosssection.py`.
-
-Two corrections were required to get here honestly, both documented in [`finance/`](finance/README.md): finance output had to be deflated (its `VAFI` series is nominal), and specifically *not* with BEA's own finance value-added deflator, which is FISIM-broken and understates real finance output in exactly the recent window. Caveats that keep this from being a victory lap: n = 9, so p = 0.016 is fragile; the productivity measure spans 2013-2025 and so partly reflects long-run automation rather than generative AI specifically; AIIE is built from task automatability, so "automatable sectors show labor-saving productivity" carries some circularity; and this is correlation, not proof of AI causation. The honest statement is that the project's central "contradicts AI" headline does not survive being measured on the right variable, and the corrected evidence leans the other way.
-
-### Construction, manufacturing, and probably transportation → **POINTS TOWARD FISCAL POLICY**
-
-These broke as much or more than tech, and their breaks aren't caused by rates (construction and manufacturing survive all six rate specs). But their AI exposure sits at the bottom of both AIIE and BTOS. The most parsimonious explanation is federal fiscal spending: IIJA (2021), the CHIPS Act (2022), and the Inflation Reduction Act (2022) inflated output in exactly these physical sectors without proportional hiring, because those bills funded contracts and capital projects rather than payroll. This is the highest-value untested piece of the project.
-
-### Transportation & Utilities, Wholesale Trade → **INCONCLUSIVE**
-
-Their Δβ crosses zero across rate specifications, meaning the modeling can't currently tell signal from specification choice for these sectors. Confident claims about them are currently unearned.
-
-## Methodology bugs caught and fixed
-
-Every one of these would have produced a different-shaped conclusion if it hadn't been caught. Documenting them is part of why the surviving findings are trustworthy: they have been actively attacked, and the ones that remain do so because they held.
+Documenting these is part of why the surviving findings are trustworthy.
 
 <details>
-<summary><b>Bug 1: Mislabeled Δβ axis on the AIIE scatter</b></summary>
+<summary>Bug 1: mislabeled Δβ axis on the AIIE scatter</summary>
 
-The original axis annotation on the Phase 3 dose-response chart said "more negative Δβ = law weakened more." That is backwards; positive Δβ means weakening. Once fixed, the cross-sectional slope's true direction became visible, and it runs opposite to the hypothesis. Uncaught, the Phase 3 conclusion would have been reported with the correct math but the wrong verbal interpretation, likely as "confirmed AI story."
+The Phase 3 chart originally annotated the axis so that a more-negative Δβ meant more weakening; the sign was backwards. Corrected, the cross-sectional slope's real direction (contradicting the naive AI story on unemployment) became visible.
 
 </details>
 
 <details>
-<summary><b>Bug 2: Duplicate rate specification (rc_dev_pre22 was identical to rc_level)</b></summary>
+<summary>Bug 2: duplicate rate specification</summary>
 
-Two supposedly different rate specs, "FFR level" and "FFR deviation from the 2015-2021 mean," were identical by construction. Subtracting a fixed constant from a regressor in OLS changes the intercept, never the slope. The spec was rewritten to use a rolling 8-quarter deviation, which does carry independent information. Uncaught, this would have made "5 out of 6 specs agree" oversell what was really "4 independent specs plus a duplicate agree."
-
-</details>
-
-<details>
-<summary><b>Bug 3: Backwards direction on the ΔFFR lag</b></summary>
-
-The lag-2 and lag-4 specs were originally implemented as `shift(-lag)`, which computes future values (leads) rather than past values (lags). This dropped 2 quarters from the post-period sample and produced a misleading "conventional significance" at lag-2 (p = 0.025) that reversed once fixed. The correct implementation `shift(+lag)` shows all specs land in the marginal-to-not-significant range. This was the closest anything came to producing a false-positive publishable result.
+Two supposedly different rate specs ("FFR level" and "FFR deviation from a fixed mean") were identical, since subtracting a constant leaves an OLS slope unchanged. Replaced with a rolling 8-quarter deviation that carries independent information.
 
 </details>
 
 <details>
-<summary><b>Bug 4: Sign convention confusion for Transportation & Utilities</b></summary>
+<summary>Bug 3: backwards lag direction on the rate control</summary>
 
-In the level-spec comparison, Transportation's Δβ was reported as −0.116 and labeled a "sign flip," when the actual value under the standard convention Δβ = β_post − β_pre is +0.117. The direction had been flipped by accidentally computing pre minus post. That "sign flip" narrative was overstated: Transportation shrinks substantially under the level control but doesn't reverse.
+The lag-2 and lag-4 rate specs used `shift(-lag)` (future values) instead of `shift(+lag)` (true lags), which dropped post-period observations and produced a spurious "conventional significance" that reversed once fixed.
 
 </details>
 
 <details>
-<summary><b>Bugs 5 and 6: caught in a later repository audit</b></summary>
+<summary>Bug 4: sign convention for Transportation & Utilities</summary>
 
-The Phase 3 confidence band was drawn from `slope ± 1.96·SE` alone, which wrongly pinches to zero width at x = 0 and ignores intercept uncertainty. It is now a proper t-based mean-response band. Separately, every script's data path had silently broken when the data folder was renamed, so nothing in the repository would run as committed. Both are fixed, and the full pipeline was re-run to confirm every result CSV reproduces byte-identically.
+Transportation's Δβ was reported as a "sign flip" (−0.116) when the correct value under Δβ = β_post − β_pre is +0.117. It shrinks under the rate control but does not reverse.
 
 </details>
 
-## What this project honestly can't establish
+<details>
+<summary>Error 5: nominal finance output (the big one)</summary>
 
-- **n = 13 post-AI quarters is small.** Rolling-window statistics from that few data points are noisy, and every industry-level regression's post-period confidence intervals are wide.
-- **Overlapping rolling windows violate the independence assumption** behind the reported p-values, making them somewhat optimistic, though even corrected values are almost certainly still tiny.
-- **Rolling windows also splice across the COVID gap.** A 12-quarter window ending in 2022-2024 stitches together quarters from before Q2 2020 and after the exclusion, so it spans more than 3 calendar years.
-- **Q4 2022 is a marker, not a measurement.** ChatGPT's launch is a visible cutoff but not a moment of measurable enterprise adoption. Real adoption ramped gradually through 2023-2025.
-- **AIIE was built in 2021** to measure exposure to a broad set of AI capabilities, not specifically generative AI. The strong BTOS validation (ρ = 0.917) partly rescues this, but the mechanism AIIE ranks is not exactly the mechanism this project is about.
-- **A 9-industry cross-section is a small sample** for a regression-based test. Any single test's p-value should be treated as directional, not definitive.
-- **No fiscal-policy control has been run yet.** The current best guess for construction and manufacturing is IIJA/CHIPS/IRA exposure, which is a hypothesis, not a tested claim.
-- **Correlation, not causation.** The project documents a break, tests three named alternative causes against it, and identifies which sectors' breaks survive which tests. It does not establish that AI caused tech's break in any strict causal sense, only that the alternatives tested so far do not explain it.
+The finance re-examination first reported nominal output ("doubled, +79% productivity"), which is mostly inflation. This produced a dramatically overstated decoupling that was later corrected to real terms.
+
+</details>
+
+<details>
+<summary>Error 6: over-trusting the FISIM-broken finance deflator</summary>
+
+The first correction of Error 5 deflated finance with BEA's own finance deflator and concluded "no decoupling" (0.3%/yr). That deflator is FISIM-contaminated and understates real finance output; the neutral GDP deflator gives the honest ~2.6-3.0%/yr. The lesson: swinging from a nominal overstatement to trusting a known-broken deflator is its own error.
+
+</details>
+
+<details>
+<summary>Repository issue: broken data paths and a real/nominal swap</summary>
+
+At one point every script's data path silently broke when the data folder was renamed, and a reorganization swapped the real finance output series for a nominal one. Both were caught by re-running the full pipeline and auditing series identities.
+
+</details>
 
 ## Glossary
 
 <details>
-<summary><b>Okun's Law</b></summary>
+<summary>Okun's Law; gap form vs difference form</summary>
 
-The empirical negative relationship between economic output and unemployment. When output exceeds its potential, unemployment falls below its natural rate. Every roughly 1 percentage point of extra GDP growth has historically pulled unemployment down by about 0.5 points. First observed by economist Arthur Okun in 1962. It appears here in two forms: the aggregate gap form (Phase 1) using deviations from potential and natural rates, and the industry-level difference form (Phases 2-6) using period-to-period changes.
-
-</details>
-
-<details>
-<summary><b>Difference form vs. gap form</b></summary>
-
-Gap form: `U_gap = c × Y_gap + ε`, which requires CBO estimates of "potential" that only exist at the aggregate level. Difference form: `ΔU = β × %ΔY + ε`, which uses the change in unemployment and the growth of output. The difference form needs no potential estimates, so it can be applied to individual industries. Used throughout Phases 2-6.
+The empirical negative relationship between output and unemployment. Gap form (`U_gap = c·Y_gap`, aggregate only, needs potential-output estimates) is used in Phase 1; difference form (`ΔU = β·%ΔY`, works per industry) is used in Phases 2-6.
 
 </details>
 
 <details>
-<summary><b>β (beta) and Δβ (delta beta)</b></summary>
+<summary>β, Δβ, and the employment elasticity γ</summary>
 
-β is the Okun coefficient from the difference form, the slope of unemployment change per 1% of output growth. Historically about −0.3 to −0.5. More negative means the law holds more strongly; near zero means it has weakened; positive means it has inverted. Δβ = β_post − β_pre is the change in that slope before versus after Q4 2022. Positive Δβ means Okun weakened; more negative Δβ means Okun strengthened.
-
-</details>
-
-<details>
-<summary><b>AIIE (AI Industry Exposure Index)</b></summary>
-
-A theoretical exposure score published by Felten, Raj & Seamans (2023), one number per NAICS industry, ranging in this project from Financial Activities (+1.538, highest) to Construction (−0.997, lowest). Built by mapping O*NET occupational abilities to documented AI capabilities such as image recognition, translation, speech recognition, and strategic reasoning. It predates ChatGPT, so it captures theoretical exposure to AI broadly rather than measured LLM adoption.
+β is the difference-form Okun slope (unemployment change per 1% output growth); Δβ = β_post − β_pre is how much it changed after Q4 2022, positive meaning the law weakened. The employment elasticity γ is the analogous slope for *employment* growth on output growth; classic Okun implies γ ≈ +0.5 to +0.7, and γ near zero or negative means output and jobs have decoupled.
 
 </details>
 
 <details>
-<summary><b>BTOS (Business Trends and Outlook Survey)</b></summary>
+<summary>Real vs nominal value added, the GDP deflator, and FISIM</summary>
 
-A Census Bureau biweekly survey asking businesses whether they have used AI to produce goods or services in the past two weeks. Sector-level continuous data starts November 2025. Used two ways here: validating the AIIE ranking against real 2025-26 adoption (ρ = 0.917), and as a substitute exposure measure in the cross-sectional test. The intended continuous panel test is data-limited until late 2026.
-
-</details>
-
-<details>
-<summary><b>FFR (Federal Funds Rate) and ΔFFR</b></summary>
-
-The Fed's overnight lending rate, the primary lever of U.S. monetary policy. In the rate-control specs, ΔFFR is the year-over-year change in FFR, capturing the rate-shock effect, while the FFR level and rolling deviation capture the sustained-drag effect of persistently elevated rates.
+Nominal value added is in current dollars; real value added removes price inflation. A deflator is the price index used to convert one to the other. The GDP deflator (`GDPDEF`) is the economy-wide price index. FISIM (Financial Intermediation Services Indirectly Measured) is how BEA imputes bank output from interest-rate spreads; it makes the finance-specific deflator unreliable, especially when rates move, which is why finance is deflated with the GDP deflator here.
 
 </details>
 
 <details>
-<summary><b>Rolling window regression</b></summary>
+<summary>Productivity (output per worker)</summary>
 
-Instead of fitting one regression across the whole history, refit the regression on the most recent N quarters at every point in time (here N = 12 quarters, or 3 years). This produces a time series of coefficients so their stability becomes visible. The main aggregate finding in Phase 1 uses a rolling coefficient and rolling correlation.
-
-</details>
-
-<details>
-<summary><b>Overhang variable</b></summary>
-
-A custom regressor built for Phase 6: the percentage deviation of tech-sector employment from its extrapolated 2010-2019 trend. It peaks at +6.13% above trend in Q4 2022 (the pandemic hiring bubble) and falls to −7.14% below trend by Q2 2026 (the tech-layoff correction). Two forms are tested: the level (M3, collinear with ΔFFR) and the change (M4, VIF = 1.2, the clean test).
+Real output divided by employment. Its growth rate equals real output growth minus employment growth. Rising productivity with flat hiring is the signature of output decoupling from labor, which is what AI-driven substitution would produce.
 
 </details>
 
 <details>
-<summary><b>VIF (Variance Inflation Factor)</b></summary>
+<summary>AIIE, replaceability, and augmentation vs automation</summary>
 
-A diagnostic measuring how much a regressor's variance is inflated by correlation with the other regressors. Values above 5 are generally flagged; above 10 is severe. In Phase 6, M3 has VIF ≈ 19 for both ΔFFR and overhang (severe collinearity), while M4 brings both down to about 1.2 (clean).
-
-</details>
-
-<details>
-<summary><b>Bonferroni correction</b></summary>
-
-A conservative multiple-comparisons correction. If you run k independent tests of the same hypothesis, the per-test significance threshold has to be tightened to α/k. This project runs the Δβ ~ AIIE cross-section under 6 different rate specs, so a naive p < 0.05 threshold has to become p < 0.01. None of the six specs pass that bar.
+AIIE (Felten, Raj & Seamans 2023) scores AI *exposure*, whether AI can touch a job's tasks. Replaceability (built here) scores *substitution*: exposure times one minus complementarity, where complementarity is how much a job resists substitution (physical presence, human contact, accountability). Augmentation means AI assists the worker (Okun holds); automation means AI does the job (Okun breaks). The distinction is what AIIE misses and replaceability captures.
 
 </details>
 
 <details>
-<summary><b>Spearman rank correlation (ρ)</b></summary>
+<summary>BTOS, FFR, rolling window, overhang, VIF, Bonferroni, Spearman ρ, YoY</summary>
 
-A correlation coefficient computed on ranks rather than raw values, so it is robust to non-linearity and outliers. Used to validate AIIE against BTOS: ρ = 0.917 (p = 0.001) means the two rankings agree almost perfectly on sector order.
-
-</details>
-
-<details>
-<summary><b>Cross-sectional regression</b></summary>
-
-A regression run across units (industries) at a fixed point in time, rather than across time within a single unit. Phase 3's Δβ ~ AIIE is a cross-sectional regression: 9 industries, one Δβ and one AIIE per industry, fitting a line through 9 points.
-
-</details>
-
-<details>
-<summary><b>YoY (year-over-year) differencing</b></summary>
-
-Computing the change in a series over 4 quarters rather than 1. Required for the industry-level analysis because the BLS industry unemployment series are not seasonally adjusted. YoY differencing compares each quarter to the same quarter a year earlier, canceling seasonality exactly.
-
-</details>
-
-## The other aggregate charts
-
-Phase 1's rolling coefficient is the load-bearing aggregate chart, but `GDPUnemployment.py` produces three more that build up to it.
-
-<details>
-<summary><b>Unemployment vs. real GDP, the whole history at once</b></summary>
-
-![Unemployment vs Real GDP level scatter](gdp_unemployment_analysis.png)
-
-Every dot is one quarter of U.S. history. The x-axis is real GDP in trillions of 2017 dollars, the y-axis is the unemployment rate, and reading left to right is reading forward in time. As the economy has grown, unemployment has tended to fall, and the downward slope of the dashed trend line is Okun's Law in its simplest visual form.
-
-This chart is also the argument for excluding COVID: the red diamonds sit far above the trend, exactly where no normal economic relationship would put them. Its limitation is that it stacks the 1980s, 2000s, and 2020s on top of each other with no sense of time, so it shows that the relationship exists but not whether it is stable.
-
-</details>
-
-<details>
-<summary><b>The two gaps over time, and their scatter</b></summary>
-
-![Output gap vs unemployment gap divergence](gap_divergence.png)
-
-The top panel plots the output gap (blue) and unemployment gap (red) on the same axis from 2010. If Okun's Law holds, the two should mirror each other across the zero line. From 2010 to 2019 they do exactly that. Beginning in late 2022 the output gap stays clearly positive, roughly +1 to +1.5%, but the unemployment gap fails to move significantly negative, and the two lines flatten and run nearly parallel instead of mirroring.
-
-The bottom scatter confirms it: pre-2022 dots slope down cleanly, while post-2022 dots sit at a positive output gap with a near-zero unemployment gap and essentially no slope.
-
-</details>
-
-<details>
-<summary><b>The Okun residual and quadrant map</b></summary>
-
-![Okun residual and quadrant map](gap_okun_residual_quadrant.png)
-
-This takes the relationship fit on pre-2022 data and asks, for every quarter, how far actual unemployment sits from what that relationship predicts. The top panel shades the residual red whenever unemployment runs higher than the output gap alone would predict. It turns persistently red across the post-ChatGPT window.
-
-The bottom panel plots each quarter in output-gap and unemployment-gap space, colored blue (2010) to orange (present), with arrows tracing the post-2022 path into the "law broken" quadrant where output is above potential yet unemployment refuses to fall.
+BTOS: Census Business Trends and Outlook Survey, real firm-level AI adoption. FFR: Federal Funds Rate. Rolling window: re-fitting a regression on each trailing N quarters (here 12). Overhang: tech employment's deviation from its 2010-2019 trend. VIF: variance inflation factor, a collinearity diagnostic. Bonferroni: a multiple-comparisons correction. Spearman ρ: rank correlation. YoY: year-over-year (4-quarter) differencing, used to cancel seasonality.
 
 </details>
 
 ## Reproducing this
 
-1. Download the FRED series listed above, plus the industry-level and `FEDFUNDS` series referenced in each script's header, as CSVs into `FRED-Data/` at the repo root. The directory is gitignored, and every script reads from it.
+1. Download the FRED series referenced in each script's header into `FRED-Data/` at the repo root (gitignored), plus the O\*NET Work Context file, Eloundou GPT-exposure scores, and the OEWS national sector file for the replaceability score.
 2. `pip install pandas numpy matplotlib scipy openpyxl`
-3. Run scripts in this order for the full pipeline: `GDPUnemployment.py`, `IndustryAnalysis.py`, `industry_okun_pipeline.py`, `okun_phase2_3.py`, `btos_interaction.py`, `info_overhang.py`, then `generate_results_csv.py`.
+3. Run the aggregate and phase scripts, then `real_productivity_ai_crosssection.py` and `ai_replaceability_score.py` for the correction, and the `finance/` and `physical-sector-inversion/` folders for the two sub-projects.
 
-All numbers in this README are verified against `okun_industry_summary.csv`, `phase2_results.csv`, `phase3_cross_section.csv`, `btos_sector_ranking.csv`, and `results_comprehensive.csv` in this repository.
+All numbers here are verified against the committed result CSVs and regenerated from the current data.
