@@ -9,7 +9,7 @@ This project set out to test that, reached a conclusion that seemed to *contradi
 ## The bottom line
 
 1. **A real, statistically extreme break in the growth-to-jobs relationship appears after Q4 2022 in the aggregate U.S. economy.** The rolling output-unemployment correlation, near −1.0 for two decades, inverts to +0.81. A distribution-free bootstrap puts the odds of that under a continuation of the pre-2022 regime at about 1 in 2,000 (p ≈ 0.0005).
-2. **Whether that break looks like AI depends entirely on how you measure labor.** Measured on unemployment, AI exposure predicts *less* breakdown (the "contradicts AI" result). But unemployment is saturated for the high-AI service sectors, which sit at their unemployment floor and cannot register a decoupling. Measured on **real productivity** (real output per worker, the variable AI actually targets), AI exposure significantly *predicts* the output-to-jobs decoupling (r = +0.77, p = 0.016). A purpose-built job-replaceability score predicts it even better (r = +0.90, p = 0.001). **But this is a claim about levels, not timing:** a direct test of whether replaceable sectors *accelerated* after AI arrived comes back insignificant, so the result cannot be pinned to generative AI specifically.
+2. **Whether that break looks like AI depends entirely on how you measure labor.** Measured on unemployment, AI exposure predicts *less* breakdown (the "contradicts AI" result). But unemployment is saturated for the high-AI service sectors, which sit at their unemployment floor and cannot register a decoupling. Measured on **real productivity** (real output per worker, the variable AI actually targets), AI exposure significantly *predicts* the output-to-jobs decoupling (r = +0.77, p = 0.016). A purpose-built job-replaceability score predicts it even better (r = +0.90, p = 0.001), and the result reproduces on a measure built purely from **observed** AI usage rather than theory (r = +0.76, p = 0.017), which answers the circularity objection. **But this is a claim about levels, not timing:** a direct test of whether replaceable sectors *accelerated* after AI arrived comes back insignificant, so the result cannot be pinned to generative AI specifically.
 3. **There is a second, separate story in the physical economy.** The biggest unemployment-side inversions landed in Construction, Manufacturing, Transportation, and Wholesale, the low-AI goods sectors, and arrived in 2024-2025. Those most likely reflect the 2021-2022 fiscal spending wave (IIJA, CHIPS Act, IRA), not AI.
 
 So the honest headline is: the aggregate break is real; the AI-driven part of it lives in the high-replaceability sectors (Information and Finance most clearly) and is visible in productivity, not unemployment; and a fiscal-driven part lives in the goods sectors.
@@ -87,6 +87,7 @@ Finance originally had a fourth mismatch (employment included Real Estate); it i
 | [`ai_replaceability_score.py`](ai_replaceability_score.py) | The job-replaceability score that improves on AIIE |
 | [`recency_test.py`](recency_test.py) | Tests whether the AI result is timed to AI (it is not: levels hold, acceleration does not) |
 | [`permutation_test.py`](permutation_test.py) | Distribution-free bootstrap replacing every normal-approximation p-value |
+| [`aei_revealed_validation.py`](aei_revealed_validation.py) | Rebuilds the score from observed Claude usage (Anthropic Economic Index) |
 | [`finance/`](finance/README.md) | Finance deep dive (all content also summarized in Part 3 below) |
 | [`physical-sector-inversion/`](physical-sector-inversion/README.md) | Goods-sector deep dive (all content also summarized in Part 4 below) |
 | [`generate_results_csv.py`](generate_results_csv.py) | Compiles all regression results into `results_comprehensive.csv` (12 labeled sections) |
@@ -387,6 +388,46 @@ The slope is positive in all five specifications, which is worth something. But 
 
 **What this costs the project.** The AI claim now rests explicitly on *levels*, that the sectors with more replaceable jobs sustain higher real productivity growth, and not on a discontinuity timed to AI's arrival. That is a materially weaker claim than "AI caused a break," and the "long-run automation" caveat stays in force rather than being cleared. Reproduce with `recency_test.py`.
 
+## Validating the score against what people actually do with AI
+
+> **Verdict: SUPPORTS AI. The circularity objection is substantially answered.**
+
+The replaceability score's weakest point is circularity: both of its inputs (Eloundou's GPT-exposure ratings and O\*NET complementarity) describe how automatable a job *looks on paper*, so "automatable sectors show labor-saving productivity" is uncomfortably close to restating the measure's own construction. The fix is to rebuild it from **observed behavior** instead of ratings.
+
+The [Anthropic Economic Index](https://huggingface.co/datasets/Anthropic/EconomicIndex) publishes what people actually do with Claude, by SOC occupation: an `observed_exposure` (how much AI use an occupation shows) and a `collaboration_bucket_automation_pct` (of that use, the share where the model does the task outright rather than assisting a human). That yields a direct analog of the project's own construction, with nothing theoretical in it:
+
+```
+AEI replaceability = observed exposure x automation share
+```
+
+aggregated to the nine industries with the same OEWS employment weights (67% to 95% employment coverage per industry).
+
+| Industry | Theoretical replaceability | AEI exposure | AEI automation share | **AEI replaceability** | Real productivity |
+|---|---:|---:|---:|---:|---:|
+| Information | 0.325 | 0.262 | 0.524 | **0.138** | +7.2%/yr |
+| Financial Activities | 0.267 | 0.268 | 0.508 | **0.129** | +2.8%/yr |
+| Wholesale Trade | 0.207 | 0.230 | 0.560 | 0.112 | +0.3%/yr |
+| Professional & Business | 0.233 | 0.214 | 0.555 | 0.111 | +2.8%/yr |
+| Education & Health | 0.152 | 0.135 | 0.477 | 0.070 | +1.1%/yr |
+| Manufacturing | 0.138 | 0.107 | 0.579 | 0.055 | +1.0%/yr |
+| Construction | 0.091 | 0.085 | 0.600 | 0.049 | −0.9%/yr |
+| Transportation & Utilities | 0.120 | 0.072 | 0.647 | 0.038 | −0.3%/yr |
+| Leisure & Hospitality | 0.088 | 0.038 | 0.566 | 0.018 | +0.1%/yr |
+
+![Validating replaceability against revealed AI usage](aei_revealed_validation.png)
+
+**Three results, one of them a surprise.**
+
+**1. Convergent validity is remarkable.** The revealed-usage score correlates **+0.96** with the theoretical O\*NET score across the nine industries. Two entirely independent constructions, one from expert task ratings and one from millions of observed conversations, rank the industries almost identically. That is strong evidence the theoretical score was measuring something real rather than an artifact of its own assumptions.
+
+**2. The productivity finding survives on revealed data.** AEI replaceability predicts real productivity growth at **r = +0.76, p = 0.017** (Spearman +0.80, p = 0.010), essentially matching AIIE's +0.77 and close behind the theoretical score's +0.90. Since nothing in the AEI measure is a judgment about automatability, the circularity objection is substantially answered: the relationship holds when the regressor is pure observed behavior.
+
+**3. The surprise: automation share alone runs the wrong way.** Taken by itself, the automation-versus-augmentation split is *negatively* related to productivity (Spearman −0.78, p = 0.013). The physical sectors have the **highest** automation shares in the sample (Transportation 0.65, Construction 0.60, Manufacturing 0.58) while the knowledge sectors have the lowest (Education 0.48, Finance 0.51, Information 0.52). The reading: when a construction or transport worker does reach for AI, they hand the task over outright, they just do it very rarely (exposure 0.07 to 0.11 against 0.21 to 0.27 for knowledge work). So **usage intensity, not the automation/augmentation split, carries the industry-level signal.** That partly undercuts the theoretical elegance of "exposure times one minus complementarity," since complementarity turns out to show up as *low usage* rather than as augmentation-style usage. The composite still works because the exposure term dominates.
+
+**4. It does not rescue the recency test.** Acceleration against AEI replaceability is r = +0.41, p = 0.28, in line with the theoretical measures. Since the failure now repeats across three independently constructed exposure measures, including one built from 2026-vintage usage data, it is a property of the data rather than of any single measure. That strengthens the case that the timing limitation is real.
+
+Reproduce with `aei_revealed_validation.py` (streams and caches the AEI release from HuggingFace on first run).
+
 ---
 
 # Part 4: The separate physical-sector story
@@ -427,7 +468,7 @@ The project split one question into pieces with different answers.
 The output-unemployment correlation inverted from about −1.0 to +0.81 after Q4 2022 (+0.55 in the difference form). A distribution-free block bootstrap puts this at p ≈ 0.0005 under the null that the pre-2022 regime continued, so it survives the stricter test that replaced the project's original normal approximation. Stands on its own.
 
 ### AI is driving a real output-to-jobs decoupling in the high-replaceability sectors → **SUPPORTED, once measured correctly**
-On unemployment the dose-response test contradicts AI, but that is an artifact of the unemployment floor in the high-AI service sectors. On real productivity, AI exposure predicts the decoupling (r = +0.77, p = 0.016), and the job-replaceability score predicts it better (r = +0.90, p = 0.001). Information and Finance are the clearest cases: both accelerate sharply in 2024-2025, tech by cutting jobs while output holds, finance by growing real output ~+5.6%/yr with hiring at +0.2%/yr.
+On unemployment the dose-response test contradicts AI, but that is an artifact of the unemployment floor in the high-AI service sectors. On real productivity, AI exposure predicts the decoupling (r = +0.77, p = 0.016), the job-replaceability score predicts it better (r = +0.90, p = 0.001), and a score rebuilt from observed Claude usage reproduces it independently (r = +0.76, p = 0.017), with the two constructions agreeing at +0.96. Information and Finance are the clearest cases: both accelerate sharply in 2024-2025, tech by cutting jobs while output holds, finance by growing real output ~+5.6%/yr with hiring at +0.2%/yr.
 
 **Important limit, established by direct test.** This is a levels claim. When the same nine sectors are tested on whether replaceable industries *accelerated* more after AI arrived (2024-2025 versus their own 2013-2019 baseline), the relationship is not significant (r = +0.45, p = 0.22), because three of the four least-replaceable sectors accelerated just as much. So the evidence supports "sectors with replaceable work sustain higher productivity growth" but not "AI caused a break in 2022."
 
@@ -438,7 +479,7 @@ Construction, Manufacturing, Transportation, and Wholesale inverted together in 
 Information's post-2022 slope stays inside +0.150 to +0.223 across eight specifications (baseline, five rate controls, two overhang controls), and its real productivity (+7.2%/yr, with genuine falling deflators, no FISIM issue) is the highest in the sample while its 2024-2025 employment is shrinking.
 
 ### What this is not
-Correlation, at n = 9. Two objections were tested directly rather than left as caveats, and both bit: the overlapping-window problem (a block bootstrap raised the aggregate p from 0.0000 to 0.0005, and the physical sectors from ~0.007 to ~0.04) and the long-run-automation objection, which was tested via the recency test and **survived**, since exposure does not significantly predict the post-2022 acceleration in productivity growth. AIIE and the replaceability score are both built from task automatability, so "automatable sectors show labor-saving productivity" carries some circularity. Finance's magnitude depends on a deflator judgment. The defensible claim is precise and narrow: the original "contradicts AI" headline does not survive correct measurement, and sectors whose jobs are more replaceable by AI sustain materially higher real productivity growth, including in 2024-2025. What is *not* established is that generative AI caused a discontinuity at its arrival.
+Correlation, at n = 9. Two objections were tested directly rather than left as caveats, and both bit: the overlapping-window problem (a block bootstrap raised the aggregate p from 0.0000 to 0.0005, and the physical sectors from ~0.007 to ~0.04) and the long-run-automation objection, which was tested via the recency test and **survived** (and survives against the revealed-usage measure too), since exposure does not significantly predict the post-2022 acceleration in productivity growth. The circularity worry (AIIE and the replaceability score are both built from task automatability, so the finding risks restating its own construction) was tested by rebuilding the measure from observed AI usage; it reproduced at r = +0.76 and agreed with the theoretical score at +0.96, so this objection is substantially answered rather than outstanding. Finance's magnitude depends on a deflator judgment. The defensible claim is precise and narrow: the original "contradicts AI" headline does not survive correct measurement, and sectors whose jobs are more replaceable by AI sustain materially higher real productivity growth, including in 2024-2025. What is *not* established is that generative AI caused a discontinuity at its arrival.
 
 ## Methodology bugs and errors caught
 
