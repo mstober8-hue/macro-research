@@ -1,16 +1,36 @@
-# Physical-Sector Okun Inversion
+# The 2024-2025 Hiring Slowdown
+
+*(formerly "Physical-Sector Okun Inversion", renamed once the evidence outgrew the original framing)*
 
 **A separate analysis from the [AI-exposure study](../README.md) in the repository root.**
 
-This sub-project does not use AI-exposure scores or an "AI cutoff." It asks one narrow, self-contained question about three low-AI, goods-producing and rate-sensitive sectors:
+This sub-project started as a narrow question about three low-AI goods sectors, Construction, Manufacturing, and Transportation & Utilities, whose Okun relationship appeared to invert in 2024-2025. Four rounds of testing turned it into something bigger.
 
-**Construction, Manufacturing, and Transportation & Utilities**
+## The finding
+
+![The 2024-2025 hiring slowdown](hiring_slowdown.png)
+
+**Hiring slowed in 8 of the 9 major US sectors in 2024-2025, by an average of roughly 2 percentage points, and it is one common macro event rather than nine sector stories.** A single factor explains 72% of the variance in sector employment growth. That factor tracks the Federal Funds Rate with a long lag peaking at 8 to 9 quarters: r = −0.74 excluding COVID quarters (p < 0.0001, n = 75). The 2022-2023 hiking cycle plus roughly two years of transmission lands precisely on the 2024-2025 slowdown.
+
+The "goods-sector Okun inversion" that this folder was named after is a **side effect** of that slowdown, not a separate phenomenon. It is a small statistical sign flip that shows up in the goods sectors because their unemployment variation had collapsed enough for a tiny movement to dominate a correlation.
+
+Three consequences worth stating plainly:
+
+1. **AI exposure predicts none of it** (hiring slowdown r = +0.19, p = 0.63). Construction and Transportation, the two lowest-exposure sectors, slowed hiring as much as Information did.
+2. **It is not a post-pandemic over-hiring correction.** 8 of 9 sectors sit *below* their extrapolated 2013-2019 employment trend, by 1% to 13%. A correction from over-hiring would leave them above.
+3. **The root study's rate controls were too short to catch it.** [`okun_phase2_3.py`](../okun_phase2_3.py) tests lags of 0, 2, and 4 quarters (`for lag in [0, 2, 4]`). The channel peaks at 8-9 quarters, so the main analysis rejected the rate hypothesis using lags roughly half as long as needed.
+
+The sections below are kept in the order the work actually happened, because the reversals are part of the evidence. Everything from here to [what actually inverted](#what-actually-inverted-going-deeper) is the original goods-sector framing and the failed attempts to explain it.
+
+---
+
+## The original question
+
+The sub-project began with one narrow question about the three goods sectors:
 
 > When did each sector's Okun relationship actually invert, and how unusual is that inversion when the pandemic is left in the data?
 
 The one deliberate difference from the root study: **COVID is included here, not excluded.** Leaving the pandemic in is the entire point. It reveals that COVID was the most Okun-consistent episode in the whole sample, and that the real inversions are recent, arriving in 2024 and 2025.
-
-> **Where this ended up.** The sub-project began by treating the goods-sector inversion as a puzzle needing a goods-sector cause, and tested interest rates and federal fiscal spending against it. Both failed. Decomposing the inversion itself ([what actually inverted](#what-actually-inverted-going-deeper)) shows why: it is a small sign flip sitting on top of an **economy-wide hiring slowdown** that hit 8 of 9 sectors in 2024-2025 and that AI exposure does not predict. Read the sections in order; the conclusion reverses the framing the early sections set up.
 
 ## What Okun's Law is, in one line
 
@@ -150,17 +170,74 @@ That resolves why nothing explained the goods inversion. It is not a goods-secto
 
 It also cuts against the AI reading in the root study from a second direction. Construction and Transportation have the lowest AI exposure in the sample and slowed hiring as much as Information did. Whatever froze hiring in 2024-2025 reached the sectors AI cannot plausibly touch.
 
-**What would distinguish the remaining candidates.** A broad hiring freeze across sectors with nothing in common except timing points at an economy-wide force: the cumulative effect of sustained high rates on hiring plans, a post-pandemic normalization after the 2021-2022 over-hiring surge, or labor supply changes. Separating those needs JOLTS hires and quits by sector, and a labor-force-flows decomposition, neither of which this sub-project has run.
+**What would distinguish the remaining candidates.** A broad hiring freeze across sectors with nothing in common except timing points at an economy-wide force: the cumulative effect of sustained high rates on hiring plans, a post-pandemic normalization after the 2021-2022 over-hiring surge, or labor supply changes. That is what the next section tests.
+
+## Why did hiring slow?
+
+`hiring_slowdown.py` tests the three standard explanations against all nine sectors. Two fail cleanly and one survives.
+
+### What did not cause it
+
+**It is not a post-pandemic over-hiring correction.** This is the most popular explanation, and the data rejects it twice over. If sectors were unwinding a 2021-2022 hiring binge, the ones that surged hardest should now be slowing hardest. They are not (r = −0.22, p = 0.57). Leisure & Hospitality surged +11.3%/yr in the rebound and slowed by only 1.8pp, while Information surged +6.1% and slowed by 3.5pp.
+
+The decisive evidence is the level, not the growth rate. Extrapolating each sector's 2013-2019 employment trend forward, **8 of 9 sectors now sit below that trend**:
+
+| Sector | Employment vs. pre-COVID trend, latest quarter |
+|---|---:|
+| Leisure & Hospitality | −12.7% |
+| Construction | −11.6% |
+| Information | −8.8% |
+| Professional & Business | −8.6% |
+| Manufacturing | −7.3% |
+| Financial Activities | −5.9% |
+| Transportation & Utilities | −3.9% |
+| Wholesale | −0.9% |
+| Education & Health | +0.4% |
+
+An economy working off an over-hiring binge would be *above* trend and falling toward it. This one is below trend and still slowing. Employment never caught back up to its pre-pandemic path.
+
+**It is not sector characteristics.** Neither AI exposure (r = +0.19, p = 0.63) nor how fast a sector was hiring before COVID (r = −0.21, p = 0.59) predicts which sectors slowed. Whatever hit the labor market did not discriminate by industry.
+
+### What did cause it
+
+**One common macro force, transmitted through interest rates with a long lag.**
+
+The first clue is that these are not nine independent stories. Extracting the first principal component of sector employment growth, **a single factor explains 72% of all variance**, and it is almost exactly the simple nine-sector average (correlation 0.992). Sector-specific narratives are mostly noise on top of one shared cycle. That factor sat at +1.04 through 2013-2019, spiked to +3.24 in the 2021-2023 rebound, and fell to **−0.75 in 2024-2025**, below its pre-pandemic level.
+
+The second clue is the timing. Scanning correlations between that common hiring factor and the Federal Funds Rate at every lag from 0 to 12 quarters produces a clean, monotonic pattern:
+
+| Lag | 0q | 2q | 4q | 6q | **8-9q** | 12q |
+|---|---:|---:|---:|---:|---:|---:|
+| r | +0.08 | −0.11 | −0.32 | −0.46 | **−0.52** | −0.45 |
+
+Contemporaneous rates tell you nothing (r = +0.08). The relationship strengthens steadily as the lag lengthens, peaks at **8 to 9 quarters (24 to 27 months)**, then decays. Excluding COVID quarters, the peak correlation is **r = −0.74 (p < 0.0001, n = 75)**.
+
+The arithmetic works. The Fed funds rate went from 0.12% in early 2022 to 4.52% by early 2023 and 5.33% by early 2024. Add the roughly two-year transmission lag and the hiring effect lands squarely in 2024-2025, which is exactly when the slowdown appears and when the goods sectors' Okun correlations flip.
+
+**Why a two-year lag is economically sensible.** Rate hikes do not cause layoffs; they cause firms to stop *adding* people. The chain is slow by nature: higher rates first raise financing costs and depress new project approvals, then existing backlogs and funded projects keep employment steady for a year or more, and only when that work runs out does hiring stall. Firms cut vacancies and slow-walk replacement hiring long before they touch existing staff. That produces exactly the pattern in the data, a "low-hire, low-fire" market where employment growth falls toward zero while unemployment barely moves, which is why the effect is nearly invisible in unemployment-based measures and obvious in employment ones.
+
+### The methodological consequence
+
+The root study concluded that interest rates do not explain the industry breakdowns. That conclusion rests on rate controls at lags of 0, 2, and 4 quarters ([`okun_phase2_3.py`](../okun_phase2_3.py), `for lag in [0, 2, 4]`). At those lags the true correlation is −0.08 to −0.32, weak enough to look like nothing. The peak sits at 8-9 quarters, entirely outside the tested range.
+
+So "not rates" was measured with a ruler too short. This does not automatically overturn the root finding, since sector-level Δβ with a lagged control is a different regression from this aggregate correlation, but it does mean the rate hypothesis was never properly tested. Re-running Phase 4 with lags out to 8-12 quarters is the single highest-value fix available to the main study.
+
+### Honest limits
+
+- **Correlation, not causation.** Rates and hiring both respond to the broader cycle. A long-lag correlation is suggestive of a transmission channel, not proof of one. A proper test needs a distributed-lag or local-projection model with controls, not a lag scan.
+- **Lag scans overfit.** Trying 13 lags and reporting the best one inflates significance. The defense here is that the pattern is smooth and monotonic rather than a lone spike, which is what a real transmission channel looks like, but the exact peak of 8-9 quarters should not be taken literally.
+- **Rates are not the only candidate left.** Immigration and labor-force changes could produce a broad hiring slowdown on similar timing, and this analysis cannot separate them. Sector-level JOLTS hires and quits would help, but FRED only carries them for two of the nine sectors here.
 
 ## Reproducing this
 
 From this directory:
 
 ```
-python3 rolling_okun_inversion.py   # the three-sector rolling coefficients + probabilities
+python3 hiring_slowdown.py          # THE LEAD RESULT: why hiring slowed, and the rate lag
+python3 what_actually_inverted.py   # decomposes the inversion into the hiring slowdown
+python3 rolling_okun_inversion.py   # the original three-sector rolling coefficients
 python3 comovement.py               # co-movement heatmap + the four-sector overlay
 python3 fiscal_control.py           # tests the fiscal hypothesis (fetches USAspending on first run)
-python3 what_actually_inverted.py   # decomposes the inversion; the economy-wide hiring finding
 ```
 
 All read the FRED CSVs from `../FRED-Data/` and write their charts plus the console tables above. Requires `pandas`, `numpy`, `matplotlib`, and `scipy`.
