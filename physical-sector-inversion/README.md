@@ -10,6 +10,8 @@ This sub-project does not use AI-exposure scores or an "AI cutoff." It asks one 
 
 The one deliberate difference from the root study: **COVID is included here, not excluded.** Leaving the pandemic in is the entire point. It reveals that COVID was the most Okun-consistent episode in the whole sample, and that the real inversions are recent, arriving in 2024 and 2025.
 
+> **Where this ended up.** The sub-project began by treating the goods-sector inversion as a puzzle needing a goods-sector cause, and tested interest rates and federal fiscal spending against it. Both failed. Decomposing the inversion itself ([what actually inverted](#what-actually-inverted-going-deeper)) shows why: it is a small sign flip sitting on top of an **economy-wide hiring slowdown** that hit 8 of 9 sectors in 2024-2025 and that AI exposure does not predict. Read the sections in order; the conclusion reverses the framing the early sections set up.
+
 ## What Okun's Law is, in one line
 
 When an economy (or a sector) produces more, it usually hires more, so unemployment falls. Measured as a slope: when output growth goes up, the change in unemployment should go down. A negative slope means the rule holds. A positive slope means it has inverted, meaning output grew but unemployment rose anyway.
@@ -57,7 +59,7 @@ Scanning all nine industries on both tests at once (does it co-move with the clu
 
 The service sectors do not repeat it. Financial Activities, Professional & Business, Education & Health, and Leisure & Hospitality all stay negative through 2025 (their Okun relationship held). Information's coefficient shape correlates with the cluster, but its recent inversion is marginal (+0.12) and it sits with the high-AI service sectors, so it belongs to the [AI story in the root analysis](../README.md), not this goods cluster.
 
-That the inverting sectors are exactly the goods-producing ones, and the holding sectors are exactly the service ones, is the strongest hint so far about cause. It points at something specific to physical production and distribution rather than a whole-economy shift.
+That the inverting sectors are exactly the goods-producing ones, and the holding sectors are exactly the service ones, is the strongest hint so far about cause. It points at something specific to physical production and distribution rather than a whole-economy shift. **That reading turns out to be only half right**: the *unemployment-measured inversion* is goods-specific, but the underlying labor-market shift behind it is not. See [what actually inverted](#what-actually-inverted-going-deeper) below.
 
 ## What this does not show
 
@@ -90,6 +92,66 @@ These are hypotheses to test, not findings. This document exists to establish th
 
 **What this leaves.** The fiscal explanation is not refuted, because federal contract data structurally cannot see the money that matters, and obligations are not the same thing as activity. But it is no longer an untested assumption presented as the leading candidate. The honest position is that the goods-sector inversion has no confirmed explanation: it is not COVID, not interest rates, not AI exposure, and not federal contract spending as far as this test can measure it.
 
+## What actually inverted (going deeper)
+
+Every explanation tried so far has failed, which usually means the question is wrong. `what_actually_inverted.py` stops hunting for a cause and instead asks what the inversion physically consists of. Three tests, each narrowing the answer, and the third one reframes the whole sub-project.
+
+![What actually inverted: three tests](what_actually_inverted.png)
+
+### Test 1: the flip is in the correlation, not the magnitude
+
+An inverted correlation is not the same as a large economic effect. Putting each sector's correlation next to its actual Okun slope beta, the pp change in unemployment per 1% of output growth:
+
+| Sector | r pre | r post | β pre | β post | sd(ΔU) pre | sd(ΔU) post |
+|---|---:|---:|---:|---:|---:|---:|
+| Construction | −0.10 | +0.58 | −0.064 | +0.061 | 1.00 | 0.22 |
+| Manufacturing | −0.09 | −0.07 | −0.021 | −0.016 | 0.55 | 0.32 |
+| Transportation & Utilities | −0.27 | +0.29 | −0.109 | +0.187 | 0.72 | 0.73 |
+| Wholesale | −0.52 | +0.48 | −0.092 | +0.090 | 0.40 | 0.37 |
+
+The correlations swing hard, but every slope stays inside ±0.19pp, and unemployment variation itself shrank (Construction's standard deviation fell from 1.00 to 0.22). A correlation is a normalized measure, so when the thing being measured barely moves, the sign can flip decisively on economically trivial movements. The inversion is real, and it is small. The headline Δβ figures of +0.45 to +0.51 in the table above come from the full pre-period including the 2008 crash; measured against the calmer 2013-2019 baseline the change is a fraction of that.
+
+### Test 2: hiring collapsed, output did not
+
+Unemployment can rise either because employment falls or because the labor force grows faster than hiring. Bringing in sector headcount settles it:
+
+| Sector | Real output 2013-19 | Real output 2024-25 | Employment 2013-19 | Employment 2024-25 |
+|---|---:|---:|---:|---:|
+| Construction | +4.0%/yr | +3.3%/yr | +4.1%/yr | **+1.6%/yr** |
+| Manufacturing | +1.8%/yr | +2.3%/yr | +1.0%/yr | **−0.9%/yr** |
+| Transportation & Utilities | +3.2%/yr | +2.3%/yr | +3.3%/yr | **+0.5%/yr** |
+| Wholesale | +1.8%/yr | +0.6%/yr | +0.7%/yr | **−0.4%/yr** |
+
+Output growth largely held up, and Manufacturing's even accelerated. Employment growth collapsed in all four, turning negative in two. So the inversion is an employment-side event, not an output collapse. These sectors kept producing and stopped hiring.
+
+### Test 3: that shape is not AI-specific, and it is everywhere
+
+"Output holds, hiring stops" is exactly the signature attributed to AI in the Information sector. So the obvious question is whether it is actually distinctive. Measuring the hiring slowdown across all nine sectors:
+
+| Sector | AIIE | Employment 2013-19 | Employment 2024-25 | Slowdown |
+|---|---:|---:|---:|---:|
+| Construction | −1.00 | +4.13 | +1.58 | −2.55 |
+| Manufacturing | −0.48 | +1.02 | −0.94 | −1.96 |
+| Transportation & Utilities | −0.34 | +3.29 | +0.51 | −2.77 |
+| Leisure & Hospitality | −0.32 | +2.70 | +0.90 | −1.80 |
+| Wholesale | +0.26 | +0.73 | −0.41 | −1.14 |
+| Professional & Business | +0.65 | +2.44 | −0.79 | −3.23 |
+| Education & Health | +0.78 | +2.19 | +3.78 | +1.59 |
+| Information | +1.27 | +0.98 | −2.46 | −3.44 |
+| Financial Activities | +1.54 | +1.42 | +0.16 | −1.26 |
+
+**Eight of nine sectors slowed hiring, by an average of 1.8 percentage points.** The only exception is Education & Health, which is driven by demographics and public funding rather than the business cycle. And AI exposure does not predict which sectors slowed: **r = +0.18, p = 0.64.** The same holds for productivity acceleration (r = +0.26, p = 0.50). The lowest-AI sectors accelerated productivity by an average of +1.5pp against +2.5pp for the highest-AI ones, a difference far too small and too noisy to carry an AI story.
+
+### What this reframes
+
+The goods-sector inversion and the tech "AI signature" are most likely **the same event seen in different sectors**: a broad hiring slowdown across the US economy in 2024-2025, on top of which the unemployment-based Okun measure flipped sign in the handful of sectors whose unemployment variation had collapsed enough for a small movement to dominate.
+
+That resolves why nothing explained the goods inversion. It is not a goods-sector phenomenon needing a goods-sector cause. It is an economy-wide labor-market shift that happens to be *visible* in the goods sectors, because their unemployment series are the ones where a small absolute change produced a correlation flip. The service sectors experienced comparable hiring slowdowns without their Okun correlations inverting, since their unemployment sits pinned at a structural floor, which is the same blindness documented in the [finance analysis](../finance/README.md).
+
+It also cuts against the AI reading in the root study from a second direction. Construction and Transportation have the lowest AI exposure in the sample and slowed hiring as much as Information did. Whatever froze hiring in 2024-2025 reached the sectors AI cannot plausibly touch.
+
+**What would distinguish the remaining candidates.** A broad hiring freeze across sectors with nothing in common except timing points at an economy-wide force: the cumulative effect of sustained high rates on hiring plans, a post-pandemic normalization after the 2021-2022 over-hiring surge, or labor supply changes. Separating those needs JOLTS hires and quits by sector, and a labor-force-flows decomposition, neither of which this sub-project has run.
+
 ## Reproducing this
 
 From this directory:
@@ -98,6 +160,7 @@ From this directory:
 python3 rolling_okun_inversion.py   # the three-sector rolling coefficients + probabilities
 python3 comovement.py               # co-movement heatmap + the four-sector overlay
 python3 fiscal_control.py           # tests the fiscal hypothesis (fetches USAspending on first run)
+python3 what_actually_inverted.py   # decomposes the inversion; the economy-wide hiring finding
 ```
 
-Both read the FRED CSVs from `../FRED-Data/` and write their charts (`rolling_okun_inversion.png`, `comovement.png`) plus the console tables above. Requires `pandas`, `numpy`, `matplotlib`, and `scipy`.
+All read the FRED CSVs from `../FRED-Data/` and write their charts plus the console tables above. Requires `pandas`, `numpy`, `matplotlib`, and `scipy`.
