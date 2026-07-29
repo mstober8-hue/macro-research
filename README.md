@@ -10,9 +10,9 @@ This project set out to test that, reached a conclusion that seemed to *contradi
 
 1. **A real, statistically extreme break in the growth-to-jobs relationship appears after Q4 2022 in the aggregate U.S. economy.** The rolling output-unemployment correlation, near −1.0 for two decades, inverts to +0.81. A distribution-free bootstrap puts the odds of that under a continuation of the pre-2022 regime at about 1 in 2,000 (p ≈ 0.0005).
 2. **Whether that break looks like AI depends entirely on how you measure labor.** Measured on unemployment, AI exposure predicts *less* breakdown (the "contradicts AI" result). But unemployment is saturated for the high-AI service sectors, which sit at their unemployment floor and cannot register a decoupling. Measured on **real productivity** (real output per worker, the variable AI actually targets), AI exposure significantly *predicts* the output-to-jobs decoupling (r = +0.77, p = 0.016). A purpose-built job-replaceability score predicts it even better (r = +0.90, p = 0.001), and the result reproduces on a measure built purely from **observed** AI usage rather than theory (r = +0.76, p = 0.017), which answers the circularity objection. **But this is a claim about levels, not timing:** a direct test of whether replaceable sectors *accelerated* after AI arrived comes back insignificant, so the result cannot be pinned to generative AI specifically.
-3. **There is a second, separate story in the physical economy.** The biggest unemployment-side inversions landed in Construction, Manufacturing, Transportation, and Wholesale, the low-AI goods sectors, and arrived in 2024-2025. This is clearly not AI, but the leading alternative (the 2021-2022 fiscal wave) was tested directly against federal obligations data and did not hold up, so the cause remains unresolved.
+3. **What looked like a second story in the physical economy turned out to be an economy-wide hiring slowdown.** The biggest unemployment-side inversions landed in the low-AI goods sectors in 2024-2025, and neither AI nor the 2021-2022 fiscal wave explains them. Decomposing the inversion showed why: hiring slowed in **8 of 9 sectors**, one common factor explains 72% of sector employment growth, and that factor tracks the Fed funds rate lagged 8-9 quarters at **r = −0.74** (p < 0.0001, n = 75). The goods "inversion" is a fragile short-window artifact on top of that real slowdown; it reverses at a 20-quarter window.
 
-So the honest headline is: the aggregate break is real; the AI-consistent part of it lives in the high-replaceability sectors (Information and Finance most clearly) and is visible in productivity, not unemployment; and a second, separate break in the goods sectors is real but currently unexplained.
+So the honest headline is: the aggregate break is real; the AI-consistent part of it lives in the high-replaceability sectors (Information and Finance most clearly) and is visible in productivity, not unemployment; and the goods-sector break is not a separate mechanism at all but the visible edge of a rate-driven hiring slowdown that hit almost the whole economy.
 
 **Study design at a glance:**
 
@@ -165,7 +165,7 @@ The cross-sectional regression runs **the wrong way for the AI hypothesis: r = �
 
 ## Phase 4: Was it interest rates?
 
-> **Verdict: Separate mechanism confirmed for the goods sectors**
+> **Verdict: rates rejected here, but the test used lags that were too short. See the correction below and in Part 4.**
 
 The Fed's most aggressive hiking cycle in 40 years began right at the AI cutoff, and the sectors that broke most (Construction, Manufacturing, Transportation) are the most rate-sensitive. So the Δβ estimate is re-run under a no-control baseline plus five Federal Funds Rate specifications: contemporaneous YoY change, changes lagged 2 and 4 quarters, the rate level, and the deviation from an 8-quarter rolling mean. The full matrix:
 
@@ -183,7 +183,9 @@ The Fed's most aggressive hiking cycle in 40 years began right at the AI cutoff,
 
 ![Rate-controlled sensitivity](phase2_rate_sensitivity.png)
 
-Reading it: the breakdown survives every way of measuring rates in seven of nine sectors, and is tightest exactly where it matters (Construction, Manufacturing, Information). The two sectors that cross zero are the two that "held" anyway. Transportation and Wholesale stay positive but swing widely across specs, so their magnitudes deserve less confidence. Since the goods-sector breakdown is not a rate artifact and their AI exposure is the lowest in the sample, a third mechanism is needed; the leading candidate is fiscal spending (Part 4).
+Reading it: the breakdown survives every way of measuring rates in seven of nine sectors, and is tightest exactly where it matters (Construction, Manufacturing, Information). The two sectors that cross zero are the two that "held" anyway. Transportation and Wholesale stay positive but swing widely across specs, so their magnitudes deserve less confidence.
+
+> **Correction: this phase's rate controls are too short to test the rate hypothesis.** Every specification above uses a lag of 0, 2, or 4 quarters (`for lag in [0, 2, 4]` in [`okun_phase2_3.py`](okun_phase2_3.py)). Part 4 finds that the rate-to-hiring channel rises monotonically with the lag and peaks at **8-9 quarters**, where the correlation reaches −0.74. At the lags tested here the true correlation is only −0.08 to −0.32, weak enough to look like nothing. So "the breakdown is not a rate artifact" is not established by this phase; the channel was never in the tested range. Re-running with lags out to 8-12 quarters is the highest-value fix available to this study.
 
 ![AIIE cross-section under all six specifications](phase3_cross_section.png)
 
@@ -430,11 +432,13 @@ Reproduce with `aei_revealed_validation.py` (streams and caches the AEI release 
 
 ---
 
-# Part 4: The separate physical-sector story
+# Part 4: The goods sectors, and the economy-wide hiring slowdown
 
-> **Verdict: SEPARATE MECHANISM (likely fiscal), COVID ruled out, AI ruled out**
+> **Verdict: NOT a goods-sector story. An economy-wide, rate-driven hiring slowdown. COVID, AI, and fiscal spending all ruled out.**
 
-The goods sectors are their own story, and it is not AI. This part deliberately **keeps COVID in the data**, unlike the root analysis, because seeing the pandemic is the point (full detail in [`physical-sector-inversion/`](physical-sector-inversion/README.md), reproduce with `rolling_okun_inversion.py` and `comovement.py`).
+This part began by treating the goods sectors as a separate puzzle needing a separate cause, and ended up somewhere else entirely. It deliberately **keeps COVID in the data**, unlike the root analysis, because seeing the pandemic is the point (full detail in [`physical-sector-inversion/`](physical-sector-inversion/README.md)).
+
+The sections below are kept in the order the work happened, because the reversals are part of the evidence: the goods-sector framing comes first, then the tests that dismantled it.
 
 ![Rolling Okun coefficient and correlation for the three goods sectors, COVID included](physical-sector-inversion/rolling_okun_inversion.png)
 
@@ -456,9 +460,40 @@ Three findings:
 
 ![Rolling-beta correlation heatmap and the four goods sectors overlaid](physical-sector-inversion/comovement.png)
 
-That the inverters are exactly the goods producers and the holders are exactly the services is the strongest hint about cause: something specific to physical production, not a whole-economy shift.
+That the inverters looked like exactly the goods producers, and the holders exactly the services, seemed like the strongest hint about cause: something specific to physical production. **Pushing on that hint dissolved it.**
 
-**The leading candidate was tested and did not survive.** `physical-sector-inversion/fiscal_control.py` pulls federal obligations by NAICS from the USAspending API and adds fiscal intensity as a third control. Three findings: the acts cannot be isolated (IIJA and CHIPS tagged obligations reach only ~0.08% of construction value added, because the money moves through states as grants, and the IRA has no fund code and works through tax credits); total federal obligations are economically meaningful but shrink the goods sectors' mean Δβ only from +0.218 to +0.189, significant in 1 of 8 sectors; and a lagged specification that appears to collapse the breakdown fails a falsification check, shrinking service sectors more than goods sectors. So the fiscal explanation is **not supported** by the best available direct test, though the test is structurally weak because federal contract data cannot see money that passes through states. The remaining untested candidate is **the sustained high-rate environment** (rate-sensitive sectors producing on already-financed backlogs while new hiring stalls). Honest limits: each inversion rests on four to six post-onset quarters, the bootstrap-corrected probabilities are only marginal (0.03 to 0.058, none surviving Bonferroni), and co-movement alone is not unique to these sectors (all unemployment co-moves somewhat); the distinctive feature is the shared hold-then-invert shape on the same clock.
+**The leading candidate was tested and did not survive.** `physical-sector-inversion/fiscal_control.py` pulls federal obligations by NAICS from the USAspending API and adds fiscal intensity as a third control. Three findings: the acts cannot be isolated (IIJA and CHIPS tagged obligations reach only ~0.08% of construction value added, because the money moves through states as grants, and the IRA has no fund code and works through tax credits); total federal obligations are economically meaningful but shrink the goods sectors' mean Δβ only from +0.218 to +0.189, significant in 1 of 8 sectors; and a lagged specification that appears to collapse the breakdown fails a falsification check, shrinking service sectors more than goods sectors. So the fiscal explanation is **not supported** by the best available direct test, though the test is structurally weak because federal contract data cannot see money that passes through states.
+
+### What the goods sectors turned out to be
+
+With COVID, rates, AI exposure, and fiscal spending all failing, `what_actually_inverted.py` and `hiring_slowdown.py` stopped hunting for a goods-sector cause and decomposed the inversion itself. The result reframes this entire part.
+
+![The 2024-2025 hiring slowdown](physical-sector-inversion/hiring_slowdown.png)
+
+**It is an economy-wide hiring slowdown, not a goods-sector event.** Hiring slowed in **8 of 9 sectors** in 2024-2025, by roughly 2 percentage points on average, goods and services alike. A single principal component explains **72% of the variance** in sector employment growth, and it is essentially the simple nine-sector average (correlation 0.992). AI exposure predicts neither the hiring slowdown (r = +0.19, p = 0.63) nor the productivity acceleration (r = +0.26, p = 0.50).
+
+**It is not a post-pandemic over-hiring correction.** Sectors that surged hardest in the 2021-2023 rebound are not the ones slowing hardest (r = −0.22, p = 0.57), and **8 of 9 sectors now sit below their extrapolated 2013-2019 employment trend**, by 1% to 13%. An economy unwinding a hiring binge would be above trend, not below.
+
+**It follows the rate hikes with a long lag.** The common hiring factor tracks the Fed funds rate with a correlation that rises monotonically with the lag and peaks at 8-9 quarters: **r = −0.74 excluding COVID (p < 0.0001, n = 75)**. Rates went from 0.12% in early 2022 to 5.33% by early 2024; add roughly two years of transmission and it lands exactly on the slowdown. The mechanism is standard: rate hikes do not cause layoffs, they stop firms adding people, which produces a low-hire, low-fire market where employment growth falls toward zero while unemployment barely moves.
+
+**The natural control is the most persuasive piece.** Education & Health is the one sector with no rate sensitivity (r = +0.016, p = 0.89), and it is the one sector that did not slow hiring (+1.3pp against −2.3pp for the other eight). The single sector that ignores the rate cycle is precisely the one that ignores the slowdown.
+
+### Two corrections this forces
+
+**The rate hypothesis was never properly tested.** [`okun_phase2_3.py`](okun_phase2_3.py) controls for rates at lags of 0, 2, and 4 quarters (`for lag in [0, 2, 4]`). At those lags the true correlation is only −0.08 to −0.32; the peak at 8-9 quarters sits entirely outside the tested range. Part 2's "not rates" conclusion was measured with a ruler roughly half as long as needed. Re-running it with lags out to 8-12 quarters is the highest-value fix available to this study.
+
+**The inversion itself is not robust.** `why_in_sync.py` attempted to prove the goods-sector story outright and instead broke it. The trio's synchrony is real (+0.85 average pairwise correlation, 92nd percentile of all three-sector combinations), but after removing the economy-wide common factor their residual co-movement is **−0.01**, so there is no separate goods factor; they move together because they ride one common cycle. And the inversion reverses under ordinary window choices:
+
+| Peak rolling r since 2024 | 8q | 12q | 16q | **20q** |
+|---|---:|---:|---:|---:|
+| Construction | +0.84 | +0.82 | +0.66 | **+0.14** |
+| Manufacturing | +0.82 | +0.68 | +0.45 | **−0.58** |
+| Transportation | +0.65 | +0.60 | +0.13 | **−0.74** |
+| Wholesale | +0.77 | +0.45 | +0.62 | **−0.11** |
+
+At a 20-quarter window three of four sectors are negative again. A structural break should not depend on whether you look through a 12-quarter or 20-quarter window. **The inversion should be treated as a short-window artifact, and the hiring slowdown as the real finding.**
+
+Honest limits: the hiring and rate results rest on n = 75 quarterly observations with a clean natural control and are solid; the inversion rests on 13 post-2022 quarters and is not. Rates are also not the only candidate for a broad hiring slowdown, since immigration and labor-force changes could produce similar timing, and sector-level JOLTS data exists for only two of the nine sectors here. Correlation with a long lag is suggestive of a transmission channel, not proof of one.
 
 ---
 
@@ -474,8 +509,10 @@ On unemployment the dose-response test contradicts AI, but that is an artifact o
 
 **Important limit, established by direct test.** This is a levels claim. When the same nine sectors are tested on whether replaceable industries *accelerated* more after AI arrived (2024-2025 versus their own 2013-2019 baseline), the relationship is not significant (r = +0.45, p = 0.22), because three of the four least-replaceable sectors accelerated just as much. So the evidence supports "sectors with replaceable work sustain higher productivity growth" but not "AI caused a break in 2022."
 
-### The goods-sector inversions → **SEPARATE MECHANISM, CAUSE UNRESOLVED**
-Construction, Manufacturing, Transportation, and Wholesale inverted together in 2024-2025, survive all rate specifications, and have the lowest AI exposure and replaceability in the sample. The fiscal explanation was the leading candidate and has now been tested against USAspending obligations by NAICS; it is **not supported**, though the test cannot see IIJA money that flows through states. The inversion currently has no confirmed cause: not COVID, not rates, not AI, and not federal contract spending. Note the bootstrap downgrade: individually these inversions are marginal (p ≈ 0.03-0.058, none surviving a Bonferroni correction), so the cluster's strength rests on all four moving together rather than on any single sector's significance.
+### The goods-sector inversions → **NOT A SEPARATE MECHANISM: an economy-wide, rate-driven hiring slowdown**
+Construction, Manufacturing, Transportation, and Wholesale appeared to invert together in 2024-2025 with the lowest AI exposure in the sample, which looked like a distinct goods-sector puzzle. Neither AI nor the fiscal wave explains it (the latter tested directly against USAspending obligations by NAICS and **not supported**). Decomposing the inversion resolved it: hiring slowed in **8 of 9 sectors**, one common factor explains **72%** of sector employment growth, and that factor tracks the Fed funds rate lagged 8-9 quarters at **r = −0.74** (p < 0.0001, n = 75). The clinching detail is the natural control: Education & Health is the only sector with no rate sensitivity (r = +0.016) and the only one that did not slow hiring.
+
+Two things follow. First, Phase 4's rejection of the rate hypothesis used lags of 0, 2, and 4 quarters and therefore never tested the channel, which peaks at 8-9. Second, the inversion itself is **not robust**: at a 20-quarter rolling window three of the four sectors turn negative again (Transportation −0.74, Manufacturing −0.58), and the trio's synchrony vanishes once the economy-wide factor is removed (residual co-movement −0.01, so there is no separate goods factor). The hiring slowdown is the finding; the inversion is a short-window artifact and should not be carried into a write-up as a structural break.
 
 ### Tech's break survived everything thrown at it → **BEST-STRESS-TESTED SINGLE RESULT**
 Information's post-2022 slope stays inside +0.150 to +0.223 across eight specifications (baseline, five rate controls, two overhang controls), and its real productivity (+7.2%/yr, with genuine falling deflators, no FISIM issue) is the highest in the sample while its 2024-2025 employment is shrinking.

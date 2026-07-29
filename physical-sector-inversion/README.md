@@ -12,7 +12,7 @@ This sub-project started as a narrow question about three low-AI goods sectors, 
 
 **Hiring slowed in 8 of the 9 major US sectors in 2024-2025, by an average of roughly 2 percentage points, and it is one common macro event rather than nine sector stories.** A single factor explains 72% of the variance in sector employment growth. That factor tracks the Federal Funds Rate with a long lag peaking at 8 to 9 quarters: r = −0.74 excluding COVID quarters (p < 0.0001, n = 75). The 2022-2023 hiking cycle plus roughly two years of transmission lands precisely on the 2024-2025 slowdown.
 
-The "goods-sector Okun inversion" that this folder was named after is a **side effect** of that slowdown, not a separate phenomenon. It is a small statistical sign flip that shows up in the goods sectors because their unemployment variation had collapsed enough for a tiny movement to dominate a correlation.
+The "goods-sector Okun inversion" that this folder was named after is a **side effect** of that slowdown, and a fragile one. A direct attempt to prove it ([why they moved in sync](#why-they-moved-in-sync-and-what-broke-under-testing)) found that the inversion **reverses under ordinary changes to the rolling-window length**: at 20 quarters, three of the four sectors go negative again. The real, robust finding here is the hiring slowdown and its rate cause, not the inversion.
 
 Three consequences worth stating plainly:
 
@@ -164,7 +164,9 @@ Output growth largely held up, and Manufacturing's even accelerated. Employment 
 
 ### What this reframes
 
-The goods-sector inversion and the tech "AI signature" are most likely **the same event seen in different sectors**: a broad hiring slowdown across the US economy in 2024-2025, on top of which the unemployment-based Okun measure flipped sign in the handful of sectors whose unemployment variation had collapsed enough for a small movement to dominate.
+The goods-sector inversion and the tech "AI signature" are most likely **the same event seen in different sectors**: a broad hiring slowdown across the US economy in 2024-2025, on top of which the unemployment-based Okun measure flipped sign in a handful of sectors.
+
+> **Correction.** An earlier version of this section attributed that sign flip to collapsed unemployment variance in the goods sectors. That explanation was tested directly in `why_in_sync.py` and **fails**: the ratio of post- to pre-period unemployment variance does not predict which sectors flipped (r = +0.24, p = 0.76). The honest position is that the flip is not robustly explained, and more importantly is not robust at all. See the section below.
 
 That resolves why nothing explained the goods inversion. It is not a goods-sector phenomenon needing a goods-sector cause. It is an economy-wide labor-market shift that happens to be *visible* in the goods sectors, because their unemployment series are the ones where a small absolute change produced a correlation flip. The service sectors experienced comparable hiring slowdowns without their Okun correlations inverting, since their unemployment sits pinned at a structural floor, which is the same blindness documented in the [finance analysis](../finance/README.md).
 
@@ -228,12 +230,56 @@ So "not rates" was measured with a ruler too short. This does not automatically 
 - **Lag scans overfit.** Trying 13 lags and reporting the best one inflates significance. The defense here is that the pattern is smooth and monotonic rather than a lone spike, which is what a real transmission channel looks like, but the exact peak of 8-9 quarters should not be taken literally.
 - **Rates are not the only candidate left.** Immigration and labor-force changes could produce a broad hiring slowdown on similar timing, and this analysis cannot separate them. Sector-level JOLTS hires and quits would help, but FRED only carries them for two of the nine sectors here.
 
+## Why they moved in sync, and what broke under testing
+
+`why_in_sync.py` was written to build the strongest possible case for the goods-sector story and prove the mechanism outright. Four claims survived and three failed, including the central one. Both halves are reported, because what broke is more informative than what held.
+
+![Why the sectors moved in sync](why_in_sync.png)
+
+### What survived
+
+**1. The trio really is unusually synchronized.** Construction, Manufacturing, and Transportation employment growth has an average pairwise correlation of **+0.85** (excluding COVID). Ranked against all 84 possible three-sector combinations, that puts them 7th, in the **92nd percentile**. The synchrony is not imagined.
+
+**2. But there is no separate "goods factor."** This is where the intuitive story breaks. Removing the single economy-wide common factor, which explains 72% of all variance, leaves the trio's residual co-movement at **−0.01**, indistinguishable from zero and no different from any other grouping. They move together because they all ride the same economy-wide cycle hard, not because building, making, and moving things share a private mechanism. The supply-chain narrative is appealing and the data does not support it.
+
+**3. That cycle is driven by rates, and this evidence is strong.** Employment growth correlates with the Fed funds rate lagged 9 quarters in **8 of 9 sectors, every one at p < 0.0001 with n = 75**, ranging from −0.49 to −0.76.
+
+**4. The natural control is the most persuasive single piece of evidence.** Education & Health is the one sector with no rate sensitivity at all (r = +0.016, p = 0.89). It is also the one sector out of nine that **did not slow hiring** (+1.3pp while the other eight averaged −2.3pp). One sector ignores the rate cycle, and it is precisely the one that ignores the hiring slowdown. That is what a real causal channel looks like: the exception proves the rule rather than undermining it.
+
+### What failed
+
+**5. The trio is not distinctively rate-sensitive.** Trio mean r = −0.727 against −0.520 for the others, but the difference is not significant (p = 0.13), and **Finance ranks second most rate-sensitive of all nine sectors**. Rate sensitivity is close to universal, so it cannot be what singles out the goods sectors.
+
+**6. The variance-collapse explanation fails.** The claim that the goods sectors' correlations flipped because their unemployment variance shrank does not survive: variance ratio does not predict the correlation change (r = +0.24, p = 0.76).
+
+**7. The inversion itself is not robust, and this is the decisive result.** Peak rolling correlation since 2024, by window length:
+
+| Sector | 8q | 12q | 16q | **20q** |
+|---|---:|---:|---:|---:|
+| Construction | +0.84 | +0.82 | +0.66 | **+0.14** |
+| Manufacturing | +0.82 | +0.68 | +0.45 | **−0.58** |
+| Transportation | +0.65 | +0.60 | +0.13 | **−0.74** |
+| Wholesale | +0.77 | +0.45 | +0.62 | **−0.11** |
+
+At a 20-quarter window, three of four sectors are **negative again**, meaning the law holds. The fixed-window version is no better: moving the post-period start by two quarters swings Manufacturing from +0.52 to −0.07 and Wholesale from +0.48 to −0.20.
+
+A structural break should not depend on whether you look through a 12-quarter or a 20-quarter window. This one does. The inversion is a short-window artifact.
+
+### The honest conclusion
+
+Asked to prove the goods-sector inversion, the evidence went the other way. What can be defended:
+
+> Construction, Manufacturing, and Transportation moved in sync in 2024-2025 because **a single interest-rate-driven cycle moves nearly the entire US economy**, and these three ride it hard. Their hiring slowed alongside six other sectors, on a schedule matching the 2022-2023 rate hikes plus about two years of transmission. The "Okun inversion" that named this folder is a fragile statistical artifact sitting on top of that real and well-evidenced slowdown.
+
+The parts of that claim resting on n = 75 quarterly observations and a clean natural control are solid. The part resting on 13 post-2022 quarters and a 12-quarter rolling window is not, and should not be carried into any write-up as a finding.
+
 ## Reproducing this
 
 From this directory:
 
 ```
 python3 hiring_slowdown.py          # THE LEAD RESULT: why hiring slowed, and the rate lag
+python3 why_in_sync.py              # the proof attempt: 4 claims survive, 3 fail (incl. robustness)
 python3 what_actually_inverted.py   # decomposes the inversion into the hiring slowdown
 python3 rolling_okun_inversion.py   # the original three-sector rolling coefficients
 python3 comovement.py               # co-movement heatmap + the four-sector overlay
