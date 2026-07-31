@@ -185,7 +185,33 @@ The Fed's most aggressive hiking cycle in 40 years began right at the AI cutoff,
 
 Reading it: the breakdown survives every way of measuring rates in seven of nine sectors, and is tightest exactly where it matters (Construction, Manufacturing, Information). The two sectors that cross zero are the two that "held" anyway. Transportation and Wholesale stay positive but swing widely across specs, so their magnitudes deserve less confidence.
 
-> **Correction: this phase's rate controls are too short to test the rate hypothesis.** Every specification above uses a lag of 0, 2, or 4 quarters (`for lag in [0, 2, 4]` in [`okun_phase2_3.py`](okun_phase2_3.py)). Part 4 finds that the rate-to-hiring channel rises monotonically with the lag and peaks at **8-9 quarters**, where the correlation reaches −0.74. At the lags tested here the true correlation is only −0.08 to −0.32, weak enough to look like nothing. So "the breakdown is not a rate artifact" is not established by this phase; the channel was never in the tested range. Re-running with lags out to 8-12 quarters is the highest-value fix available to this study.
+> **Correction: this phase's rate controls were too short, and the fix has now been run.** Every specification above uses a lag of 0, 2, or 4 quarters (`for lag in [0, 2, 4]` in [`okun_phase2_3.py`](okun_phase2_3.py)). Part 4 finds the rate-to-hiring channel peaks at **8-9 quarters**, entirely outside that range. [`extended_lag_test.py`](extended_lag_test.py) re-runs the identical specification with lags out to 12 quarters. Results in the box below.
+
+### The extended-lag re-test
+
+![Phase 4 re-run at extended lags](extended_lag_test.png)
+
+The longer lags are a **harder** test, not a softer one: in the post-2022 window the lag-0 FFR level barely varies (3.64% to 5.33%, sd 0.63) because rates were high and flat, while the lag-8 version spans 0.07% to 5.33% (sd 2.37). Phase 4's original level control had almost nothing to work with.
+
+**Result 1: Information's break survives, and this is now a much stronger claim.** Its post-2022 coefficient stays positive under every lag from 0 to 12 in both the change and level forms, never once turning negative:
+
+| Rate control | L0 | L2 | L4 | **L6** | **L8** | **L9** | **L10** | **L12** |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| FFR level | +0.165 | +0.142 | +0.182 | +0.203 | +0.176 | +0.182 | +0.186 | +0.210 |
+| ΔFFR (YoY) | +0.186 | +0.186 | +0.223 | +0.540 | +0.191 | +0.163 | +0.131 | +0.149 |
+
+Tech's decoupling is not a monetary artifact at any lag tested. Construction is similarly stable (+0.043 to +0.058 throughout), so its small breakdown is not a rate artifact either.
+
+**Result 2: the "contradicts AI" cross-section is not robust to the fix.** Regressing Δβ on AI exposure at each lag, the wrong-direction result depends entirely on which rate form is used:
+
+| Rate control | L0 | L2 | L4 | **L8** | **L9** | **L10** |
+|---|---:|---:|---:|---:|---:|---:|
+| ΔFFR (YoY) | −0.63 | −0.58 | −0.50 | **−0.68** (p=.04) | −0.66 | −0.64 |
+| FFR level | −0.49 | −0.73 | −0.70 | **−0.16** (p=.69) | **−0.10** (p=.80) | −0.17 |
+
+Under the change form the negative correlation persists and even strengthens. Under the level form at the lags where the rate channel actually operates, it **collapses to nothing** (r = −0.10, p = 0.80). So Part 2's headline finding, that AI exposure predicts *less* breakdown, is specification-dependent once rates are controlled at the right horizon. It should be reported as inconclusive rather than as a contradiction of the AI hypothesis.
+
+Neither side wins cleanly. Tech's individual break passed a genuinely harder test; the cross-sectional evidence against AI weakened to a null under half the specifications. The defensible summary is that **rates do not explain Information's decoupling, and the cross-section can no longer settle the question either way.**
 
 ![AIIE cross-section under all six specifications](phase3_cross_section.png)
 
