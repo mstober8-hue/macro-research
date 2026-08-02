@@ -278,6 +278,47 @@ Replication establishes that the relationship is real. It does not establish tha
 
 Distinguishing "unexplained" from "AI-driven" requires a positive test. The absence of a rate effect is not one.
 
+### Why would a rate shock break Okun's Law at all?
+
+Everything above establishes *that* the slowdown is monetary. It does not explain *why* monetary policy would make Okun's Law appear to break, and that gap matters. A rate hike should lower output **and** raise unemployment. That is Okun's Law working exactly as designed, not breaking. So a positive output-unemployment correlation still needs a mechanism.
+
+`why_rates_break_okun.py` finds one: **rates reach output and unemployment on different clocks.**
+
+![Why rates break Okun's Law](why_rates_break_okun.png)
+
+Measuring each variable separately against the Federal Funds Rate at every lag:
+
+| Sector | Output peak lag | Unemployment peak lag | Gap |
+|---|---:|---:|---:|
+| Construction | 12q | 9q | **−3q** |
+| Manufacturing | 9q | 8q | **−1q** |
+| Transportation | 8q | 7q | **−1q** |
+
+Unemployment responds roughly **1.7 quarters faster than output**, in the same direction in all three sectors. That gap is the entire mechanism.
+
+**Why a gap produces an apparent break.** Okun's Law is a *contemporaneous* relationship: it compares output and unemployment measured in the same quarter. But if both are really responding to a common driver at different delays, then in any given quarter they are reflecting the policy rate from two different dates:
+
+```
+unemployment_t   responds to   FFR_(t−9)
+output_t         responds to   FFR_(t−12)
+```
+
+When the rate path is flat this is harmless, since both look back at similar rates. When the rate path moves sharply it matters enormously. Using Construction's lags:
+
+| Quarter | Unemployment is reflecting | Rate then | Output is reflecting | Rate then |
+|---|---|---:|---|---:|
+| 2024 Q1 | 2021 Q4 | 0.08% | 2021 Q1 | 0.08% |
+| **2025 Q1** | **2022 Q4** | **3.65%** | **2022 Q1** | **0.12%** |
+| 2025 Q4 | 2023 Q3 | 5.26% | 2022 Q4 | 3.65% |
+
+By 2025, **unemployment was absorbing the hiking cycle while output was still coasting on the zero-rate era.** Unemployment rises while output still looks strong. Measured contemporaneously, that is a positive output-unemployment correlation, which reads as Okun's Law inverting. Panel 3 of the chart shows this directly: the red line (what unemployment is reflecting) climbs steeply through 2024-2025 while the blue line (what output is reflecting) is still near zero.
+
+**The interpretive payoff, and it is the important part.** Okun's Law did not break. The structural relationship between production and employment is intact. What broke is the **assumption that output and unemployment respond to a shock simultaneously**, which is the assumption baked into measuring Okun contemporaneously. A large, fast policy shock desynchronizes them, and a contemporaneous regression reads that desynchronization as a broken law.
+
+This also explains why the inversion is fragile. `why_in_sync.py` found it reverses at 20-quarter windows, which is exactly what a phase artifact should do: it appears while a shock is propagating through two variables at different speeds, and washes out once the window is long enough to contain the whole propagation. A genuine structural break would not care about window length; a timing artifact does.
+
+**Caveat.** This is a mechanism consistent with the measured lags, not a proven causal chain. The gap is small (1 to 3 quarters), estimated on noisy quarterly data, and the quarter-by-quarter path is messier than the clean table above. It is the best available explanation of why the inversion appeared, not a demonstration that it had to.
+
 ### Honest limits
 
 - **Correlation, not causation.** Rates and hiring both respond to the broader cycle. A long-lag correlation is suggestive of a transmission channel, not proof of one. A proper test needs a distributed-lag or local-projection model with controls, not a lag scan.
@@ -337,6 +378,7 @@ From this directory:
 python3 hiring_slowdown.py          # THE LEAD RESULT: why hiring slowed, and the rate lag
 python3 historical_lag_validation.py # out-of-sample: does the lag replicate in prior cycles?
 python3 does_the_lag_solve_it.py     # prediction test: does the lag ACCOUNT for 2024-25?
+python3 why_rates_break_okun.py      # the MECHANISM: why a rate shock inverts the measured law
 python3 why_in_sync.py              # the proof attempt: 4 claims survive, 3 fail (incl. robustness)
 python3 what_actually_inverted.py   # decomposes the inversion into the hiring slowdown
 python3 rolling_okun_inversion.py   # the original three-sector rolling coefficients
