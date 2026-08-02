@@ -224,10 +224,39 @@ The root study concluded that interest rates do not explain the industry breakdo
 
 So "not rates" was measured with a ruler too short. This does not automatically overturn the root finding, since sector-level Δβ with a lagged control is a different regression from this aggregate correlation, but it does mean the rate hypothesis was never properly tested. Re-running Phase 4 with lags out to 8-12 quarters is the single highest-value fix available to the main study.
 
+### Does the lag replicate in previous hiking cycles?
+
+The obvious objection to the result above is circularity: the 8-9 quarter lag was found by scanning 0 to 12 quarters on a sample that *includes* the 2024-2025 episode it is being used to explain. `historical_lag_validation.py` tests it out of sample, which is possible because Construction, Manufacturing and Wholesale employment run back to 1939 and `FEDFUNDS` to 1954.
+
+![Out-of-sample validation of the rate-to-hiring lag](historical_lag_validation.png)
+
+**It replicates for the modern era.** Estimated on **1986-2019**, which contains none of the episode in question, the physical-sector lag profile peaks at exactly **9 quarters (r = −0.366, p < 0.0001, n = 136)**, with the same smooth monotonic shape: positive at lag 0, crossing zero around lag 3, deepening to a trough at 9, then decaying. The nine-sector aggregate on pre-2020 data peaks at 10 quarters (r = −0.349, p = 0.0001). Both bracket the in-sample 8-9. The left panel above shows the two curves have nearly the same shape at different amplitudes.
+
+**But the lag is era-dependent, not a structural constant.** The same estimate on **1955-1985 peaks at 4 quarters** (r = −0.479), and the full pre-2000 sample also gives 4. The transmission lag appears to have roughly doubled between the mid-century economy and the modern one. That is consistent with the standard explanations (longer fixed-rate household and corporate debt, forward guidance pre-committing rates, a shift from manufacturing toward services), but it means "rates hit hiring after about two years" is a claim about the recent economy, not a timeless one. It also means the older data cannot be pooled with the recent data to estimate a single lag.
+
+**The naive event study does not work, and is reported so the failure is visible.** Measuring the gap from each hiking cycle's start to the following trough in physical-sector hiring gives a median of 13 quarters with a range of 0 to 20:
+
+| Cycle | FFR rise | Hiring trough | Lag | |
+|---|---:|---|---:|---|
+| 1972-74 | +8.5 | 1975 Q2 | 13q | |
+| 1977-80 | +10.4 | 1980 Q3 | 14q | |
+| 1983-84 | +2.6 | 1983 Q2 | 0q | |
+| 1988-89 | +3.1 | 1991 Q2 | 13q | |
+| 1994-95 | +2.8 | 1996 Q1 | 8q | |
+| 1999-00 | +1.4 | 2002 Q1 | 10q | |
+| 2004-06 | +3.8 | 2009 Q3 | 20q | trough is the GFC |
+| 2015-18 | +2.1 | 2020 Q2 | 18q | trough is COVID |
+| **2022-23** | **+4.5** | **2025 Q3** | **13q** | |
+
+The two contaminated rows give it away: those troughs are the next recession, not a rate effect. Cycle-level event studies cannot separate the rate channel from whatever downturn happened to follow, so this approach is abandoned rather than reported as support.
+
+**What this buys.** The lag used to explain 2024-2025 was not fitted to 2024-2025; it reproduces on three decades of independent data with the same profile shape. That answers the overfitting objection directly. It does not make the relationship causal, and the era-dependence belongs in any write-up alongside it.
+
 ### Honest limits
 
 - **Correlation, not causation.** Rates and hiring both respond to the broader cycle. A long-lag correlation is suggestive of a transmission channel, not proof of one. A proper test needs a distributed-lag or local-projection model with controls, not a lag scan.
-- **Lag scans overfit.** Trying 13 lags and reporting the best one inflates significance. The defense here is that the pattern is smooth and monotonic rather than a lone spike, which is what a real transmission channel looks like, but the exact peak of 8-9 quarters should not be taken literally.
+- **Lag scans overfit,** which is why the out-of-sample test above exists. The profile is smooth and monotonic rather than a lone spike, and it replicates on 1986-2019, but the exact peak of 8-9 quarters should still not be taken literally.
+- **The lag is not stable across eras** (4 quarters in 1955-1985, 9 in 1986-2019), so this is a fact about the modern economy rather than a structural constant.
 - **Rates are not the only candidate left.** Immigration and labor-force changes could produce a broad hiring slowdown on similar timing, and this analysis cannot separate them. Sector-level JOLTS hires and quits would help, but FRED only carries them for two of the nine sectors here.
 
 ## Why they moved in sync, and what broke under testing
@@ -279,6 +308,7 @@ From this directory:
 
 ```
 python3 hiring_slowdown.py          # THE LEAD RESULT: why hiring slowed, and the rate lag
+python3 historical_lag_validation.py # out-of-sample: does the lag replicate in prior cycles?
 python3 why_in_sync.py              # the proof attempt: 4 claims survive, 3 fail (incl. robustness)
 python3 what_actually_inverted.py   # decomposes the inversion into the hiring slowdown
 python3 rolling_okun_inversion.py   # the original three-sector rolling coefficients
