@@ -252,9 +252,36 @@ The two contaminated rows give it away: those troughs are the next recession, no
 
 **What this buys.** The lag used to explain 2024-2025 was not fitted to 2024-2025; it reproduces on three decades of independent data with the same profile shape. That answers the overfitting objection directly. It does not make the relationship causal, and the era-dependence belongs in any write-up alongside it.
 
+### Does the lag actually solve it? An out-of-sample prediction test
+
+Replication establishes that the relationship is real. It does not establish that it *accounts for* 2024-2025. `does_the_lag_solve_it.py` runs the harder test: fit each sector's rate-hiring relationship on **1991-2021 only**, then feed in the actual path of the Federal Funds Rate and predict 2024-2025 hiring. A sector landing on its prediction is fully explained by monetary policy. One falling far below it has something else going on.
+
+![Predicted versus actual hiring, by sector](does_the_lag_solve_it.png)
+
+| Sector | AIIE | Historical fit | Actual | Predicted | Residual | |
+|---|---:|---:|---:|---:|---:|---|
+| **Construction** | −1.00 | −0.42 | **+1.38** | **+1.39** | **−0.01** | solved |
+| **Manufacturing** | −0.48 | −0.49 | **−0.86** | **−1.05** | **+0.20** | solved |
+| Transportation | −0.34 | −0.54 | +0.19 | +1.39 | −1.20 | fell below |
+| Leisure | −0.32 | −0.41 | +0.89 | +2.02 | −1.13 | fell below |
+| Wholesale | +0.26 | −0.39 | −0.38 | +0.43 | −0.81 | fell below |
+| ProfBus | +0.65 | −0.20 | −0.64 | +2.39 | −3.03 | *model never fit* |
+| **EducHealth** | +0.78 | **+0.61** | **+3.51** | **+2.74** | **+0.77** | solved |
+| Information | +1.27 | −0.03 | −2.50 | +0.29 | −2.79 | *model never fit* |
+| Finance | +1.54 | −0.09 | −0.03 | +0.91 | −0.94 | *model never fit* |
+
+**Rates solve the physical sectors, essentially exactly.** Construction was predicted to grow hiring at +1.39%/yr and actually grew at +1.38%, a residual of **−0.01 percentage points**. Manufacturing was predicted at −1.05% and came in at −0.86%. Both had a solid historical fit, so the prediction has standing, and it lands. Nothing further is needed to explain the goods-sector slowdown: not fiscal policy, not AI, just the rate cycle arriving on its usual two-year schedule. **This closes the question this sub-project opened.**
+
+**Education & Health confirms the mechanism from the other direction.** It is the only sector with a *positive* historical rate coefficient (r = +0.61), it was therefore predicted to keep hiring through a high-rate period, and it did (+3.51 actual against +2.74 predicted). The model is not simply predicting "everyone slows."
+
+**The high-AI sectors' large residuals are not evidence of anything.** Information (−2.79) and Professional & Business (−3.03) fell dramatically below prediction, which is tempting to read as an AI effect. It is not, and this is the most important caveat in the section. Their **historical fit is essentially zero**: Information r = −0.03 (p = 0.74), Finance r = −0.09 (p = 0.35). Rates never explained hiring in these sectors, so the model has no standing to predict them now, and a large residual from a model that never fit is not a finding. It says their hiring is *unexplained*, not that it is anomalous. The residual-versus-exposure correlation is r = −0.41, p = 0.28, which is not significant at n = 9.
+
+Distinguishing "unexplained" from "AI-driven" requires a positive test. The absence of a rate effect is not one.
+
 ### Honest limits
 
 - **Correlation, not causation.** Rates and hiring both respond to the broader cycle. A long-lag correlation is suggestive of a transmission channel, not proof of one. A proper test needs a distributed-lag or local-projection model with controls, not a lag scan.
+- **The prediction test uses a single regressor.** Fitting hiring on one lagged rate is a deliberately spare model. Construction landing within 0.01pp of prediction is striking but partly luck; the honest read is that the goods sectors are close to their rate-implied path, not that the model is precise to a hundredth of a point.
 - **Lag scans overfit,** which is why the out-of-sample test above exists. The profile is smooth and monotonic rather than a lone spike, and it replicates on 1986-2019, but the exact peak of 8-9 quarters should still not be taken literally.
 - **The lag is not stable across eras** (4 quarters in 1955-1985, 9 in 1986-2019), so this is a fact about the modern economy rather than a structural constant.
 - **Rates are not the only candidate left.** Immigration and labor-force changes could produce a broad hiring slowdown on similar timing, and this analysis cannot separate them. Sector-level JOLTS hires and quits would help, but FRED only carries them for two of the nine sectors here.
@@ -309,6 +336,7 @@ From this directory:
 ```
 python3 hiring_slowdown.py          # THE LEAD RESULT: why hiring slowed, and the rate lag
 python3 historical_lag_validation.py # out-of-sample: does the lag replicate in prior cycles?
+python3 does_the_lag_solve_it.py     # prediction test: does the lag ACCOUNT for 2024-25?
 python3 why_in_sync.py              # the proof attempt: 4 claims survive, 3 fail (incl. robustness)
 python3 what_actually_inverted.py   # decomposes the inversion into the hiring slowdown
 python3 rolling_okun_inversion.py   # the original three-sector rolling coefficients
