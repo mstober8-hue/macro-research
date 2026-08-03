@@ -336,6 +336,51 @@ This also explains why the inversion is fragile. `why_in_sync.py` found it rever
 - The duration argument reconciles the multi-year episode with a small offset, but "7 quarters of hiking plus a 3 quarter offset ≈ the observed window" is arithmetic consistency, not a formal test. A proper version estimates the full impulse response of both variables and simulates the actual rate path through them.
 - Measurement timing could contribute independently: BEA quarterly value added is revised and smoothed, while the unemployment rate is a timely monthly household survey. Some of the apparent gap may be reporting artifact rather than economics.
 
+### A falsifiable forward prediction
+
+The timing story is not just a narrative. It implies a computable quantity, and that turns it into something that can be checked rather than argued about. At any quarter, unemployment is reflecting the rate from nine quarters back while output is reflecting the rate from twelve quarters back, so the size of the desynchronization is simply:
+
+```
+DESYNC_t  =  FFR(t−9) − FFR(t−12)
+```
+
+When DESYNC is large and positive, unemployment is absorbing a much higher rate than output is, and the measured Okun correlation should be pushed positive. When it returns to zero the artifact should vanish. When it goes **negative**, the correlation should overshoot *more negative than normal*.
+
+![The desynchronization index and the standing prediction](standing_prediction.png)
+
+**The test that already passed.** DESYNC peaks at **+3.75pp in 2025 Q2**. The observed rolling Okun correlation peaks in **2025 Q2** in all three sectors: Construction (+0.816), Manufacturing (+0.677), Transportation (+0.602). Same quarter, all three.
+
+This is not fitted. The lags come from 1991-2019 data and the rate path is exogenous policy, so the predicted peak date uses **no information from the correlation series at all**. It also corrects an earlier and sloppier version of this argument in these notes, which estimated the peak by adding the length of the hiking cycle to the lag offset and got 2024 Q3, two to three quarters too early. Computing the index directly rather than approximating it gives the right answer.
+
+**Where things stand now.** All four sectors have peaked and are unwinding, exactly as the index does:
+
+| Quarter | DESYNC | Construction | Manufacturing | Transportation |
+|---|---:|---:|---:|---:|
+| 2025 Q1 | +3.53 | 0.701 | 0.561 | 0.516 |
+| **2025 Q2** | **+3.75** | **0.816** | **0.677** | **0.602** |
+| 2025 Q3 | +2.80 | 0.773 | 0.673 | 0.441 |
+| 2025 Q4 | +1.61 | 0.699 | 0.524 | 0.362 |
+
+**Standing predictions, stated in advance.** Because DESYNC only needs rates through t−9, and rates are observed through 2026 Q2, the index is **already determined through 2028 Q3**. No assumption about future Fed policy is required. That yields dated, falsifiable commitments:
+
+| Period | DESYNC | What must happen |
+|---|---:|---|
+| 2026 Q1 | +0.81 | still inverted, continuing to unwind |
+| 2026 Q2-Q3 | +0.34 to +0.07 | artifact essentially gone; correlations back near or below zero |
+| **2027 Q1-Q3** | **−0.68 to −1.00** | **overshoot: correlations more negative than their pre-2022 baseline** |
+
+**The 2027 overshoot is the discriminating prediction.** A structural-break story predicts nothing of the kind. Once a relationship breaks, it has no reason to swing past its old value and then come back. A timing artifact *requires* it: when output is reflecting higher rates than unemployment, the measured correlation must be pushed further negative than normal before settling.
+
+So there are three ways this can fail, all checkable:
+
+1. The correlations stall around +0.4 and stay there. The mechanism is wrong or incomplete; something structural is holding them up.
+2. They return to their normal negative range and simply stop, with no overshoot. The timing story explains the unwind but not the full dynamics.
+3. They overshoot below the pre-2022 baseline in 2027 and then return. The mechanism is doing real work.
+
+Note also that rate *cuts* cannot explain the current unwind. Rates began falling in late 2024, and at a nine-quarter lag those cuts do not reach unemployment until roughly 2027. What is unwinding now is the desynchronization itself, as both variables finish absorbing the same shock.
+
+**Caveats on the prediction.** It uses Construction's lag pair (9, 12) for all three sectors, but Manufacturing and Transportation have shorter output lags (9q and 8q), so their peaks should have been slightly earlier and smaller. They were not, and the mechanism does not explain that. A 12-quarter rolling window also imposes its own smoothing, so "the quarter" is only resolvable to within roughly one quarter either way.
+
 ### Honest limits
 
 - **Correlation, not causation.** Rates and hiring both respond to the broader cycle. A long-lag correlation is suggestive of a transmission channel, not proof of one. A proper test needs a distributed-lag or local-projection model with controls, not a lag scan.
@@ -396,6 +441,7 @@ python3 hiring_slowdown.py          # THE LEAD RESULT: why hiring slowed, and th
 python3 historical_lag_validation.py # out-of-sample: does the lag replicate in prior cycles?
 python3 does_the_lag_solve_it.py     # prediction test: does the lag ACCOUNT for 2024-25?
 python3 why_rates_break_okun.py      # the MECHANISM: why a rate shock inverts the measured law
+python3 standing_prediction.py       # the falsifiable forward test (2026 unwind, 2027 overshoot)
 python3 why_in_sync.py              # the proof attempt: 4 claims survive, 3 fail (incl. robustness)
 python3 what_actually_inverted.py   # decomposes the inversion into the hiring slowdown
 python3 rolling_okun_inversion.py   # the original three-sector rolling coefficients
