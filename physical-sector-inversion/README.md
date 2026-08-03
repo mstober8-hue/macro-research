@@ -313,11 +313,28 @@ When the rate path is flat this is harmless, since both look back at similar rat
 
 By 2025, **unemployment was absorbing the hiking cycle while output was still coasting on the zero-rate era.** Unemployment rises while output still looks strong. Measured contemporaneously, that is a positive output-unemployment correlation, which reads as Okun's Law inverting. Panel 3 of the chart shows this directly: the red line (what unemployment is reflecting) climbs steeply through 2024-2025 while the blue line (what output is reflecting) is still near zero.
 
+### Two objections this raises, and the answers
+
+**"Why would unemployment respond before output? The causal chain should run rates → output falls → layoffs."** That objection is correct about the naive chain, and the resolution is **backlogs**. In these sectors, current output reflects orders won one to two years ago (a construction firm in 2024 is building what was financed in 2022), while current hiring reflects *expected* future work. When rates spike, new orders die immediately so hiring freezes, but the existing backlog keeps output flowing for another year or more. Labor demand is forward-looking; measured output is backward-looking. That inverts the naive ordering.
+
+The cross-sector pattern supports this. If backlog length drives the gap, sectors with longer pipelines should show bigger gaps, and they do: Construction (output lag 12q, gap −3q), Manufacturing (9q, −1q), Transportation (8q, −1q). The gap scales with the output lag.
+
+**"A 1.7 quarter gap should produce a 1.7 quarter break, not a multi-year one."** Also correct, and the peak-lag gap alone does not carry the duration. The resolution is that **2022-2023 was not an impulse**. The Federal Funds Rate rose continuously for seven quarters (0.12% to 5.26%) and then held above 5% for another year. Every quarter of that path is its own shock propagating with staggered lags, so the desynchronization lasts roughly the duration of the rate move plus the offset, about 7 + 3 ≈ 10 quarters. That is close to the length of the observed 2024-2025 episode.
+
+The shape of the two response curves reinforces it. Output's response is broad and still strong at lag 15 (r = −0.65), while unemployment's peaks at 8-9 and decays faster. Two responses with different *shapes*, not merely different peaks, stay mismatched considerably longer than the peak difference alone implies.
+
+**Is the gap even identified?** Bootstrapping the whole procedure 500 times (resampling quarters with replacement, re-estimating both peak lags) gives a mean gap of −2.8 quarters with a 95% interval of [−5, −1], and unemployment leads output in **99% of draws**. The gap is statistically robust in this data even though the correlation curves are individually flat near their peaks.
+
 **The interpretive payoff, and it is the important part.** Okun's Law did not break. The structural relationship between production and employment is intact. What broke is the **assumption that output and unemployment respond to a shock simultaneously**, which is the assumption baked into measuring Okun contemporaneously. A large, fast policy shock desynchronizes them, and a contemporaneous regression reads that desynchronization as a broken law.
 
 This also explains why the inversion is fragile. `why_in_sync.py` found it reverses at 20-quarter windows, which is exactly what a phase artifact should do: it appears while a shock is propagating through two variables at different speeds, and washes out once the window is long enough to contain the whole propagation. A genuine structural break would not care about window length; a timing artifact does.
 
-**Caveat.** This is a mechanism consistent with the measured lags, not a proven causal chain. The gap is small (1 to 3 quarters), estimated on noisy quarterly data, and the quarter-by-quarter path is messier than the clean table above. It is the best available explanation of why the inversion appeared, not a demonstration that it had to.
+**Caveats.** This is a mechanism consistent with the measured lags, not a proven causal chain.
+
+- The gap is small (1 to 3 quarters) and the individual correlation curves are flat near their peaks, so the bootstrap is doing real work here. It says the *gap* is robust even though neither *peak* is sharply pinned down.
+- The backlog explanation for why unemployment leads output is a plausible economic story fitted after seeing the result, and the supporting evidence (gap scaling with output lag) is three data points. A direct test would use new orders or permits, which lead output mechanically, rather than inferring the pipeline from lag structure.
+- The duration argument reconciles the multi-year episode with a small offset, but "7 quarters of hiking plus a 3 quarter offset ≈ the observed window" is arithmetic consistency, not a formal test. A proper version estimates the full impulse response of both variables and simulates the actual rate path through them.
+- Measurement timing could contribute independently: BEA quarterly value added is revised and smoothed, while the unemployment rate is a timely monthly household survey. Some of the apparent gap may be reporting artifact rather than economics.
 
 ### Honest limits
 
