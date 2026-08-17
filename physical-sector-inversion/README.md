@@ -395,6 +395,56 @@ Note also that rate *cuts* cannot explain the current unwind. Rates began fallin
 
 **Caveats on the prediction.** It uses Construction's lag pair (9, 12) for all three sectors, but Manufacturing and Transportation have shorter output lags (9q and 8q), so their peaks should have been slightly earlier and smaller. They were not, and the mechanism does not explain that. A 12-quarter rolling window also imposes its own smoothing, so "the quarter" is only resolvable to within roughly one quarter either way.
 
+### The three failure modes, tested
+
+`prediction_stress_tests.py` takes the three ways the standing prediction said it could fail and tests all of them. The 2027 overshoot is not observable yet, so rather than wait, the same mechanism is tested against 70 years of history where the equivalent episodes already happened.
+
+![Stress-testing the standing prediction](prediction_stress_tests.png)
+
+**Failure mode 1 (the correlations stall near +0.4) is close to ruled out.** Refreshed FRED data extends sector value added one quarter further than the local files, to 2026 Q1, and the unwind is not stalling:
+
+| Sector | 2025 Q2 peak | 2026 Q1 | Change |
+|---|---:|---:|---:|
+| Construction | +0.816 | +0.458 | −0.358 |
+| Manufacturing | +0.677 | +0.204 | −0.473 |
+| Transportation | +0.602 | +0.279 | −0.323 |
+
+All three are falling steadily, and Manufacturing is nearly back to zero. Only Construction remains above +0.35. This is the one part of the original prediction that is holding up.
+
+**But the "test that already passed" earns far less credit than claimed.** The original argued that DESYNC peaking in 2025 Q2 and all three correlations peaking in 2025 Q2 was a precise, unfitted hit. Computing the peak date across all 72 defensible lag pairs (any `LAG_U` from 4 to 12, any `LAG_Y` greater than it) shows **90.3% of pairs put the peak somewhere in 2024-2025, and 16.7% put it exactly in 2025 Q2**. The peak date is governed by the shape of the 2022-2023 hiking cycle, not by the specific lags. A prediction with a one-in-six hit rate under arbitrary parameter choices is not the precision instrument it was presented as.
+
+**The decisive test: does DESYNC predict Okun inversions across history?** The mechanism is a general claim, so it should hold in aggregate data, where GDP and unemployment reach back to the 1940s and the federal funds rate to 1954. That gives nine hiking cycles instead of one.
+
+| Sample | corr(DESYNC, rolling Okun r) | p | n |
+|---|---:|---:|---:|
+| **Full 1951-2026** | **+0.091** | **0.139** | **269** |
+| 1955-1985 | +0.180 | 0.055 | 114 |
+| 1986-2007 | −0.083 | 0.440 | 88 |
+| 2008-2026 | +0.602 | <0.0001 | 67 |
+
+**On the full 70-year record the relationship is not significant.** It appears only in 2008-2026, the window containing the very episode the mechanism was built to explain, and is absent or wrong-signed in the two earlier subsamples. That is the signature of a mechanism fitted to its own episode. The quintile pattern fails too: mean Okun correlation should rise monotonically with DESYNC and instead runs −0.788, −0.572, −0.534, −0.730, −0.707, rising then falling, with a highest-minus-lowest gap of +0.081 (p = 0.16).
+
+**The overshoot prediction does not survive either, and the way it fails is instructive.** Testing it on history, quarters with negative DESYNC do show below-baseline correlations (−0.732 against a −0.667 baseline, p = 0.024), which in isolation reads as support. But quarters with *positive* DESYNC are also below baseline (−0.715), and only the near-zero middle sits above it (−0.505). The mechanism requires positive DESYNC to push the correlation *up*, which is the entire claim about 2024-2025. Instead both tails push it down.
+
+A regression separating the two effects settles it:
+
+```
+R = a + b·DESYNC + c·|DESYNC|
+    mechanism predicts   b > 0,  c ≈ 0
+    confound  predicts   b ≈ 0,  c < 0
+```
+
+| Term | Coefficient | t | p |
+|---|---:|---:|---:|
+| b (DESYNC, directional) | +0.0151 | +0.69 | 0.49 |
+| **c (\|DESYNC\|, magnitude)** | **−0.0562** | **−1.97** | **0.048** |
+
+The directional effect the mechanism needs is indistinguishable from zero. What exists is a **symmetric magnitude effect**: large rate swings in either direction coincide with stronger, more negative Okun correlations. That is exactly what you would expect if big rate moves cluster around recessions, when output and unemployment move together most tightly. It is a confound, not the desynchronization channel.
+
+**Verdict on the standing prediction.** The unwind is real and on schedule, but the unwind was the generic part, predicted by almost any lag pair. The two parts that would have distinguished a timing artifact from a coincidence, the precise peak date and the 2027 overshoot, do not hold up: the peak date is generic, and the overshoot has no directional support in 70 years of data. The DESYNC index should not be carried forward as evidence for anything.
+
+**A sample-size disclosure that should have been in the original.** Quarterly real value added by industry begins in **2005**, not 1991. The `>= 1991-01-01` filter in `why_rates_break_okun.py` and `standing_prediction.py` binds on nothing, because the data does not exist before 2005. The sector output lags rest on roughly 78 usable quarters, and the first sector Okun correlation is only available from 2008 Q4. Describing these lags as estimated on "1991-2019 data" was inaccurate, and a 12-quarter lag estimated from that sample was never going to be well determined, which is what `identification_check.py` found independently.
+
 ### Honest limits
 
 - **Correlation, not causation.** Rates and hiring both respond to the broader cycle. A long-lag correlation is suggestive of a transmission channel, not proof of one. A proper test needs a distributed-lag or local-projection model with controls, not a lag scan.
@@ -457,6 +507,7 @@ python3 does_the_lag_solve_it.py     # prediction test: does the lag ACCOUNT for
 python3 why_rates_break_okun.py      # the MECHANISM: why a rate shock inverts the measured law
 python3 identification_check.py     # tests whether that mechanism's timing gap is identified (it isn't)
 python3 cf_style_comparison.py      # tests the Cleveland Fed's own lag spec against these 3 sectors
+python3 prediction_stress_tests.py  # the 3 failure modes: fresh data, lag sensitivity, 70yr history
 python3 standing_prediction.py       # the falsifiable forward test (2026 unwind, 2027 overshoot) -- superseded
 python3 why_in_sync.py              # the proof attempt: 4 claims survive, 3 fail (incl. robustness)
 python3 what_actually_inverted.py   # decomposes the inversion into the hiring slowdown
