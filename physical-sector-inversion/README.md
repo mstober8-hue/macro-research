@@ -323,20 +323,34 @@ The cross-sector pattern supports this. If backlog length drives the gap, sector
 
 The shape of the two response curves reinforces it. Output's response is broad and still strong at lag 15 (r = −0.65), while unemployment's peaks at 8-9 and decays faster. Two responses with different *shapes*, not merely different peaks, stay mismatched considerably longer than the peak difference alone implies.
 
-**Is the gap even identified?** Bootstrapping the whole procedure 500 times (resampling quarters with replacement, re-estimating both peak lags) gives a mean gap of −2.8 quarters with a 95% interval of [−5, −1], and unemployment leads output in **99% of draws**. The gap is statistically robust in this data even though the correlation curves are individually flat near their peaks.
+**Is the gap even identified?** The original version of this section said yes: bootstrapping the whole procedure 500 times by resampling *individual quarters with replacement* gave a mean gap of −2.8 quarters with a 95% interval of [−5, −1], unemployment leading output in 99% of draws.
 
-**The interpretive payoff, and it is the important part.** Okun's Law did not break. The structural relationship between production and employment is intact. What broke is the **assumption that output and unemployment respond to a shock simultaneously**, which is the assumption baked into measuring Okun contemporaneously. A large, fast policy shock desynchronizes them, and a contemporaneous regression reads that desynchronization as a broken law.
+**That check was wrong, and `identification_check.py` shows why.** Resampling individual quarters with replacement assumes each quarter is independent. Quarterly macro data is not; the whole reason a "lag" is measurable at all is that shocks persist across many consecutive quarters. An i.i.d. bootstrap shuffles that dependence away and manufactures false precision, because every resampled draw still contains fragments of the same underlying cycle. The fix is a **moving-block bootstrap**, which resamples contiguous chunks of quarters so the serial correlation structure survives into each replicate.
 
-This also explains why the inversion is fragile. `why_in_sync.py` found it reverses at 20-quarter windows, which is exactly what a phase artifact should do: it appears while a shock is propagating through two variables at different speeds, and washes out once the window is long enough to contain the whole propagation. A genuine structural break would not care about window length; a timing artifact does.
+Re-run properly, with block lengths of both 8 and 24 quarters and three separate specifications (correlation with the FFR level, as above; correlation with the 4-quarter change in the FFR, which removes the level's persistence; and a local-projection estimate with Newey-West standard errors, the closest thing to a real impulse response this dataset supports), **the gap is not distinguishable from zero anywhere**:
 
-**Caveats.** This is a mechanism consistent with the measured lags, not a proven causal chain.
+| Sector | Spec A (level) | Spec B (Δ FFR) | Spec C (local projection) |
+|---|---:|---:|---:|
+| Construction | [−15, +8]q | [−7, +12]q | [−9, +11]q |
+| Manufacturing | [−15, +9]q | [−12, +12]q | [−12, +10]q |
+| Transportation | [−15, +11]q | [−14, +12]q | [−11, +12]q |
 
-- The gap is small (1 to 3 quarters) and the individual correlation curves are flat near their peaks, so the bootstrap is doing real work here. It says the *gap* is robust even though neither *peak* is sharply pinned down.
-- The backlog explanation for why unemployment leads output is a plausible economic story fitted after seeing the result, and the supporting evidence (gap scaling with output lag) is three data points. A direct test would use new orders or permits, which lead output mechanically, rather than inferring the pipeline from lag structure.
-- The duration argument reconciles the multi-year episode with a small offset, but "7 quarters of hiking plus a 3 quarter offset ≈ the observed window" is arithmetic consistency, not a formal test. A proper version estimates the full impulse response of both variables and simulates the actual rate path through them.
-- Measurement timing could contribute independently: BEA quarterly value added is revised and smoothed, while the unemployment rate is a timely monthly household survey. Some of the apparent gap may be reporting artifact rather than economics.
+*(95% intervals, 24-quarter blocks, 2,000 replicates.)* Every interval covers zero. The point estimate of the gap also swings wildly across specifications for the same sector (Construction: −3q, −12q, +1q depending on spec), which is itself evidence there is no stable parameter being estimated, just noise dressed up by whichever regressor happened to be used. Separately, the local-projection peak responses for output and unemployment are individually significant in only half of the six sector-variable pairs tested (Manufacturing's peaks and Transportation's output peak are not significant at 5%; Transportation's output "peak" lands at the edge of the tested grid, meaning there may be no interior peak at all within 16 quarters).
 
-### A falsifiable forward prediction
+**What this means.** The claim that "unemployment responds to a rate shock 1.7 to 3 quarters faster than output," which is the entire timing mechanism this section builds on, does not survive proper identification. It should not be treated as established. The correlation curves in the chart above are real, but a peak-lag difference read off two flat, noisy curves is not a robust estimate of anything, and the original bootstrap that seemed to confirm it was checking the wrong kind of uncertainty.
+
+**What still stands, and it is a different and better-supported claim.** The single-lag relationship in `hiring_slowdown.py` and `historical_lag_validation.py`, that goods-sector *employment growth* (not the output/unemployment differential above) correlates with the Fed funds rate at roughly an 8-9 quarter lag, with a smooth monotonic profile, validated out-of-sample on 1986-2019 data it was never fit to, is a separate and much better-supported result. It uses one lag on one variable against a common shock, not a difference between two barely-identified lags. `does_the_lag_solve_it.py`'s quantitative out-of-sample prediction test (Construction and Manufacturing hiring predicted from pre-2022 data alone, landing within 0.01-0.20pp of what actually happened) rests on that single-lag relationship and is unaffected by this correction.
+
+**Compared against the Cleveland Fed's own specification.** Jacobs & Krolikowski (2026) reconcile the *aggregate* version of this puzzle differently: not with a policy-rate channel, but by lagging output two quarters relative to unemployment (`U_t` vs `Y_{t-2}`), reporting that this brings the aggregate comovement back in line with history. Testing their exact specification on these three sectors (`cf_style_comparison.py`) shows it helps but does not resolve the sector-level inversion: the 2024-2025 peak correlation falls from +0.82 to +0.38 in Construction, +0.68 to +0.60 in Manufacturing, and +0.60 to +0.25 in Transportation, remaining positive in all three. Their two-quarter output lag and this project's differential rate-lag are different mechanisms operating at different levels of aggregation, and neither one alone fully accounts for what happened in the goods sectors.
+
+**Caveats that were already true and remain true regardless of the above.**
+
+- The backlog explanation for why unemployment might lead output is a plausible economic story fitted after seeing a result that turned out not to be robust. It is not evidence for anything on its own.
+- Measurement timing could contribute independently: BEA quarterly value added is revised and smoothed, while the unemployment rate is a timely monthly household survey. That alone could generate an apparent lag with no economic content.
+
+### A falsifiable forward prediction, now superseded
+
+**This entire subsection rests on the lag pair (9, 12) from the section above, which the identification check that follows shows is not a robust estimate.** The specific dates below should not be trusted as a prediction of anything; the section is kept rather than deleted because the standing-prediction test that "already passed" (2025 Q2, exactly) is a striking coincidence worth recording even if it cannot currently be attributed to the mechanism claimed. Read this section as an interesting pattern in search of an explanation, not a validated forecast.
 
 The timing story is not just a narrative. It implies a computable quantity, and that turns it into something that can be checked rather than argued about. At any quarter, unemployment is reflecting the rate from nine quarters back while output is reflecting the rate from twelve quarters back, so the size of the desynchronization is simply:
 
@@ -441,7 +455,9 @@ python3 hiring_slowdown.py          # THE LEAD RESULT: why hiring slowed, and th
 python3 historical_lag_validation.py # out-of-sample: does the lag replicate in prior cycles?
 python3 does_the_lag_solve_it.py     # prediction test: does the lag ACCOUNT for 2024-25?
 python3 why_rates_break_okun.py      # the MECHANISM: why a rate shock inverts the measured law
-python3 standing_prediction.py       # the falsifiable forward test (2026 unwind, 2027 overshoot)
+python3 identification_check.py     # tests whether that mechanism's timing gap is identified (it isn't)
+python3 cf_style_comparison.py      # tests the Cleveland Fed's own lag spec against these 3 sectors
+python3 standing_prediction.py       # the falsifiable forward test (2026 unwind, 2027 overshoot) -- superseded
 python3 why_in_sync.py              # the proof attempt: 4 claims survive, 3 fail (incl. robustness)
 python3 what_actually_inverted.py   # decomposes the inversion into the hiring slowdown
 python3 rolling_okun_inversion.py   # the original three-sector rolling coefficients
