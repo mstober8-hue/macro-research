@@ -37,15 +37,15 @@ COVID    = (pd.Timestamp("2020-04-01"), pd.Timestamp("2021-10-01"))
 
 # Ordered goods sectors first (the candidate cluster), then service sectors.
 IND = {
-    "Construction":       ("CnstGDP.csv", "ConstUrate .csv"),
-    "Manufacturing":      ("MnfctGDP.csv", "MnfctUrate.csv"),
-    "Transport & Util":   ("RVAT.csv",     "LNU04032236.csv"),
-    "Wholesale":          ("RVAW.csv",     "LNU04032235.csv"),
-    "Information":        ("RVAI.csv",     "LNU04032237.csv"),
-    "Prof & Bus":         ("RVAPBS.csv",   "LNU04032239.csv"),
-    "Leisure & Hosp":     ("RVAAERAF.csv", "LNU04032241.csv"),
-    "Financial":          ("FnceservcGDP.csv", "LNU04032238.csv"),
-    "Educ & Health":      ("RVAHCSA.csv",  "LNU04032240.csv"),
+    "Construction":       ("construction_value_added_RVAC.csv", "construction_unemployment_rate_LNU04032231.csv"),
+    "Manufacturing":      ("manufacturing_value_added_RVAMA.csv", "manufacturing_unemployment_rate_LNU04032232.csv"),
+    "Transport & Util":   ("transportation_warehousing_value_added_RVAT.csv",     "transportation_utilities_unemployment_rate_LNU04032236.csv"),
+    "Wholesale":          ("wholesale_trade_value_added_RVAW.csv",     "wholesale_retail_trade_unemployment_rate_LNU04032235.csv"),
+    "Information":        ("information_sector_value_added_RVAI.csv",     "information_sector_unemployment_rate_LNU04032237.csv"),
+    "Prof & Bus":         ("professional_business_services_value_added_RVAPBS.csv",   "professional_business_services_unemployment_rate_LNU04032239.csv"),
+    "Leisure & Hosp":     ("leisure_hospitality_value_added_RVAAERAF.csv", "leisure_hospitality_unemployment_rate_LNU04032241.csv"),
+    "Financial":          ("financial_activities_value_added_VAFI.csv", "financial_activities_unemployment_rate_LNU04032238.csv"),
+    "Educ & Health":      ("health_care_social_assistance_value_added_RVAHCSA.csv",  "education_health_unemployment_rate_LNU04032240.csv"),
 }
 GOODS = ["Construction", "Manufacturing", "Transport & Util", "Wholesale"]
 

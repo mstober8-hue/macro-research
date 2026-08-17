@@ -10,13 +10,13 @@ This sub-project started as a narrow question about three low-AI goods sectors, 
 
 ![The 2024-2025 hiring slowdown](hiring_slowdown.png)
 
-**Hiring slowed in 8 of the 9 major US sectors in 2024-2025, by an average of roughly 2 percentage points, and it is one common macro event rather than nine sector stories.** A single factor explains 72% of the variance in sector employment growth. That factor tracks the Federal Funds Rate with a long lag peaking at 8 to 9 quarters: r = −0.74 excluding COVID quarters (p < 0.0001, n = 75). The 2022-2023 hiking cycle plus roughly two years of transmission lands precisely on the 2024-2025 slowdown.
+**Hiring slowed in 8 of the 9 major US sectors in 2024-2025, by an average of roughly 2 percentage points, and it is one common macro event rather than nine sector stories.** A single factor explains 72% of the variance in sector employment growth. That factor tracks the Federal Funds Rate with a long lag peaking at 8 to 9 quarters: r = −0.74 on 2006-2026 data excluding COVID quarters (n = 75). Under correct inference for overlapping, persistent series this holds up (Newey-West p = 0.0006, circular-shift bootstrap p < 0.0001) and it survives controlling for four lags of the dependent variable (p = 0.012), which answers the objection that it is merely business-cycle timing. Two caveats attach: on the **full** available history the same correlation is only −0.37 and survives none of those tests, and the 2006+ window contains the very episode being explained, so the out-of-sample **−0.37** from 1986-2019 is the honest figure to quote for validation. See the [adversarial audit](#adversarial-audit-five-things-that-were-wrong-or-overstated). The 2022-2023 hiking cycle plus roughly two years of transmission lands on the 2024-2025 slowdown.
 
 The "goods-sector Okun inversion" that this folder was named after is a **side effect** of that slowdown, and a fragile one. A direct attempt to prove it ([why they moved in sync](#why-they-moved-in-sync-and-what-broke-under-testing)) found that the inversion **reverses under ordinary changes to the rolling-window length**: at 20 quarters, three of the four sectors go negative again. The real, robust finding here is the hiring slowdown and its rate cause, not the inversion.
 
 Three consequences worth stating plainly:
 
-1. **AI exposure predicts none of it** (hiring slowdown r = +0.19, p = 0.63). Construction and Transportation, the two lowest-exposure sectors, slowed hiring as much as Information did.
+1. **AI exposure does not detectably predict any of it** (hiring slowdown r = +0.19). Construction and Transportation, the two lowest-exposure sectors, slowed hiring as much as Information did. Note the limit: with 9 sectors the smallest correlation this test could reliably detect is r = 0.82, so this is an absence of detectable effect rather than evidence of no effect.
 2. **It is not a post-pandemic over-hiring correction.** 8 of 9 sectors sit *below* their extrapolated 2013-2019 employment trend, by 1% to 13%. A correction from over-hiring would leave them above.
 3. **The root study's rate controls were too short to catch it.** [`okun_phase2_3.py`](../okun_phase2_3.py) tests lags of 0, 2, and 4 quarters (`for lag in [0, 2, 4]`). The channel peaks at 8-9 quarters, so the main analysis rejected the rate hypothesis using lags roughly half as long as needed.
 
@@ -489,6 +489,41 @@ Every one sits between −0.77 and −0.97, which is Okun's Law working about as
 
 **Net effect of the dynamic re-test.** Fixing the specification did not rescue the mechanism. It removed its last supporting result and produced a significant relationship in the opposite direction. The 2024-2025 episode remains genuinely unusual, since no comparable historical DESYNC surge coincided with a positive Okun correlation, but DESYNC does not explain why.
 
+### Adversarial audit: five things that were wrong or overstated
+
+`audit.py` attacks the five weakest points in this folder, including two in the tests written to refute the mechanism. Two of my own claims from the refutation have to be walked back, two long-standing claims in this folder were overstated, and the core finding came out stronger than the first audit pass suggested.
+
+![Adversarial audit](audit.png)
+
+**1. My own refutation p-values were computed the same wrong way I criticised.** The dynamic re-test above reported corr(DESYNC, rolling Okun r) = −0.251 with p < 0.0001. Both series are 12-quarter rolling windows, so consecutive observations share 11 of 12 quarters and the effective sample is roughly 21, not 258. Recomputed: Newey-West gives p = 0.016 to 0.025, and a circular-shift bootstrap (which preserves each series' own autocorrelation exactly while destroying the relationship between them) gives **p = 0.073**.
+
+> **Correction to the section above.** The claim that the corrected data "actively point the other way" is not supported. The honest statement is that **DESYNC has no reliable relationship to the Okun correlation in either direction.** The conclusion that the mechanism is unsupported stands unchanged. The stronger claim that the evidence runs opposite to it does not.
+
+**2. The prediction test's headline precision is meaningless.** `does_the_lag_solve_it.py` reports Construction's 2024-25 hiring landing 0.01pp from prediction. The 95% prediction interval on that residual is **±9.71pp**. Training residual SD is 4.93pp with lag-1 autocorrelation of 0.97, which leaves an effective test sample of about 1 of 10 quarters.
+
+| Sector | Residual | 95% prediction interval |
+|---|---:|---:|
+| Construction | −0.01pp | ±9.71pp |
+| Manufacturing | +0.20pp | ±5.45pp |
+| Education & Health | +0.77pp | ±1.27pp |
+
+A residual of −0.01pp against an interval that wide is indistinguishable from any other value inside it. **The "-0.01pp" must never be quoted as evidence of predictive accuracy.** The defensible claim is that the goods sectors are *consistent with* their rate-implied path.
+
+**3. The AI null is an absence of power, not a finding.** With 9 sectors, the minimum detectable correlation at 80% power is **r = 0.82**, and the 95% confidence interval on the observed r = +0.18 runs **[−0.55, +0.75]**. The test cannot distinguish "AI has no effect" from "AI has a moderate effect." Saying AI exposure "predicts none of it" overclaims; the correct statement is that no relationship is detectable at this sample size and the test could only have caught a very large one.
+
+**4. Every `scipy.pearsonr` p-value in this project is overstated.** This is systemic rather than a single error. Growth rates here are 4-quarter *overlapping* differences and the underlying series are highly persistent, so consecutive observations are mechanically correlated and the i.i.d. assumption behind `pearsonr` fails everywhere it is used. Magnitudes are unaffected; significance levels are not.
+
+**5. The core finding survived, and this is the important result of the audit.** The headline correlation was tested properly on both samples:
+
+| Sample | n | r | naive p | HAC p | bootstrap p | with 4 own lags |
+|---|---:|---:|---:|---:|---:|---:|
+| **2006+ (the sample actually used)** | 75 | **−0.741** | 3e-14 | **0.0006** | **<0.0001** | **p = 0.012** |
+| Full available history | 135 | −0.368 | 1e-05 | 0.013 | 0.105 | p = 0.542 |
+
+On its own sample the relationship survives HAC errors, a circular-shift bootstrap, and controlling for four lags of the dependent variable. It is real, not a p-value artifact. On the full history it is about half as large and survives none of those tests, which is consistent with the independently measured lengthening of the transmission lag between eras.
+
+**But two caveats now attach to it.** The 2006+ window *contains* the 2022-2025 episode being explained, so the honest number to quote for validation is the out-of-sample **−0.37** from 1986-2019, not the in-sample −0.74. And the relationship does not generalise backwards, so this is a claim about the post-2006 economy specifically.
+
 ### Honest limits
 
 - **Correlation, not causation.** Rates and hiring both respond to the broader cycle. A long-lag correlation is suggestive of a transmission channel, not proof of one. A proper test needs a distributed-lag or local-projection model with controls, not a lag scan.
@@ -553,6 +588,7 @@ python3 identification_check.py     # tests whether that mechanism's timing gap 
 python3 cf_style_comparison.py      # tests the Cleveland Fed's own lag spec against these 3 sectors
 python3 prediction_stress_tests.py  # the 3 failure modes: fresh data, lag sensitivity, 70yr history
 python3 desync_dynamics.py          # re-tests DESYNC dynamically: window-matched, changes, event study
+python3 audit.py                    # ADVERSARIAL AUDIT: 5 checks incl. of the tests above
 python3 standing_prediction.py       # the falsifiable forward test (2026 unwind, 2027 overshoot) -- superseded
 python3 why_in_sync.py              # the proof attempt: 4 claims survive, 3 fail (incl. robustness)
 python3 what_actually_inverted.py   # decomposes the inversion into the hiring slowdown

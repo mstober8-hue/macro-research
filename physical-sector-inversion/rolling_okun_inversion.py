@@ -48,9 +48,9 @@ COVID    = (pd.Timestamp("2020-04-01"), pd.Timestamp("2021-10-01"))  # for shadi
 
 # output_file, unemployment_file, AIIE score (context only, not used in the test)
 SECTORS = {
-    "Construction":                ("CnstGDP.csv", "ConstUrate .csv", -0.997),
-    "Manufacturing":               ("MnfctGDP.csv", "MnfctUrate.csv",  -0.484),
-    "Transportation & Utilities":  ("RVAT.csv",     "LNU04032236.csv", -0.342),
+    "Construction":                ("construction_value_added_RVAC.csv", "construction_unemployment_rate_LNU04032231.csv", -0.997),
+    "Manufacturing":               ("manufacturing_value_added_RVAMA.csv", "manufacturing_unemployment_rate_LNU04032232.csv",  -0.484),
+    "Transportation & Utilities":  ("transportation_warehousing_value_added_RVAT.csv",     "transportation_utilities_unemployment_rate_LNU04032236.csv", -0.342),
 }
 
 
