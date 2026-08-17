@@ -445,6 +445,50 @@ The directional effect the mechanism needs is indistinguishable from zero. What 
 
 **A sample-size disclosure that should have been in the original.** Quarterly real value added by industry begins in **2005**, not 1991. The `>= 1991-01-01` filter in `why_rates_break_okun.py` and `standing_prediction.py` binds on nothing, because the data does not exist before 2005. The sector output lags rest on roughly 78 usable quarters, and the first sector Okun correlation is only available from 2008 Q4. Describing these lags as estimated on "1991-2019 data" was inaccurate, and a 12-quarter lag estimated from that sample was never going to be well determined, which is what `identification_check.py` found independently.
 
+### Re-testing the mechanism as a dynamic relationship
+
+The stress test above was challenged on a fair methodological point: it looked at where the data sits rather than where it is heading, and a mechanism about propagation should be tested dynamically. That challenge identified three genuine errors in the test.
+
+1. **Window mismatch.** The rolling Okun correlation at quarter *t* is a backward-looking average over *t−11* to *t*. It was compared against a point-in-time `DESYNC_t`. Mismatched objects.
+2. **Ignoring the mechanism's own scope condition.** The mechanism states that a flat rate path produces no effect and that the artifact appears only when rates move sharply. Pooling in every quiet quarter, where the mechanism predicts nothing, biases a pooled correlation toward zero.
+3. **Wrong lags for the wrong era.** `historical_lag_validation.py` measured transmission at roughly 4 quarters in 1955-1985 against 9 in the modern era. The test applied the modern (9, 12) pair to all 70 years.
+
+`desync_dynamics.py` fixes all three and adds tests in changes, in lead-lag structure, and an event study. **Every correction made the case against the mechanism stronger.**
+
+![Re-testing DESYNC dynamically](desync_dynamics.png)
+
+**The window fix flips the sign.** With the point value, the correlation was +0.091 (p = 0.14, null). Window-matched, it is **−0.251 (p < 0.0001, n = 258)**. Corrected, the relationship runs in the direction *opposite* to the mechanism: higher desynchronization goes with a *more* negative Okun correlation.
+
+**The single result that had supported the mechanism was an artifact of that error.** The earlier run's strongest evidence was the 2008-2026 subsample at r = +0.602. Recomputed window-matched, that becomes **−0.023 (p = 0.85)**. With era-appropriate lags, all three eras are null:
+
+| Era | Lags used | corr (levels) | p | corr (changes) | p |
+|---|---:|---:|---:|---:|---:|
+| 1955-1985 | (4, 5) | +0.082 | 0.39 | +0.086 | 0.38 |
+| 1986-2007 | (9, 12) | −0.114 | 0.29 | −0.174 | 0.11 |
+| 2008-2026 | (9, 12) | −0.023 | 0.85 | −0.080 | 0.52 |
+
+**Testing in changes, which is what the mechanism actually asserts, gives nothing.** The change in DESYNC against the change in the correlation is −0.101 (p = 0.11), null and wrong-signed. The HAC slope is −0.068 (p = 0.12).
+
+**DESYNC does carry lead information, pointing the wrong way.** Scanning leads from −4 to +12 quarters, the strongest relationship is at k = 4, where DESYNC leading by four quarters predicts a correlation of **−0.362**. A rising desynchronization forecasts Okun's Law getting *stronger*, not breaking.
+
+**Applying the mechanism's own scope condition makes it worse.** Restricted to the top tercile of |DESYNC|, where the mechanism claims to operate, the correlation is **−0.346 (p = 0.001)** against −0.067 (p = 0.38) in quiet quarters. Within that active subsample the magnitude confound disappears (c = −0.053, p = 0.73) and what remains is a directional effect with the wrong sign (b = −0.103, p = 0.072). So the earlier "it is just a recession confound" reading was itself too generous: in the quarters that matter, there is a directional effect, and it runs against the mechanism.
+
+**The event study is the most direct evidence.** Five historical DESYNC surges are identifiable (local maxima above the 85th percentile, at least three years apart). At each surge peak, the Okun correlation was:
+
+| Surge | DESYNC | Okun correlation at peak |
+|---|---:|---:|
+| 1972 Q3 | +0.92 | −0.768 |
+| 1976 Q4 | +1.56 | −0.799 |
+| 1983 Q4 | +2.48 | −0.945 |
+| 1992 Q1 | +0.67 | −0.923 |
+| 2009 Q3 | +1.06 | −0.970 |
+
+Every one sits between −0.77 and −0.97, which is Okun's Law working about as tightly as it ever does. The mechanism requires these to be the moments the correlation gets pushed toward positive. The averaged path shows no hump peaking at the surge, just a shallow dip and recovery well inside the confidence band.
+
+**The one honest caveat left, and it is real.** The 2025 Q2 DESYNC value of **+3.75 exceeds every historical episode**, the largest of which was +2.48 in 1983 Q4. So 2024-2025 is genuinely out of sample in DESYNC magnitude, and a threshold effect that only switches on above roughly +3 cannot be strictly excluded by this data. What weighs against it is the absence of any gradient: 1983's +2.48 produced a correlation of −0.945, among the most negative in the entire record. If larger desynchronization pushed correlations positive, the approach to that value should show it, and it does not.
+
+**Net effect of the dynamic re-test.** Fixing the specification did not rescue the mechanism. It removed its last supporting result and produced a significant relationship in the opposite direction. The 2024-2025 episode remains genuinely unusual, since no comparable historical DESYNC surge coincided with a positive Okun correlation, but DESYNC does not explain why.
+
 ### Honest limits
 
 - **Correlation, not causation.** Rates and hiring both respond to the broader cycle. A long-lag correlation is suggestive of a transmission channel, not proof of one. A proper test needs a distributed-lag or local-projection model with controls, not a lag scan.
@@ -508,6 +552,7 @@ python3 why_rates_break_okun.py      # the MECHANISM: why a rate shock inverts t
 python3 identification_check.py     # tests whether that mechanism's timing gap is identified (it isn't)
 python3 cf_style_comparison.py      # tests the Cleveland Fed's own lag spec against these 3 sectors
 python3 prediction_stress_tests.py  # the 3 failure modes: fresh data, lag sensitivity, 70yr history
+python3 desync_dynamics.py          # re-tests DESYNC dynamically: window-matched, changes, event study
 python3 standing_prediction.py       # the falsifiable forward test (2026 unwind, 2027 overshoot) -- superseded
 python3 why_in_sync.py              # the proof attempt: 4 claims survive, 3 fail (incl. robustness)
 python3 what_actually_inverted.py   # decomposes the inversion into the hiring slowdown
