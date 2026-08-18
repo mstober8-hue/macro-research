@@ -160,7 +160,9 @@ Output growth largely held up, and Manufacturing's even accelerated. Employment 
 | Information | +1.27 | +0.98 | −2.46 | −3.44 |
 | Financial Activities | +1.54 | +1.42 | +0.16 | −1.26 |
 
-**Eight of nine sectors slowed hiring, by an average of 1.8 percentage points.** The only exception is Education & Health, which is driven by demographics and public funding rather than the business cycle. And AI exposure does not predict which sectors slowed: **r = +0.18, p = 0.64.** The same holds for productivity acceleration (r = +0.26, p = 0.50). The lowest-AI sectors accelerated productivity by an average of +1.5pp against +2.5pp for the highest-AI ones, a difference far too small and too noisy to carry an AI story.
+**Eight of nine sectors slowed hiring, by an average of 1.8 percentage points.** The only exception is Education & Health, which is driven by demographics and public funding rather than the business cycle. And AI exposure does not predict which sectors slowed: **r = +0.18, p = 0.64.** The same holds for productivity acceleration (r = +0.26, p = 0.50). The lowest-AI sectors accelerated productivity by an average of +1.5pp against +2.5pp for the highest-AI ones.
+
+> **Correction, and it is a substantial one.** The paragraph above originally continued "a difference far too small and too noisy to carry an AI story," treating both nulls as evidence against AI. That inference does not hold. Benchmarking the identical analysis against every downturn since 1990 (`is_the_slowdown_distinctive.py`, at the repo root) shows two things. First, breadth is meaningless: the median episode since 1990 slowed eight of nine sectors, so "8 of 9 slowed" describes the 1990-91 recession, the dot-com bust, the GFC and COVID equally well. Second, and more damaging, the nine-sector AI correlation is demonstrably blind. Applied to the **2001 dot-com bust**, a shock everyone agrees was concentrated in technology, it returns **r = +0.041, p = 0.916**. A test that cannot detect the dot-com bust cannot be used to rule out a technology shock in 2024-2025. What the correlation misses, a rank statistic catches: Information ranked **first of nine** for hiring-slowdown size in exactly two episodes since 1990, the dot-com bust and this one, against fifth to eighth in every other downturn. 2001 is used there strictly as a diagnostic on the measure and is a poor analogy for the current episode, which is examined directly in the same script: 2001 was an NBER recession (real GDP +1.82%/yr, unemployment 4.2 to 6.3%) while 2024-2026 is an expansion (+2.45%/yr, unemployment 3.7 to 4.5%), so the demand collapse that explains 2001 is absent now. A non-AI reading of the rank finding is still available through the overhang channel that `info_overhang.py` documents, and it does not need 2001 to work. The defensible position is that these nulls are uninformative rather than exculpatory.
 
 ### What this reframes
 
@@ -509,7 +511,7 @@ Every one sits between −0.77 and −0.97, which is Okun's Law working about as
 
 A residual of −0.01pp against an interval that wide is indistinguishable from any other value inside it. **The "-0.01pp" must never be quoted as evidence of predictive accuracy.** The defensible claim is that the goods sectors are *consistent with* their rate-implied path.
 
-**3. The AI null is an absence of power, not a finding.** With 9 sectors, the minimum detectable correlation at 80% power is **r = 0.82**, and the 95% confidence interval on the observed r = +0.18 runs **[−0.55, +0.75]**. The test cannot distinguish "AI has no effect" from "AI has a moderate effect." Saying AI exposure "predicts none of it" overclaims; the correct statement is that no relationship is detectable at this sample size and the test could only have caught a very large one.
+**3. The AI null is an absence of power, not a finding.** With 9 sectors, the minimum detectable correlation at 80% power is **r = 0.82**, and the 95% confidence interval on the observed r = +0.18 runs **[−0.55, +0.75]**. The test cannot distinguish "AI has no effect" from "AI has a moderate effect." Saying AI exposure "predicts none of it" overclaims; the correct statement is that no relationship is detectable at this sample size and the test could only have caught a very large one. This is now stronger than a power calculation: the same test, run on the 2001 dot-com bust, returns **r = +0.041, p = 0.916**, so it has a documented false negative on a technology shock nobody disputes. See `is_the_slowdown_distinctive.py` at the repo root.
 
 **4. Every `scipy.pearsonr` p-value in this project is overstated.** This is systemic rather than a single error. Growth rates here are 4-quarter *overlapping* differences and the underlying series are highly persistent, so consecutive observations are mechanically correlated and the i.i.d. assumption behind `pearsonr` fails everywhere it is used. Magnitudes are unaffected; significance levels are not.
 
@@ -523,6 +525,33 @@ A residual of −0.01pp against an interval that wide is indistinguishable from 
 On its own sample the relationship survives HAC errors, a circular-shift bootstrap, and controlling for four lags of the dependent variable. It is real, not a p-value artifact. On the full history it is about half as large and survives none of those tests, which is consistent with the independently measured lengthening of the transmission lag between eras.
 
 **But two caveats now attach to it.** The 2006+ window *contains* the 2022-2025 episode being explained, so the honest number to quote for validation is the out-of-sample **−0.37** from 1986-2019, not the in-sample −0.74. And the relationship does not generalise backwards, so this is a claim about the post-2006 economy specifically.
+
+### Identified monetary shocks: the causal test
+
+Every rate result above correlates outcomes against the federal funds rate itself, which is not exogenous. The Fed raises rates *because* the economy is strong, so those correlations mix the policy effect with the reason for the policy. `identified_shocks.py` replaces the raw rate with published **identified monetary policy shock series** and re-runs the test as a Jordà local projection with Newey-West errors.
+
+![Identified monetary shocks](identified_shocks.png)
+
+**The series, and why each is here.** Bauer-Swanson (1988-2023) takes high-frequency FOMC surprises and orthogonalizes them against macro and financial news released *before* the meeting, removing the "Fed responds to public data" channel. Jarociński-Karadi (1990-2024) split surprises into a **pure policy** shock (rates up, stocks down) and a **central-bank information** shock (rates up, stocks up, meaning the Fed revealed the economy is strong). Romer-Romer and Nakamura-Steinsson end in 2019 and 2014, so they cannot reach this episode. All five were checked to confirm a positive value really does predict the funds rate rising, rather than assuming the sign convention.
+
+**Pre-specified test, not another lag scan.** The project claims 8-9 quarters, so that horizon is tested directly. Reporting whichever horizon happened to be largest would repeat the peak-picking error the audit already caught. Coefficients are per one standard deviation of each shock, so −1.11 means a typical contractionary surprise lowers employment 1.11%.
+
+| Sector | Bauer-Swanson (h=8) | JK pure policy | JK information |
+|---|---:|---:|---:|
+| Construction | **−1.11** (t = −1.8) | +0.27 | +0.43 (t = 0.7) |
+| Manufacturing | **−0.54** (t = −1.6) | +0.30 | **+0.82** (t = 2.1) |
+| Transportation | **−0.46** (t = −1.1) | +0.31 | **+0.82** (t = 2.4) |
+| Education & Health *(control)* | +0.17 (t = 0.6) | +0.13 | −0.01 (t = −0.1) |
+
+**What holds up.** With the best-identified series, the contractionary sign is correct in all three goods sectors at exactly the 8-9 quarter horizon the project predicted, and the control sector correctly shows nothing on any series. That coherent pattern is the strongest causal evidence this project has produced. Construction comes closest to conventional significance (t = −1.9 at h=9, p ≈ 0.06).
+
+**What does not.** None of the goods-sector effects clear 5%. The corroboration rests on one series: Jarociński-Karadi's pure policy shock gives small positive coefficients that are never significant, so it neither confirms nor refutes. With 120-140 quarters and noisy shocks, this test is underpowered, and the honest reading is *directionally consistent but not statistically established*.
+
+**The genuinely new finding, and it matters more than the above.** The central-bank information shock is **significantly positive** in Manufacturing and Transportation. That is exactly what theory predicts for it: when the Fed reveals the economy is stronger than markets believed, rate-sensitive employment *rises*. So two real channels operate here **with opposite signs**, and a reduced-form correlation against the raw funds rate sums them together.
+
+That is a concrete, mechanical reason the raw-rate estimates throughout this folder cannot be read causally, and it stands independent of the overlapping-window and business-cycle objections already raised. It also explains why `identification_check.py` found local projections on the raw rate change returning the wrong sign: the information channel was pulling against the policy channel.
+
+**Q3: the retracted timing gap does not come back.** Estimated from exogenous variation, the output-minus-unemployment peak gap is −10, −4, 0, −5, 0, 0 quarters across sector-shock pairs, and in **none** of the six is *either* peak individually significant. A gap between two insignificant peaks estimates nothing. The retraction stands.
 
 ### Honest limits
 
@@ -589,6 +618,7 @@ python3 cf_style_comparison.py      # tests the Cleveland Fed's own lag spec aga
 python3 prediction_stress_tests.py  # the 3 failure modes: fresh data, lag sensitivity, 70yr history
 python3 desync_dynamics.py          # re-tests DESYNC dynamically: window-matched, changes, event study
 python3 audit.py                    # ADVERSARIAL AUDIT: 5 checks incl. of the tests above
+python3 identified_shocks.py        # CAUSAL TEST: local projections on identified MP shocks
 python3 standing_prediction.py       # the falsifiable forward test (2026 unwind, 2027 overshoot) -- superseded
 python3 why_in_sync.py              # the proof attempt: 4 claims survive, 3 fail (incl. robustness)
 python3 what_actually_inverted.py   # decomposes the inversion into the hiring slowdown
