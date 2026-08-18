@@ -160,6 +160,8 @@ Output growth largely held up, and Manufacturing's even accelerated. Employment 
 | Information | +1.27 | +0.98 | −2.46 | −3.44 |
 | Financial Activities | +1.54 | +1.42 | +0.16 | −1.26 |
 
+> **The deflating objection, tested.** The obvious way to dismiss this whole sub-project is to say Okun's Law always comes apart in construction, manufacturing and transportation when the economy turns down, so 2024-2025 needs no special explanation. `does_okun_break_in_recessions.py` tests that and finds the opposite. Rolling 12-quarter correlations of sector output growth against the change in sector unemployment average **−0.90, −0.90 and −0.84 across the GFC** and **−0.74, −0.86 and −0.90 across COVID**. Zero of 51 quarters across both recessions show a positive correlation. Okun's Law is *tightest* in these sectors during recessions, because a sharp downturn drives output and unemployment hard in opposite directions at once. The current inversion is therefore not what goods sectors normally do in a slump, and there is no slump. The honest benchmark is instead the calm 2013-2019 expansion, where these correlations wander across zero routinely (36 to 61% of quarters positive). Against that benchmark construction (+0.58 vs +0.13) and manufacturing (+0.30 vs −0.15) are both clearly outside their normal range by the same +0.44, while transportation (+0.03 vs −0.10) is not distinguishable from calm-period noise, so the "three sectors moved together" framing really rests on two of them.
+
 **Eight of nine sectors slowed hiring, by an average of 1.8 percentage points.** The only exception is Education & Health, which is driven by demographics and public funding rather than the business cycle. And AI exposure does not predict which sectors slowed: **r = +0.18, p = 0.64.** The same holds for productivity acceleration (r = +0.26, p = 0.50). The lowest-AI sectors accelerated productivity by an average of +1.5pp against +2.5pp for the highest-AI ones.
 
 > **Correction, and it is a substantial one.** The paragraph above originally continued "a difference far too small and too noisy to carry an AI story," treating both nulls as evidence against AI. That inference does not hold. Benchmarking the identical analysis against every downturn since 1990 (`is_the_slowdown_distinctive.py`, at the repo root) shows two things. First, breadth is meaningless: the median episode since 1990 slowed eight of nine sectors, so "8 of 9 slowed" describes the 1990-91 recession, the dot-com bust, the GFC and COVID equally well. Second, and more damaging, the nine-sector AI correlation is demonstrably blind. Applied to the **2001 dot-com bust**, a shock everyone agrees was concentrated in technology, it returns **r = +0.041, p = 0.916**. A test that cannot detect the dot-com bust cannot be used to rule out a technology shock in 2024-2025. What the correlation misses, a rank statistic catches: Information ranked **first of nine** for hiring-slowdown size in exactly two episodes since 1990, the dot-com bust and this one, against fifth to eighth in every other downturn. 2001 is used there strictly as a diagnostic on the measure and is a poor analogy for the current episode, which is examined directly in the same script: 2001 was an NBER recession (real GDP +1.82%/yr, unemployment 4.2 to 6.3%) while 2024-2026 is an expansion (+2.45%/yr, unemployment 3.7 to 4.5%), so the demand collapse that explains 2001 is absent now. A non-AI reading of the rank finding is still available through the overhang channel that `info_overhang.py` documents, and it does not need 2001 to work. The defensible position is that these nulls are uninformative rather than exculpatory.
@@ -553,6 +555,40 @@ That is a concrete, mechanical reason the raw-rate estimates throughout this fol
 
 **Q3: the retracted timing gap does not come back.** Estimated from exogenous variation, the output-minus-unemployment peak gap is −10, −4, 0, −5, 0, 0 quarters across sector-shock pairs, and in **none** of the six is *either* peak individually significant. A gap between two insignificant peaks estimates nothing. The retraction stands.
 
+### The AI test, rebuilt with 73 industries
+
+The audit found the AI result was not a finding: with nine sectors the smallest detectable correlation was **r = 0.82** and the confidence interval on the observed r = +0.18 ran [-0.55, +0.75]. `naics3_ai_test.py` rebuilds the test with enough units to mean something.
+
+![The AI test at 3-digit NAICS](naics3_ai_test.png)
+
+**Construction of the data.** Outcomes are BLS CES national employment for **73 three-digit NAICS industries**, with the slowdown defined exactly as before (average YoY growth in 2024-2025 minus average YoY growth over 2013-2019). AI exposure is *built* rather than assumed: OEWS national industry files give each industry's occupation mix, the AEI occupational scores give each occupation's exposure, and industry exposure is the employment-weighted mean. That is the standard construction. Crucially it is built twice, once from the May 2025 occupation mix and once from **May 2019**, which predates generative AI, because the current mix is itself an outcome of any AI displacement and is therefore endogenous. Rate sensitivity is each industry's response to a 1 SD Bauer-Swanson identified shock at 8 quarters, not the raw funds rate.
+
+Face validity check on the exposure measure: lowest are food services, mining, warehousing; highest are data processing and computing infrastructure, wholesale agents and brokers, web search portals, insurance carriers. That is the right ordering.
+
+**Power, stated before the result.** n = 65 complete cases gives a minimum detectable correlation of **0.34**, down from 0.82. A null now carries information.
+
+**Univariate.** Higher AI exposure goes with a *larger* slowdown, marginally:
+
+| Exposure measure | r | p | 95% CI |
+|---|---:|---:|---:|
+| 2019 mix (pre-AI, clean) | −0.220 | 0.079 | [−0.44, +0.03] |
+| 2025 mix (endogenous) | −0.231 | 0.064 | [−0.45, +0.01] |
+
+Note the **sign has flipped** from the nine-sector test. That test gave r = +0.19, which pointed away from an AI story. With 73 industries and a properly constructed exposure measure, the point estimate points *toward* one, though it does not reach significance.
+
+**The horse race, and a result that undercuts this folder's thesis.** The two regressors are essentially uncorrelated (r = −0.045, VIF = 1.00), so they are cleanly separately identified. But the answer depends entirely on one specification choice:
+
+| | AI exposure (z) | Rate sensitivity (z) |
+|---|---:|---:|
+| Main spec (shocks through 2023) | −0.514 (p = 0.17) | **+1.136 (p = 0.002)** |
+| **No overlap (shocks through 2021)** | **−0.609 (p = 0.076)** | +0.466 (p = 0.26) |
+
+The main specification estimates rate sensitivity with a local projection whose 8-quarter horizon reaches into 2024-2025, **the same window the outcome is measured over**. That overlap makes the rate result partly mechanical. Re-estimating rate sensitivity using only shocks through 2021, which removes the overlap entirely, **the rate result collapses to p = 0.26 while the AI coefficient strengthens to p = 0.076.**
+
+**What this means, stated plainly.** In the clean cross-sectional specification, neither variable is significant at 5%, but AI exposure is closer to significance than rate sensitivity, and its sign is consistent with AI-driven displacement. This does **not** support the claim, made repeatedly earlier in this folder, that AI exposure "predicts none of it." That claim rested on an underpowered test with a mis-constructed exposure measure, and it does not survive.
+
+**How this squares with the time-series evidence.** These answer different questions and are not in conflict. The identified-shock work asks whether the *aggregate timing* of the slowdown matches monetary transmission, and finds it directionally does. This asks which *industries* slowed more, and finds rate sensitivity does not explain the cross-section once the mechanical overlap is removed. Both can hold: the rate cycle can set the timing while something else sorts which industries were hit hardest. What can no longer be claimed is that the cross-section rules AI out.
+
 ### Honest limits
 
 - **Correlation, not causation.** Rates and hiring both respond to the broader cycle. A long-lag correlation is suggestive of a transmission channel, not proof of one. A proper test needs a distributed-lag or local-projection model with controls, not a lag scan.
@@ -619,6 +655,7 @@ python3 prediction_stress_tests.py  # the 3 failure modes: fresh data, lag sensi
 python3 desync_dynamics.py          # re-tests DESYNC dynamically: window-matched, changes, event study
 python3 audit.py                    # ADVERSARIAL AUDIT: 5 checks incl. of the tests above
 python3 identified_shocks.py        # CAUSAL TEST: local projections on identified MP shocks
+python3 naics3_ai_test.py           # AI test rebuilt at 3-digit NAICS (73 industries)
 python3 standing_prediction.py       # the falsifiable forward test (2026 unwind, 2027 overshoot) -- superseded
 python3 why_in_sync.py              # the proof attempt: 4 claims survive, 3 fail (incl. robustness)
 python3 what_actually_inverted.py   # decomposes the inversion into the hiring slowdown
