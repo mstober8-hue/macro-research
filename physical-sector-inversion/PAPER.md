@@ -145,6 +145,22 @@ An adversarial audit of the five weakest points in this analysis produced four c
 
 **The prediction exercise and the AI test were both overstated**, as recorded in the abstract and Sections 3.3 and 4. The prediction residuals are uninformative at the precision originally claimed, and the nine-sector AI test lacks the power to distinguish no effect from a moderate one.
 
+## 6.2 The labor supply confound
+
+Section 6 flagged declining immigration as an untested alternative. It is tested here, because it is not a competing explanation of the same mechanism but a different mechanism generating an observationally similar employment series: a smaller workforce reduces employment growth with labor demand unchanged, and construction is the most immigrant-intensive major US industry.
+
+Industry-level immigration data are not required, because a supply contraction and a demand contraction imply opposite movements in four observables. A supply contraction implies job openings hold up, hires per opening fall as firms fail to fill positions, wage growth rises, and unemployment falls. A demand contraction implies the reverse on all four. These are measured with BLS JOLTS by industry and CES average hourly earnings.
+
+Measured against the 2013-2019 baseline that this paper uses to define the hiring slowdown, construction matches the supply pattern on every one of the four. The job openings rate rose from 2.83 to 3.12, the hires rate fell from 5.29 to 4.02, hires per opening fell 32.7 percent, wage growth rose from 2.58 to 4.27 percent, and the sector unemployment rate fell 2.20 percentage points. Openings above their pre-pandemic level, sharply lower unemployment and accelerating wages are jointly inconsistent with a demand contraction. Total private employment scores identically.
+
+The baseline, however, determines the answer, and this is the material qualification. A 2013-2019 comparison spans the post-pandemic repricing of the labor market and therefore measures whether the current market is tighter than the 2010s rather than what has changed recently. Measured instead against the 2022-2023 peak, every industry reverses: construction openings fall 1.63 points, wage growth decelerates 1.12 points, and hires per opening *recovers* 35.4 percent. Vacancy yield is rising across all industries examined, meaning positions are being filled more easily in 2024-2025 than in 2022. An intensifying immigration-driven supply constraint predicts the opposite.
+
+The reading consistent with both baselines is that the labor market became structurally supply-constrained relative to the 2010s after 2021, and that the 2024-2025 change from that starting point is a cooling of demand. The immigration channel is real for the level and does not account for the recent direction of movement, which leaves the monetary channel in Sections 3 and 6.05 intact as an account of the recent change.
+
+One consequence for this paper's own measurement should be stated directly. The hiring slowdown variable used throughout, defined as average growth in 2024-2025 minus the 2013-2019 trend, cannot distinguish a smaller workforce from weaker labor demand, since both depress measured hiring relative to a pre-pandemic benchmark. This contaminates the outcome variable in the prediction exercise of Section 3.3 and in the cross-sectional test of Section 4.1, where industries drawing more heavily on immigrant labor would display larger measured slowdowns for reasons unrelated to either monetary policy or AI. The identified-shock estimates in Section 6.05 are unaffected, as they use employment growth directly rather than a deviation from a pre-pandemic baseline.
+
+This test cannot attribute the supply contraction specifically to immigration as opposed to retirement or declining participation, and cannot exclude simultaneous contractions in supply and demand, which would partially offset in all four observables.
+
 ## 7. Limitations
 
 - **Correlation and a validated lag are not a structural model.** The out-of-sample replication and the quantitative prediction test in Section 3 are considerably more demanding than a simple in-sample correlation, but neither is a structural VAR with a credibly identified monetary policy shock. A skeptical reader is entitled to want that before accepting the channel as causal rather than merely consistent.
@@ -183,6 +199,7 @@ python3 identification_check.py       # Section 5: the differential-lag mechanis
 python3 prediction_stress_tests.py    # Section 5.1: the mechanism's forward predictions, tested
 python3 desync_dynamics.py            # Section 5.1: the dynamic re-test with specification fixes
 python3 naics3_ai_test.py             # Section 4.1: the AI test rebuilt at 3-digit NAICS
+python3 immigration_confound.py       # Section 6.2: the labor supply confound
 python3 identified_shocks.py          # Section 6.05: local projections on identified MP shocks
 python3 audit.py                      # Section 6.1: adversarial audit of this paper's inference
 python3 cf_style_comparison.py        # Section 5.2: testing Jacobs and Krolikowski's own specification

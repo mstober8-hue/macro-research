@@ -513,6 +513,8 @@ Every one sits between −0.77 and −0.97, which is Okun's Law working about as
 
 A residual of −0.01pp against an interval that wide is indistinguishable from any other value inside it. **The "-0.01pp" must never be quoted as evidence of predictive accuracy.** The defensible claim is that the goods sectors are *consistent with* their rate-implied path.
 
+**2b. "Okun always breaks when the Fed hikes" is false, but the true version still deflates this.** Tested directly in `does_okun_break_in_every_hike.py`, the aggregate rolling Okun correlation turned positive in **4 of 9** hiking cycles since 1954. The split is by era, not by size: every modern cycle broke it (1994-95, 1999-00, 2004-06, 2022-23) except 2015-18, which was by far the smallest tightening at +1.04pp, while **none** of the four pre-1994 cycles did, including the two largest hikes on record at +7.01pp and +5.41pp. Across all nine, hike size correlates *negatively* with the peak Okun correlation (r = −0.30, p = 0.44). So the deflating objection should be stated precisely: 2022-23 is the fourth consecutive meaningful modern tightening to break Okun, which does make the 2024-2025 inversion much less remarkable. The era boundary also fits this folder's own finding that the rate-to-hiring lag roughly doubled between the mid-century and the modern era, since a longer lag is exactly what desynchronizes output from unemployment enough to flip a contemporaneous correlation. Note this sits alongside `does_okun_break_in_recessions.py`, which found the opposite for recessions: Okun works *better* in downturns, zero of 51 sector-quarters positive across the GFC and COVID. Hiking cycles and recessions do different things here, and only the hiking-cycle result deflates the inversion.
+
 **3. The AI null is an absence of power, not a finding.** With 9 sectors, the minimum detectable correlation at 80% power is **r = 0.82**, and the 95% confidence interval on the observed r = +0.18 runs **[−0.55, +0.75]**. The test cannot distinguish "AI has no effect" from "AI has a moderate effect." Saying AI exposure "predicts none of it" overclaims; the correct statement is that no relationship is detectable at this sample size and the test could only have caught a very large one. This is now stronger than a power calculation: the same test, run on the 2001 dot-com bust, returns **r = +0.041, p = 0.916**, so it has a documented false negative on a technology shock nobody disputes. See `is_the_slowdown_distinctive.py` at the repo root.
 
 **4. Every `scipy.pearsonr` p-value in this project is overstated.** This is systemic rather than a single error. Growth rates here are 4-quarter *overlapping* differences and the underlying series are highly persistent, so consecutive observations are mechanically correlated and the i.i.d. assumption behind `pearsonr` fails everywhere it is used. Magnitudes are unaffected; significance levels are not.
@@ -589,6 +591,49 @@ The main specification estimates rate sensitivity with a local projection whose 
 
 **How this squares with the time-series evidence.** These answer different questions and are not in conflict. The identified-shock work asks whether the *aggregate timing* of the slowdown matches monetary transmission, and finds it directionally does. This asks which *industries* slowed more, and finds rate sensitivity does not explain the cross-section once the mechanical overlap is removed. Both can hold: the rate cycle can set the timing while something else sorts which industries were hit hardest. What can no longer be claimed is that the cross-section rules AI out.
 
+### The immigration confound, tested
+
+The one live alternative this folder had flagged but never tested: if the workforce shrank, employment growth slows even with labor demand unchanged. That is not a rival cause of the same mechanism, it is a different mechanism producing an identical-looking employment series, and it hits Construction hardest.
+
+![Testing the labor supply confound](immigration_confound.png)
+
+**How to separate them without industry-level immigration data.** Supply and demand contractions make opposite predictions on four observables, using BLS JOLTS by industry plus CES wages:
+
+| | If labor SUPPLY fell | If labor DEMAND fell |
+|---|---|---|
+| Job openings | stay high | fall |
+| Hires per opening | **falls** (cannot fill) | roughly stable |
+| Wage growth | **rises** (bidding up) | falls |
+| Unemployment | falls | rises |
+
+**Against the 2013-2019 baseline, Construction matches a supply contraction on all four.** This is the baseline this folder uses throughout to define the hiring slowdown:
+
+| Measure | 2013-19 | 2024-25 | Change |
+|---|---:|---:|---:|
+| Job openings rate | 2.83 | 3.12 | **+0.29** |
+| Hires rate | 5.29 | 4.02 | −1.27 |
+| **Hires per opening** | 2.01 | 1.35 | **−32.7%** |
+| Wage growth | 2.58% | 4.27% | **+1.69pp** |
+| Unemployment rate | 7.06 | 4.86 | **−2.20pp** |
+
+Openings *higher* than pre-COVID, unemployment *sharply lower*, wages *accelerating*, and each posting yielding a third fewer hires. That is not what a demand contraction looks like. Total private scores the same way on every measure.
+
+**But the baseline decides the answer, and this is the qualification that matters.** Comparing 2024-2025 to 2013-2019 spans the entire post-COVID repricing of the labor market, so it answers "is this market tighter than the 2010s" rather than "what changed recently." Against the **2022-2023 peak** instead, every industry reverses:
+
+| Industry | Openings | Hires per opening | Wage growth |
+|---|---:|---:|---:|
+| Construction | −1.63 | **+35.4%** | −1.12pp |
+| Manufacturing | −1.90 | +13.1% | −0.03pp |
+| Total private | −1.92 | +18.8% | −1.04pp |
+
+Vacancy yield is **recovering**, not deteriorating. Firms are filling jobs *more* easily in 2024-25 than in 2022. If an immigration-driven supply constraint were binding harder now, yield would be falling. It is rising, in every industry.
+
+**The synthesis.** The post-COVID labor market is structurally supply-tighter than the 2010s, and that is real. But the 2024-2025 *direction of change* is demand cooling from that tighter starting point, which is consistent with the rate channel this folder documents. The immigration confound is genuine for the *level* comparison and does not explain the *recent move*.
+
+**The specific damage to this project.** The "hiring slowdown" used throughout, defined as 2024-25 average growth minus the 2013-19 trend, **cannot separate a smaller workforce from weaker labor demand**, because both reduce measured hiring against a pre-COVID benchmark. That contaminates the outcome variable in `hiring_slowdown.py`, in `does_the_lag_solve_it.py`, and in the 3-digit cross-section in `naics3_ai_test.py`, where industries with heavier immigrant labor would show larger measured slowdowns for reasons having nothing to do with either rates or AI. The timing evidence from identified shocks is unaffected, since it uses employment growth directly rather than a differenced-from-baseline measure.
+
+**What this cannot do.** It cannot attribute the supply contraction specifically to immigration as against retirement or falling participation, so the verdict is "labor supply," not "immigration." And it cannot rule out that supply and demand both fell at once, which would partly offset on all four measures.
+
 ### Honest limits
 
 - **Correlation, not causation.** Rates and hiring both respond to the broader cycle. A long-lag correlation is suggestive of a transmission channel, not proof of one. A proper test needs a distributed-lag or local-projection model with controls, not a lag scan.
@@ -656,6 +701,7 @@ python3 desync_dynamics.py          # re-tests DESYNC dynamically: window-matche
 python3 audit.py                    # ADVERSARIAL AUDIT: 5 checks incl. of the tests above
 python3 identified_shocks.py        # CAUSAL TEST: local projections on identified MP shocks
 python3 naics3_ai_test.py           # AI test rebuilt at 3-digit NAICS (73 industries)
+python3 immigration_confound.py     # supply vs demand: JOLTS vacancy yield, wages, unemployment
 python3 standing_prediction.py       # the falsifiable forward test (2026 unwind, 2027 overshoot) -- superseded
 python3 why_in_sync.py              # the proof attempt: 4 claims survive, 3 fail (incl. robustness)
 python3 what_actually_inverted.py   # decomposes the inversion into the hiring slowdown
