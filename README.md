@@ -91,6 +91,7 @@ Finance originally had a fourth mismatch (employment included Real Estate); it i
 | [`jolts_margins.py`](jolts_margins.py) | Part 5: which margin moved (openings, hires, layoffs, quits), all nine sectors |
 | [`oews_within_industry.py`](oews_within_industry.py) | Part 5: the occupation-level test with industry fixed effects, plus a pre-AI placebo |
 | [`is_the_slowdown_distinctive.py`](is_the_slowdown_distinctive.py) | Part 5: benchmarks the episode against every downturn since 1990; shows the nine-sector AI test fails on the dot-com bust |
+| [`okun_employment_form.py`](okun_employment_form.py) | Part 5: shows the unemployment form is blind for 7 of 9 sectors, and the transform flips the AI sign |
 | [`cyclical_abnormality.py`](cyclical_abnormality.py) | Part 5: repairs the nine-sector test with rank statistics, cyclical baselines, and episodes as a null |
 | [`tech_capital_vs_labor.py`](tech_capital_vs_labor.py) | Part 5: the capital-side discriminator; same job losses as 2001, opposite capital conditions |
 | [`physical-sector-inversion/does_okun_break_in_recessions.py`](physical-sector-inversion/does_okun_break_in_recessions.py) | Tests whether goods-sector Okun always breaks in downturns. It does not: it works best in them |
@@ -546,6 +547,43 @@ Employment is a net number, and three very different stories produce the same ne
 **One test clears, and does not survive correction.** Of five margins tested against replaceability, only the change in job openings reaches significance (r = −0.676, p = 0.045), meaning labor demand fell most where work is most replaceable. That is the right sign for an AI story and the sharpest cross-sectional result in the project outside the productivity level. It also fails Bonferroni across the five tests (which asks for p < 0.010), and its Spearman equivalent is −0.600, p = 0.088. Report it as suggestive.
 
 **The immigration objection, tested rather than flagged.** If a shrinking labor force drove the slowdown, firms would post jobs they could not fill, so hires per opening would fall. Construction's fill rate did collapse, from 1.78 in 2015-2019 to 1.01 in 2023, but it has been *recovering* since (1.22, 1.46, 1.32), and the same trough-and-recovery shape appears in sectors with no particular immigrant intensity. The matching collapse belongs to the 2021-2023 reopening, and it is unwinding through exactly the window a 2025 immigration shock would need to be tightening it. The qualification worth keeping is that Construction's fill rate is still 26% below pre-pandemic, the largest gap of the nine, so a residual supply constraint is not excluded.
+
+## The unemployment rate cannot see what happened (`okun_employment_form.py`)
+
+Every Okun test in this project measures output against the sector UNEMPLOYMENT RATE. That is the textbook form, and it has a structural blind spot that turns out to bind hard in this episode.
+
+The unemployment rate is `unemployed / labor force`. It only moves when a displaced worker stays in the labor force and searches. A worker who loses a job and **exits** the labor force, through retirement, discouragement, or emigration, leaves employment but never enters the numerator. Employment can fall while the unemployment rate falls too, and an unemployment-based measure registers nothing.
+
+**This is not hypothetical. It applies to seven of the nine sectors.** Comparing 2024-2026 against the 2013-2019 baseline:
+
+| Sector | Employment growth | Unemployment **level** | |
+|---|---:|---:|---|
+| Information | −3.48 | **+0.22** | visible to both forms |
+| EducHealth | +1.32 | −0.48 | employment held up |
+| Construction | −2.75 | **−2.24** | **hidden** |
+| Transportation | −3.10 | −0.38 | **hidden** |
+| ProfBus | −3.08 | −1.30 | **hidden** |
+| Manufacturing | −1.87 | −0.92 | **hidden** |
+| Leisure | −1.81 | −1.09 | **hidden** |
+| Finance | −1.45 | −0.58 | **hidden** |
+| Wholesale | −1.11 | −0.51 | **hidden** |
+
+Seven sectors lost employment growth **while their unemployment rate fell**. That combination is arithmetically impossible without the labor force shrinking or workers exiting the industry. Every Okun coefficient this project computed for those seven sectors was measuring a variable that had been drained of the signal.
+
+**Information is the single exception, and that is itself informative.** It is the only sector where unemployment *rose* alongside falling employment, meaning displaced Information workers showed up as unemployed rather than leaving. Whatever hit Information did not look like the labor-force exit affecting the other seven.
+
+**Switching the transform changes the sign of the AI result.** The project differences the unemployment rate year-over-year, which is correct for the difference form of Okun's Law, but comparing episode averages of an already-differenced series is a second difference and answers "did unemployment accelerate" rather than "is unemployment higher." Both against AI exposure, current episode:
+
+| Measure | Spearman with AI exposure | p |
+|---|---:|---:|
+| unemployment, second difference (what the project used) | **−0.317** | 0.41 |
+| unemployment, change in **level** | **+0.467** | 0.21 |
+| employment growth | +0.183 | 0.64 |
+| output-employment wedge | +0.083 | 0.83 |
+
+The level form is the strongest of the four and the only one with the sign an AI story predicts, where more exposed sectors saw unemployment rise more. It is still not significant at nine sectors, so this is not a result. But the measure the project has been reporting nulls from was pointing the *wrong way* purely because of the transform.
+
+**What this does and does not fix.** It explains why the Okun-coefficient tests have been returning nothing interpretable: for seven of nine sectors the dependent variable could not move in the required direction. It does not by itself produce evidence for AI, since the level-form correlation remains insignificant and the output-employment wedge, which is the cleanest displacement measure, is flat against exposure (+0.083). The honest statement is that the Okun results in this project should be treated as **not yet measured** rather than as nulls, and that any future version needs the employment form or a labor-force-adjusted unemployment measure.
 
 ## Fixing the nine-sector test rather than abandoning it (`cyclical_abnormality.py`)
 
