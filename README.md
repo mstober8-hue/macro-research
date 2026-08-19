@@ -88,6 +88,12 @@ Finance originally had a fourth mismatch (employment included Real Estate); it i
 | [`recency_test.py`](recency_test.py) | Tests whether the AI result is timed to AI (it is not: levels hold, acceleration does not) |
 | [`permutation_test.py`](permutation_test.py) | Distribution-free bootstrap replacing every normal-approximation p-value |
 | [`aei_revealed_validation.py`](aei_revealed_validation.py) | Rebuilds the score from observed Claude usage (Anthropic Economic Index) |
+| [`jolts_margins.py`](jolts_margins.py) | Part 5: which margin moved (openings, hires, layoffs, quits), all nine sectors |
+| [`oews_within_industry.py`](oews_within_industry.py) | Part 5: the occupation-level test with industry fixed effects, plus a pre-AI placebo |
+| [`is_the_slowdown_distinctive.py`](is_the_slowdown_distinctive.py) | Part 5: benchmarks the episode against every downturn since 1990; shows the nine-sector AI test fails on the dot-com bust |
+| [`cyclical_abnormality.py`](cyclical_abnormality.py) | Part 5: repairs the nine-sector test with rank statistics, cyclical baselines, and episodes as a null |
+| [`tech_capital_vs_labor.py`](tech_capital_vs_labor.py) | Part 5: the capital-side discriminator; same job losses as 2001, opposite capital conditions |
+| [`physical-sector-inversion/does_okun_break_in_recessions.py`](physical-sector-inversion/does_okun_break_in_recessions.py) | Tests whether goods-sector Okun always breaks in downturns. It does not: it works best in them |
 | [`finance/`](finance/README.md) | Finance deep dive (all content also summarized in Part 3 below) |
 | [`physical-sector-inversion/`](physical-sector-inversion/README.md) | Goods-sector deep dive, including the fiscal test (`fiscal_control.py`, USAspending) |
 | [`generate_results_csv.py`](generate_results_csv.py) | Compiles all regression results into `results_comprehensive.csv` (12 labeled sections) |
@@ -496,7 +502,7 @@ With COVID, rates, AI exposure, and fiscal spending all failing, `what_actually_
 
 ![The 2024-2025 hiring slowdown](physical-sector-inversion/hiring_slowdown.png)
 
-**It is an economy-wide hiring slowdown, not a goods-sector event.** Hiring slowed in **8 of 9 sectors** in 2024-2025, by roughly 2 percentage points on average, goods and services alike. A single principal component explains **72% of the variance** in sector employment growth, and it is essentially the simple nine-sector average (correlation 0.992). AI exposure predicts neither the hiring slowdown (r = +0.19, p = 0.63) nor the productivity acceleration (r = +0.26, p = 0.50).
+**It is an economy-wide hiring slowdown, not a goods-sector event.** Hiring slowed in **8 of 9 sectors** in 2024-2025, by roughly 2 percentage points on average, goods and services alike. A single principal component explains **72% of the variance** in sector employment growth, and it is essentially the simple nine-sector average (correlation 0.992). AI exposure predicts neither the hiring slowdown (r = +0.19, p = 0.63) nor the productivity acceleration (r = +0.26, p = 0.50). **Both of those nulls are uninformative**, as Part 5 establishes by benchmarking: the same test returns r = +0.04, p = 0.92 on the 2001 dot-com bust, a shock that was unambiguously concentrated in technology. Do not read them as evidence against AI.
 
 **It is not a post-pandemic over-hiring correction.** Sectors that surged hardest in the 2021-2023 rebound are not the ones slowing hardest (r = −0.22, p = 0.57), and **8 of 9 sectors now sit below their extrapolated 2013-2019 employment trend**, by 1% to 13%. An economy unwinding a hiring binge would be above trend, not below.
 
@@ -519,7 +525,196 @@ With COVID, rates, AI exposure, and fiscal spending all failing, `what_actually_
 
 At a 20-quarter window three of four sectors are negative again. A structural break should not depend on whether you look through a 12-quarter or 20-quarter window. **The inversion should be treated as a short-window artifact, and the hiring slowdown as the real finding.**
 
-Honest limits: the hiring and rate results rest on n = 75 quarterly observations with a clean natural control and are solid; the inversion rests on 13 post-2022 quarters and is not. Rates are also not the only candidate for a broad hiring slowdown, since immigration and labor-force changes could produce similar timing, and sector-level JOLTS data exists for only two of the nine sectors here. Correlation with a long lag is suggestive of a transmission channel, not proof of one.
+Honest limits: the hiring and rate results rest on n = 75 quarterly observations with a clean natural control and are solid; the inversion rests on 13 post-2022 quarters and is not. Rates are also not the only candidate for a broad hiring slowdown, since immigration and labor-force changes could produce similar timing. That objection used to sit here as an untestable caveat on the grounds that sector-level JOLTS data existed for only two of the nine sectors, which was wrong: FRED carries all four JOLTS rates for all nine. It has since been collected and tested, in Part 5 below. Correlation with a long lag is suggestive of a transmission channel, not proof of one.
+
+---
+
+# Part 5: Changing the unit of observation
+
+Everything up to this point is a nine-industry cross-section. At n = 9 the correlation needed for p < 0.05 is 0.666, so only a very large effect can ever register, and by this stage the project had demonstrated that by exhaustion. AIIE, the replaceability score, the revealed-usage score, five acceleration windows, and a rate-orthogonalized acceleration all land between r = +0.42 and +0.56, and none of them clear the bar. Measurement was never the binding constraint. Sample size was.
+
+There is a second problem that more industries would not fix. The industry is the level at which the confounds live. Rates, tariffs, immigration, fiscal flows and demand shocks all hit an industry as a whole, so any industry-level regression of AI exposure on labor outcomes is a race between AI and everything else that varies across industries. Part 4 spent most of its effort on one of those confounds.
+
+Two new datasets address these problems separately. JOLTS changes what is measured. OEWS changes the unit of observation.
+
+## JOLTS: what kind of slowdown was this? (`jolts_margins.py`)
+
+Employment is a net number, and three very different stories produce the same net fall: firms firing people (displacement), firms not backfilling attrition (a freeze), or firms unable to fill posts they have advertised (a supply constraint). JOLTS separates them, reporting job openings, hires, layoffs and quits monthly for every sector. These are unadjusted series, so seasonality is handled with 12-month trailing means rather than partial-year windows.
+
+**Layoffs did not rise.** Comparing the latest twelve months against 2015-2019, the layoffs and discharges rate is flat in seven of nine sectors and the nine-sector mean change is −0.02pp. In Construction it fell 0.68pp. Only two sectors show materially higher involuntary separations: Information (1.14 to 1.68, +0.54) and Transportation & Utilities (+0.41). This was a hiring freeze, not a firing wave, which is what a rate-driven withdrawal of new positions looks like and is not what displacement looks like.
+
+**One test clears, and does not survive correction.** Of five margins tested against replaceability, only the change in job openings reaches significance (r = −0.676, p = 0.045), meaning labor demand fell most where work is most replaceable. That is the right sign for an AI story and the sharpest cross-sectional result in the project outside the productivity level. It also fails Bonferroni across the five tests (which asks for p < 0.010), and its Spearman equivalent is −0.600, p = 0.088. Report it as suggestive.
+
+**The immigration objection, tested rather than flagged.** If a shrinking labor force drove the slowdown, firms would post jobs they could not fill, so hires per opening would fall. Construction's fill rate did collapse, from 1.78 in 2015-2019 to 1.01 in 2023, but it has been *recovering* since (1.22, 1.46, 1.32), and the same trough-and-recovery shape appears in sectors with no particular immigrant intensity. The matching collapse belongs to the 2021-2023 reopening, and it is unwinding through exactly the window a 2025 immigration shock would need to be tightening it. The qualification worth keeping is that Construction's fill rate is still 26% below pre-pandemic, the largest gap of the nine, so a residual supply constraint is not excluded.
+
+## Fixing the nine-sector test rather than abandoning it (`cyclical_abnormality.py`)
+
+The finding that the nine-sector correlation cannot detect the dot-com bust was left above as a caveat on an existing result. It deserves its own treatment, because it points at a repair rather than a dead end. If the statistic is blind, the question is whether a better statistic on the same nine sectors can see. Three things were wrong with it, and each has a fix.
+
+**Fix 1: rank instead of Pearson. This does not work, and the reason is informative.** Pearson on nine points is hostage to a single outlier, so the rank version is the obvious repair. It fails too:
+
+| Episode | What it was | Pearson | Spearman | Information's rank |
+|---|---|---:|---:|---:|
+| 1990-91 | credit crunch | +0.662 | +0.643 | 7 of 9 |
+| **2001 dot-com** | **technology bust** | **+0.041** | **+0.217** | **1 of 9** |
+| 2008-09 GFC | financial crisis | +0.661 | +0.667 | 8 of 9 |
+| 2015-16 | oil bust | +0.088 | −0.133 | 5 of 9 |
+| 2020 COVID | pandemic | +0.504 | +0.433 | 7 of 9 |
+| **2024-26 current** | **the test episode** | **+0.189** | **+0.183** | **1 of 9** |
+
+Both statistics miss 2001 entirely. But Information ranks **first of nine in exactly the two technology episodes** and fifth to eighth in every other one. The signal is in the data; the exposure index is what loses it. AIIE ranks **Finance** as the most exposed sector of the nine, above Information, and Finance does not behave like a technology-shock sector in either 2001 or now. A correlation against a mis-ordered index will be blind however it is computed.
+
+**Fix 2: give every sector its own cyclical baseline.** Construction slows most in nearly every downturn because it is the most cyclical sector, which has nothing to do with technology. Comparing raw slowdowns across sectors therefore mostly measures cyclicality. Estimating each sector's own historical cyclical beta and predicting the current episode from it isolates the residual an AI story is actually about:
+
+| Sector | AI exposure | Actual | Cyclical prediction | **Abnormal** |
+|---|---:|---:|---:|---:|
+| Transportation | −0.34 | −3.10 | −0.77 | **−2.33** |
+| Information | +1.27 | −3.48 | −1.53 | **−1.95** |
+| Finance | +1.54 | −1.45 | −0.45 | −1.00 |
+| ProfBus | +0.65 | −3.08 | −2.59 | −0.49 |
+| EducHealth | +0.78 | +1.32 | −0.52 | +1.84 |
+
+Information slowed nearly 2pp more than its own cyclical history predicts. So did Transportation, which is the awkward part: the most abnormal sector has *low* AI exposure. The correlation is the right sign but not significant (Spearman −0.217, p = 0.58; Pearson −0.315, p = 0.41).
+
+**Fix 3: use the episodes as a null distribution.** Nine sectors cannot calibrate a correlation, but six episodes can calibrate the whole pipeline. Running every episode through the identical procedure as if it were the test episode:
+
+| | Episode | Spearman(abnormal, AI) |
+|---|---|---:|
+| **TECH** | 2001 dot-com | **−0.300** |
+| **TECH** | 2024-26 current | **−0.217** |
+| | 2020 COVID | +0.067 |
+| | 1990-91 recession | +0.262 |
+| | 2008-09 GFC | +0.350 |
+| | 2015-16 industrial | +0.417 |
+
+**The two technology episodes are exactly the two negative ones, and all four non-technology episodes are positive.** Under random ordering the chance the two pre-identified technology episodes occupy the two lowest of six positions is 1/C(6,2) = **0.067**.
+
+That number should be read with discipline. The "bottom two" cutoff was chosen after seeing the ordering, so it is post-hoc and the nominal probability overstates the evidence. The rank-based p-value, which is not post-hoc, is 0.333, and with six episodes the smallest achievable p is 0.167, so this design cannot reach conventional significance no matter what the data show. What it does establish is that the statistic behaves differently in technology episodes than in credit, oil and pandemic episodes, and that the current episode sits on the technology side.
+
+**The Okun version, which is the question this project actually asks, does not cooperate.** Applying the identical design to the change in each sector's Okun slope:
+
+| Episode | Spearman(ΔOkun, AI) | p | n |
+|---|---:|---:|---:|
+| 2008-09 GFC | +0.383 | 0.31 | 9 |
+| 2015-16 industrial | −0.150 | 0.70 | 9 |
+| 2020 COVID | −0.117 | 0.77 | 9 |
+| 2024-26 current | −0.217 | 0.58 | 9 |
+
+Positive would mean more AI-exposed sectors saw their Okun slope move further toward a break. The current episode is **negative**, meaning the opposite, and it is nowhere near significance. BEA industry output starts in 2005, so only four episodes are estimable and the earlier ones drop out entirely.
+
+**What this section establishes.** The employment-side pattern is consistent with a technology shock and behaves differently from every non-technology downturn since 1990, at a strength that cannot clear conventional significance with nine sectors and six episodes. The Okun-side pattern, which is what would be needed to claim AI is breaking Okun's Law, points the wrong way. So the honest position is that the *hiring* evidence has moved from "uninformative null" to "suggestive and pre-registrable", while the *Okun* claim specifically has no support here. The way to settle it is to state the prediction now and test it on episodes that have not happened yet, which is the one thing a six-episode design can be made to do properly.
+
+## OEWS with industry fixed effects: the test with real power (`oews_within_industry.py`)
+
+The unit here is the (4-digit NAICS industry × detailed SOC occupation) cell, from the BLS OEWS industry-by-occupation files, with industry fixed effects:
+
+`Δlog(employment) = a_industry + b × replaceability + e`
+
+Because the fixed effect absorbs everything common to an industry, `b` compares a more replaceable occupation against a less replaceable one **inside the same industry**. Construction's rate shock hits every occupation in construction, so it lands entirely in `a_industry` and cannot contaminate `b`. Same for tariffs, immigration enforcement, and sectoral demand. Sample size goes from 9 to about 28,000 cells across 247 industries and 747 occupations. Errors are clustered by occupation, since replaceability is constant within occupation across industries.
+
+The measure's complementarity component is close to an index of how in-person a job is, and 2020-2022 was the largest shock to in-person work in modern history. So the same regression runs on three windows, and the pre-AI one is the actual test.
+
+| window | what it is | Δlog employment | Δlog wage |
+|---|---|---|---|
+| 2013-2019 | placebo: pre-AI, pre-COVID | −0.143 (p = 0.245) | −0.042 (p = 0.063) |
+| 2019-2025 | spans COVID and AI | −0.147 (p = 0.181) | −0.106 (p < 0.0001) |
+| 2022-2025 | post-reopening AI window | −0.109 (p = 0.156) | +0.001 (p = 0.965) |
+
+**The placebo is identical to the AI window.** The employment coefficient is about −0.14 in 2013-2019, before generative AI existed, and about −0.11 in 2022-2025. Whatever downward tilt replaceable occupations have, it was already there. This is the recency objection confirmed at the occupation level with 20,000 observations instead of 9.
+
+**The striking wage result is COVID.** The −0.106 wage effect (p < 0.0001) appears only in the window that spans the pandemic. In the clean AI window it is +0.001, p = 0.965.
+
+**The component split explains why.** Splitting replaceability into its two halves, exposure alone is indistinguishable from zero in every window (−0.04 to +0.04). The entire signal comes from complementarity: +0.365 (p = 0.0007) in the pre-COVID placebo, +0.504 (p = 0.0001) spanning COVID, and +0.120 (p = 0.14, not significant) in the AI window. The pattern is physical and in-person work growing relative to desk work, a long-running trend that COVID amplified and that is absent from 2022-2025. It is not a GPT-exposure effect.
+
+**And the design has power, which is what makes the null informative.** Without industry fixed effects, the 2022-2025 employment coefficient is −0.174 with p = 0.014, significant. Adding industry fixed effects cuts it to −0.109 and kills it. The pooled relationship between AI exposure and employment is industry composition, not within-industry substitution. That directly implicates the nine-sector design this project has used throughout.
+
+The honest caveat cuts the other way too: industry fixed effects absorb any AI effect operating at the industry level, so this design tests substitution *within* industries and is silent on reallocation *between* them. If AI shrinks whole industries rather than particular occupations inside them, this specification cannot see it. Match rates are 63%, 75% and 89% across the three windows, since NAICS and SOC revisions break exact cell matching, and BLS advises against treating OEWS as a time series at all.
+
+## Benchmarking the episode against history (`is_the_slowdown_distinctive.py`)
+
+Part 4 argued the slowdown is not AI-specific on two grounds: eight of nine sectors slowed, and AI exposure does not predict which ones (r = +0.18, p = 0.64). Both were asserted without a benchmark. Running the identical analysis on every episode since 1990 shows one of them holds and the other does not.
+
+**Breadth is normal, so it is not evidence.** The median episode since 1990 slowed 8 of 9 sectors: the 1990-91 recession 8 of 8, the dot-com bust 8 of 9, the GFC 9 of 9, COVID 8 of 9. Only the 2015-16 industrial slowdown was narrow (3 of 9). "Eight of nine slowed" describes essentially every downturn and carries no information about the cause.
+
+**The cross-sectional AI test is demonstrably blind, so its null proves nothing.** The 2001 dot-com bust is the natural check, because everyone agrees that shock was concentrated in technology. Run the same nine-sector regression on it:
+
+| episode | r with AIIE | p | Information's rank for slowdown size |
+|---|---|---|---|
+| 1990-91 recession | +0.662 | 0.074 | 7 of 8 |
+| **2001 dot-com** | **+0.041** | **0.916** | **1 of 9** |
+| 2008-09 GFC | +0.661 | 0.053 | 8 of 9 |
+| 2015-16 industrial | +0.088 | 0.821 | 5 of 9 |
+| 2020 COVID | +0.504 | 0.167 | 7 of 9 |
+| **2024-26** | **+0.189** | **0.626** | **1 of 9** |
+
+AIIE returns r = +0.04, p = 0.92 on a bust that was unambiguously a technology shock. The test has a demonstrated false negative on the one case where the answer is known, which is a much stronger statement than the power calculation already noted elsewhere in this project. **The r = +0.18, p = 0.64 result in 2024-2026 cannot be read as evidence against AI.** It is the reading this project previously gave it, and that reading was wrong.
+
+**What the correlation misses, a rank statistic catches, and it is larger than it first looks.** Information ranked first of nine in exactly the two episodes anyone would call technology shocks, and fifth to eighth in every ordinary downturn. Scoring each sector's slowdown as a z-score within its own episode makes the regularity quantitative: Information's z is +0.90, +0.60, +0.40 and +0.82 in the four ordinary downturns (mean +0.68, t = 6.09, p = 0.009), so it is reliably *more* resilient than the average sector when the economy turns down. In 2024-2026 its z is −1.06, a swing of 1.74 standard deviations from its own normal behavior. The tight band is what produces the small p on four observations, so this is a clear regularity resting on thin evidence rather than a well-powered test.
+
+**The magnitude version is stronger than the rank version.** Fitting each sector's slowdown against the nine-sector average slowdown across the ordinary downturns only gives that sector's cyclical beta, which is then used to predict 2024-2026:
+
+| sector | cyclical beta | predicted | actual | residual |
+|---|---|---|---|---|
+| **Information** | **+0.61** | **−0.64** | **−3.48** | **−2.84** |
+| Transportation & Utilities | +1.03 | −0.64 | −3.10 | −2.46 |
+| Professional & Business | +0.95 | −2.31 | −3.08 | −0.78 |
+| Manufacturing | +0.87 | −2.46 | −1.87 | +0.58 |
+| Construction | +2.90 | −4.33 | −2.75 | +1.57 |
+| Education & Health | +0.32 | −0.79 | +1.32 | +2.11 |
+
+Information's beta is +0.61, meaning it normally moves *less* than the average sector in a downturn. Given how mild 2024-2026 is on the nine-sector average (−1.93pp), it should have slowed by 0.64pp. It slowed by 3.48pp. That −2.84pp miss is the largest of the nine and it is a real anomaly, not an artifact of ordinal ranking. Caveat: four episodes and two parameters, so this is indicative rather than inference. Note also that Transportation & Utilities is nearly as anomalous at −2.46pp despite having among the lowest AI exposure in the sample.
+
+**But the test that would have separated AI from an overhang correction fails.** The natural discriminator is output: a demand bust should show output falling alongside employment, while AI substitution should show output holding while employment falls. Annual Information GDP back to 1997 says the dot-com bust had the *same* shape, and more of it:
+
+| window | real output | employment | productivity |
+|---|---|---|---|
+| 1997-2000 boom | +4.70% | +5.42% | **−0.82%** |
+| 2001-2003 bust | +4.26% | −4.19% | **+8.93%** |
+| 2013-2019 pre-AI norm | +4.35% | +0.98% | +3.33% |
+| 2020-2022 pandemic boom | +2.23% | +2.41% | **+0.13%** |
+| 2023-2025 correction | +3.88% | −2.24% | **+6.27%** |
+
+Both corrections are preceded by a hiring boom that outran output, and both give it back at a similar rate. Tech productivity growth sagged to −0.82%/yr before the dot-com bust and to +0.13%/yr before this one, against a 2013-2019 norm of +3.33%. An overhang that built up and is unwinding accounts for the current episode with no AI in it, and it has an exact precedent. The "output holds while tech jobs fall" pattern is older than generative AI and was *larger* in 2001. (Series note: this is nominal Information GDP from the state accounts deflated by the economy-wide GDP deflator, the only consistent series reaching 1997. Its annual growth correlates r = +0.873 with BEA real value added over 2006-2025, but understates the level by about 3.9pp/yr in every period, since Information's own deflator falls. Compare rows to each other, not to BEA levels.)
+
+**But "output holds while hiring stops" is not distinctive.** The wedge, defined as the change in mean sector output growth minus the change in mean sector employment growth, is +1.50pp in 2024-2026, against +1.24pp in the GFC and +2.21pp in COVID. Output holding up better than hiring is what downturns normally look like at the sector level. That half of the Part 4 argument survives.
+
+**2001 is a diagnostic, not a precedent.** It is used above only to show that the nine-sector correlation cannot detect a single-sector shock. It is a poor analogy for 2024-2026 and should not be used as one, because the two episodes differ in exactly the dimension that matters:
+
+| | 2001-2003 | 2024-2026 |
+|---|---|---|
+| NBER recession | yes | no |
+| mean real GDP growth | +1.82%/yr | +2.45%/yr |
+| unemployment | 4.2% to 6.3% (+2.1pp) | 3.7% to 4.5% (+0.8pp) |
+| Information employment | −15.6% peak to trough | −10.3% peak to latest |
+
+Information is shedding a tenth of its workforce during an expansion. In 2001 it shed a sixth inside a recession, with a collapse in telecom and dot-com investment behind it. Employment figures are quarterly averages of the monthly series, peak to trough for 2001-2003 and peak to latest for the current episode, which is still in progress. The demand shock that explains 2001 is simply absent now, which makes the current episode the harder one to explain, not the easier one.
+
+**The labor-market mechanism, though, is close.** JOLTS starts December 2000, so both episodes are covered. Information job openings fell **28%** across the dot-com bust and **25%** now. Hires fell in both, quits fell in both. Layoffs are modestly higher now than then (monthly means of 1.54 for 2025-2026 against 1.32 for 2001-2003 and 1.36 in 2019), with essentially tied peaks (2.40 in January 2002, 2.50 in January 2026). These are unadjusted series and January is seasonally high, which is why seven of the ten highest months on record are Januaries, so read the means rather than the peaks.
+
+**The overhang account runs out exactly where the period of interest starts.** An overhang explanation carries a hard implication: unwinding an excess of +X% returns a sector *to* its trend, not far below it. Fitting Information's log employment on 2010-2019 and extrapolating, the deviation runs +0.8% (2019), +6.0% (2022 peak overhang), **+0.3% (late 2023)**, −2.8% (2024), −4.9% (2025), −7.4% (latest). The pandemic overhang was fully worked off by late 2023, and employment kept falling for another two years. So the overhang explains 2022-2023 and cannot be what drives 2024-2026.
+
+That said, the *level* of the deviation should not be trusted. Running the identical method on the dot-com episode, fitting 1990-2000 and extrapolating, gives −24.9% by 2005, which obviously does not mean a quarter of tech jobs were displaced. Extrapolating a prior decade's trend inflates the gap whenever structural growth slows, and 1990s Information growth was never going to continue. What survives is the timing of the zero crossing, which requires almost no extrapolation. It does not follow that AI explains the remainder, only that the overhang does not.
+
+## The capital-side discriminator (`tech_capital_vs_labor.py`)
+
+The overhang reading above leans on 2001 as its precedent, and that precedent does not survive being checked. The dot-com bust had a specific, measurable cause with nothing to do with the labor market: capital fled technology. If the current episode is the same kind of event, tech capital should be retreating now too. It is doing the opposite, hard.
+
+| | 2001 dot-com bust | 2024-2026 current |
+|---|---|---|
+| NASDAQ over the episode | **−63.9%** (trough −65.0%) | **+132.6%** (trough +0.0%, never below its start) |
+| real tech capex | **−2.6%** | **+42.8%** |
+| tech share of business fixed investment | 30.0% to 28.8% (falling) | 30.0% to 34.9% (rising) |
+| Information employment | **−10.5%** | **−10.3%** |
+
+The two episodes cost Information almost exactly the same share of its jobs. Every capital variable moves in the opposite direction between them. Tech's share of all business fixed investment is now above its dot-com peak (30.1% in 2000, 33.9% in the latest four quarters, against 28.5% in 2019). Firms are putting a larger share of their capital budget into information technology than at any point in the series while cutting technology headcount.
+
+A funding collapse cannot produce rising capex alongside falling headcount. Capital-labor substitution can, and that is close to its definition. This is the strongest single piece of evidence in the project for the AI reading, and it arrives on the capital side rather than the labor side, which is where every previous test had been looking.
+
+**What it settles and what it does not.** It settles that the 2001 analogy does not carry: the mechanism that drove 2001 is not merely absent now, it is running in reverse. A pandemic-overhang story can still be told, but it can no longer borrow 2001's precedent. It does not settle substitution directly, because rising tech capex is also consistent with an ordinary capital-deepening boom that happens to coincide with a hiring correction. Note too that much of the recent capex is AI data-center buildout, so "firms are spending on AI while cutting staff" is descriptively true without yet showing the spending causes the cuts.
+
+**Series note and a correction made while building this.** Tech investment is BEA's A679, information processing equipment *and software*, which already includes software. A first cut used Y033 (all nonresidential equipment) and added software separately, double-counting and producing a tech share near 60%, which should have been an immediate signal. The corrected share runs 28% to 33%. Real terms splice A679's own chain price index (1947-2013) to BEA's published real series (2007-2026); year-over-year growth rates correlate +0.995 over the 21-quarter overlap.
+
+**Where this leaves the Information anomaly.** Three things now hold at once. Information's 2024-2026 slowdown is a real anomaly against its own cyclical history, 2.84pp worse than its beta predicts and 1.74 standard deviations off its normal-downturn resilience, occurring in an expansion. The labor-side pattern it produces is not new, since 2001 produced a larger one. But the capital conditions are the reverse of 2001, so the one concrete precedent for that labor-side pattern describes a different event. The defensible position has moved: something sector-specific is hitting Information, it is not the business cycle, and it is not a capital-withdrawal event. That is a materially narrower space than the project had before, and AI substitution is the leading occupant of it. Confirming it still needs task-level evidence, because sector aggregates cannot show which work changed hands.
 
 ---
 
@@ -534,6 +729,9 @@ The output-unemployment correlation inverted from about −1.0 to +0.81 after Q4
 On unemployment the dose-response test contradicts AI, but that is an artifact of the unemployment floor in the high-AI service sectors. On real productivity, AI exposure predicts the decoupling (r = +0.77, p = 0.016), the job-replaceability score predicts it better (r = +0.90, p = 0.001), and a score rebuilt from observed Claude usage reproduces it independently (r = +0.76, p = 0.017), with the two constructions agreeing at +0.96. Information and Finance are the clearest cases: both accelerate sharply in 2024-2025, tech by cutting jobs while output holds, finance by growing real output ~+5.6%/yr with hiring at +0.2%/yr.
 
 **Important limit, established by direct test.** This is a levels claim. When the same nine sectors are tested on whether replaceable industries *accelerated* more after AI arrived (2024-2025 versus their own 2013-2019 baseline), the relationship is not significant (r = +0.45, p = 0.22), because three of the four least-replaceable sectors accelerated just as much. So the evidence supports "sectors with replaceable work sustain higher productivity growth" but not "AI caused a break in 2022."
+
+### The same claim tested on employment, at the occupation level → **NOT SUPPORTED**
+Part 5 runs the labor-side version of this test where it can actually be identified: within industry, across 28,000 occupation-by-industry cells. Replaceable occupations show no significant employment decline relative to less replaceable occupations in the same industry during 2022-2025 (β = −0.109, p = 0.156), and the coefficient is statistically indistinguishable from the pre-AI, pre-COVID placebo window (β = −0.143 in 2013-2019). The wage effect that looks strong over 2019-2025 disappears once COVID is excluded. This is a well-powered null, not an underpowered one, and it does not contradict the productivity finding: output per worker can rise without any occupation inside an industry losing employment relative to another. It does mean the project has no identified evidence for AI-driven labor *displacement*.
 
 ### The goods-sector inversions → **NOT A SEPARATE MECHANISM: an economy-wide, rate-driven hiring slowdown**
 Construction, Manufacturing, Transportation, and Wholesale appeared to invert together in 2024-2025 with the lowest AI exposure in the sample, which looked like a distinct goods-sector puzzle. Neither AI nor the fiscal wave explains it (the latter tested directly against USAspending obligations by NAICS and **not supported**). Decomposing the inversion resolved it: hiring slowed in **8 of 9 sectors**, one common factor explains **72%** of sector employment growth, and that factor tracks the Fed funds rate lagged 8-9 quarters at **r = −0.74** (p < 0.0001, n = 75). The clinching detail is the natural control: Education & Health is the only sector with no rate sensitivity (r = +0.016) and the only one that did not slow hiring.
