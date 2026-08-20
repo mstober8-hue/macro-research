@@ -341,6 +341,32 @@ Re-run properly, with block lengths of both 8 and 24 quarters and three separate
 
 *(95% intervals, 24-quarter blocks, 2,000 replicates.)* Every interval covers zero. The point estimate of the gap also swings wildly across specifications for the same sector (Construction: −3q, −12q, +1q depending on spec), which is itself evidence there is no stable parameter being estimated, just noise dressed up by whichever regressor happened to be used. Separately, the local-projection peak responses for output and unemployment are individually significant in only half of the six sector-variable pairs tested (Manufacturing's peaks and Transportation's output peak are not significant at 5%; Transportation's output "peak" lands at the edge of the tested grid, meaning there may be no interior peak at all within 16 quarters).
 
+**Stress-tested on 50 years of data before accepting the retraction.** The test above was handicapped in three ways, and `timing_stress_test.py` removes all three before concluding.
+
+1. **Only 20 years of data.** Sector value added begins in 2005, so every sector timing estimate rested on ~80 quarters. Replaced with aggregate GDP (1947 onward) and manufacturing industrial production (1972 onward).
+2. **No identified shock.** Replaced the funds rate with Romer-Romer narrative shocks, which run **1969-2019**, plus Bauer-Swanson.
+3. **The gap came from differencing two argmaxes.** That discards the shape of both response curves and inherits two separate peak-picking errors. Replaced with a whole-curve alignment: find the shift that best matches the two normalised impulse responses.
+
+Plus one substantive fix. Since the unemployment rate is drained of signal for seven of nine sectors (see the employment-form section above), the test is run with **employment** as well as unemployment.
+
+**The answer is still no, and now it is a much better-supported no.** Across 8 specifications (2 samples x 2 shocks x 2 labour variables):
+
+| | Result |
+|---|---|
+| Point estimates negative (labour leads) | **4 of 8** |
+| Bootstrap intervals excluding zero | **0 of 8** |
+| Sign agreement between unemployment and employment | 2 of 4 systems |
+
+The signs disagree across specifications for the same system, which is the signature of no stable parameter rather than of a small one.
+
+**Is the gap drifting over 50 years?** A fair question, since the transmission lag itself roughly doubled between eras, so a pooled estimate could average a real but moving gap into nothing. Estimating the shift in rolling 20-year windows and fitting a trend gives one specification with a significant negative drift (aggregate, Romer-Romer, unemployment: −0.056 quarters per year, p = 0.005).
+
+**That p-value is not valid, for the third time in this project.** Rolling 20-year windows stepped every 2 years overlap by 90%, so consecutive windows share 18 of 20 years. The trend regression treats 16 windows as independent when the effective sample is **1.6**. The same overlapping-window error invalidated the original i.i.d. bootstrap and the DESYNC dynamic test. Across the six specifications the slope signs are 2 negative and 4 positive, so there is no consistent drift to find.
+
+**What can now be said that could not be said before.** Restricting to windows centred after 1995, the regime the current episode belongs to, the alignment shift averages about **−0.8 quarters** across specifications, with 4 of 6 negative. That is the direction the mechanism required, but it is roughly a quarter of the originally claimed 1.7 to 3 quarters, and it is nowhere near significance.
+
+So the useful conclusion is sharper than "unidentified." **The gap, if it exists at all, is probably under one quarter in the modern era, not the 1.7 to 3 quarters claimed.** And the reason it cannot be established is no longer a shortage of data, since this used five decades and two identified shock series. It is that the effect is too small relative to the noise in quarterly macro data. A gap that small also cannot produce the multi-year Okun inversion the mechanism was invented to explain, which is an independent reason to abandon it.
+
 **What this means.** The claim that "unemployment responds to a rate shock 1.7 to 3 quarters faster than output," which is the entire timing mechanism this section builds on, does not survive proper identification. It should not be treated as established. The correlation curves in the chart above are real, but a peak-lag difference read off two flat, noisy curves is not a robust estimate of anything, and the original bootstrap that seemed to confirm it was checking the wrong kind of uncertainty.
 
 **What still stands, and it is a different and better-supported claim.** The single-lag relationship in `hiring_slowdown.py` and `historical_lag_validation.py`, that goods-sector *employment growth* (not the output/unemployment differential above) correlates with the Fed funds rate at roughly an 8-9 quarter lag, with a smooth monotonic profile, validated out-of-sample on 1986-2019 data it was never fit to, is a separate and much better-supported result. It uses one lag on one variable against a common shock, not a difference between two barely-identified lags. `does_the_lag_solve_it.py`'s quantitative out-of-sample prediction test (Construction and Manufacturing hiring predicted from pre-2022 data alone, landing within 0.01-0.20pp of what actually happened) rests on that single-lag relationship and is unaffected by this correction.
@@ -640,7 +666,7 @@ Vacancy yield is **recovering**, not deteriorating. Firms are filling jobs *more
 - **The prediction test uses a single regressor.** Fitting hiring on one lagged rate is a deliberately spare model. Construction landing within 0.01pp of prediction is striking but partly luck; the honest read is that the goods sectors are close to their rate-implied path, not that the model is precise to a hundredth of a point.
 - **Lag scans overfit,** which is why the out-of-sample test above exists. The profile is smooth and monotonic rather than a lone spike, and it replicates on 1986-2019, but the exact peak of 8-9 quarters should still not be taken literally.
 - **The lag is not stable across eras** (4 quarters in 1955-1985, 9 in 1986-2019), so this is a fact about the modern economy rather than a structural constant.
-- **Rates are not the only candidate left.** Immigration and labor-force changes could produce a broad hiring slowdown on similar timing, and this analysis cannot separate them. Sector-level JOLTS hires and quits would help, but FRED only carries them for two of the nine sectors here.
+- **Rates are not the only candidate left.** Immigration and labor-force changes could produce a broad hiring slowdown on similar timing. This is no longer an untested caveat: `immigration_confound.py` tests it directly against JOLTS openings, hires, wages and unemployment (see the section above) and finds the 2024-2025 *direction of change* is demand cooling, not a tightening supply constraint, though the market is structurally supply-tighter than the 2010s on the level.
 
 ## Why they moved in sync, and what broke under testing
 
@@ -695,6 +721,7 @@ python3 historical_lag_validation.py # out-of-sample: does the lag replicate in 
 python3 does_the_lag_solve_it.py     # prediction test: does the lag ACCOUNT for 2024-25?
 python3 why_rates_break_okun.py      # the MECHANISM: why a rate shock inverts the measured law
 python3 identification_check.py     # tests whether that mechanism's timing gap is identified (it isn't)
+python3 timing_stress_test.py       # 50yr stress test of the timing claim: still no, but sharper
 python3 cf_style_comparison.py      # tests the Cleveland Fed's own lag spec against these 3 sectors
 python3 prediction_stress_tests.py  # the 3 failure modes: fresh data, lag sensitivity, 70yr history
 python3 desync_dynamics.py          # re-tests DESYNC dynamically: window-matched, changes, event study
