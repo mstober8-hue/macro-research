@@ -17,12 +17,12 @@ If β1 stays near +0.18 after adding overhang, the overhiring explanation
 does NOT account for the breakdown, and the AI/structural explanation survives.
 
 DATA LOADED:
-  USINFO.csv        — All Employees, Information (monthly, SA, thousands)
-  JTU5100HIR.csv    — Hires rate, Information (monthly, NSA) — diagnostic only
-  JTU5100LDR.csv    — Layoffs and Discharges rate, Information (monthly, NSA)
-  RVAI.csv          — BEA Information sector real value-added
-  LNU04032237.csv   — BLS Information unemployment rate (NSA)
-  FEDFUNDS.csv      — Federal Funds Rate
+  information_sector_employment_USINFO.csv        — All Employees, Information (monthly, SA, thousands)
+  information_sector_hires_rate_JTU5100HIR.csv    — Hires rate, Information (monthly, NSA) — diagnostic only
+  information_sector_layoffs_rate_JTU5100LDR.csv    — Layoffs and Discharges rate, Information (monthly, NSA)
+  information_sector_value_added_RVAI.csv          — BEA Information sector real value-added
+  information_sector_unemployment_rate_LNU04032237.csv   — BLS Information unemployment rate (NSA)
+  fed_funds_rate_FEDFUNDS.csv      — Federal Funds Rate
 """
 
 import os
@@ -55,19 +55,19 @@ def load_series(filename, label):
 
 
 # Employment (monthly → quarterly)
-emp_m   = load_series("USINFO.csv",    "emp")
+emp_m   = load_series("information_sector_employment_USINFO.csv",    "emp")
 emp_q   = emp_m.resample("QS").mean().dropna()
 
 # JOLTS hires and layoffs (monthly; kept monthly for the visual only)
-hir_m   = load_series("JTU5100HIR.csv", "hires")
-ldr_m   = load_series("JTU5100LDR.csv", "layoffs")
+hir_m   = load_series("information_sector_hires_rate_JTU5100HIR.csv", "hires")
+ldr_m   = load_series("information_sector_layoffs_rate_JTU5100LDR.csv", "layoffs")
 
 # Okun regression inputs (same as pipeline)
-output_m = load_series("RVAI.csv",          "output")
+output_m = load_series("information_sector_value_added_RVAI.csv",          "output")
 output_q = output_m.copy()
-unemp_m  = load_series("LNU04032237.csv",   "unemp")
+unemp_m  = load_series("information_sector_unemployment_rate_LNU04032237.csv",   "unemp")
 unemp_q  = unemp_m.resample("QS").mean()
-ffr_m    = load_series("FEDFUNDS.csv",      "ffr")
+ffr_m    = load_series("fed_funds_rate_FEDFUNDS.csv",      "ffr")
 ffr_q    = ffr_m.resample("QS").mean()
 
 

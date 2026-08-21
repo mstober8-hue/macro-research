@@ -27,19 +27,19 @@ from scipy import stats as sp_stats
 # ----------------------------------------------------------------
 DATA_DIR = "FRED-Data/"
 
-gdp = pd.read_csv(DATA_DIR + "GDPC1.csv", parse_dates=["observation_date"])
+gdp = pd.read_csv(DATA_DIR + "real_gdp_GDPC1.csv", parse_dates=["observation_date"])
 gdp.columns = ["date", "gdp"]
 gdp = gdp.set_index("date")
 
-gdppot = pd.read_csv(DATA_DIR + "GDPPOT.csv", parse_dates=["observation_date"])
+gdppot = pd.read_csv(DATA_DIR + "potential_gdp_GDPPOT.csv", parse_dates=["observation_date"])
 gdppot.columns = ["date", "gdppot"]
 gdppot = gdppot.set_index("date")
 
-unrate = pd.read_csv(DATA_DIR + "UNRATE.csv", parse_dates=["observation_date"])
+unrate = pd.read_csv(DATA_DIR + "unemployment_rate_UNRATE.csv", parse_dates=["observation_date"])
 unrate.columns = ["date", "unrate"]
 unrate = unrate.set_index("date")
 
-nrou = pd.read_csv(DATA_DIR + "NROU.csv", parse_dates=["observation_date"])
+nrou = pd.read_csv(DATA_DIR + "natural_unemployment_rate_NROU.csv", parse_dates=["observation_date"])
 nrou.columns = ["date", "nrou"]
 nrou = nrou.set_index("date")
 

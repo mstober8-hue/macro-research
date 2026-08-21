@@ -60,15 +60,15 @@ GENAI_SCORES_FILE = None
 
 # ─── INDUSTRY REGISTRY ───────────────────────────────────────────────────────
 INDUSTRIES = {
-    "Financial Activities":        {"output": "FnceservcGDP.csv", "unemp": "LNU04032238.csv", "aiie": 1.538},
-    "Information":                 {"output": "RVAI.csv",          "unemp": "LNU04032237.csv", "aiie": 1.268},
-    "Education & Health":          {"output": "RVAHCSA.csv",       "unemp": "LNU04032240.csv", "aiie": 0.775},
-    "Professional & Business":     {"output": "RVAPBS.csv",        "unemp": "LNU04032239.csv", "aiie": 0.654},
-    "Wholesale Trade":             {"output": "RVAW.csv",          "unemp": "LNU04032235.csv", "aiie": 0.264},
-    "Leisure & Hospitality":       {"output": "RVAAERAF.csv",      "unemp": "LNU04032241.csv", "aiie":-0.315},
-    "Transportation & Utilities":  {"output": "RVAT.csv",          "unemp": "LNU04032236.csv", "aiie":-0.342},
-    "Manufacturing":               {"output": "MnfctGDP.csv",      "unemp": "MnfctUrate.csv",  "aiie":-0.484},
-    "Construction":                {"output": "CnstGDP.csv",       "unemp": "ConstUrate .csv", "aiie":-0.997},
+    "Financial Activities":        {"output": "financial_activities_value_added_VAFI.csv", "unemp": "financial_activities_unemployment_rate_LNU04032238.csv", "aiie": 1.538},
+    "Information":                 {"output": "information_sector_value_added_RVAI.csv",          "unemp": "information_sector_unemployment_rate_LNU04032237.csv", "aiie": 1.268},
+    "Education & Health":          {"output": "health_care_social_assistance_value_added_RVAHCSA.csv",       "unemp": "education_health_unemployment_rate_LNU04032240.csv", "aiie": 0.775},
+    "Professional & Business":     {"output": "professional_business_services_value_added_RVAPBS.csv",        "unemp": "professional_business_services_unemployment_rate_LNU04032239.csv", "aiie": 0.654},
+    "Wholesale Trade":             {"output": "wholesale_trade_value_added_RVAW.csv",          "unemp": "wholesale_retail_trade_unemployment_rate_LNU04032235.csv", "aiie": 0.264},
+    "Leisure & Hospitality":       {"output": "leisure_hospitality_value_added_RVAAERAF.csv",      "unemp": "leisure_hospitality_unemployment_rate_LNU04032241.csv", "aiie":-0.315},
+    "Transportation & Utilities":  {"output": "transportation_warehousing_value_added_RVAT.csv",          "unemp": "transportation_utilities_unemployment_rate_LNU04032236.csv", "aiie":-0.342},
+    "Manufacturing":               {"output": "manufacturing_value_added_RVAMA.csv",      "unemp": "manufacturing_unemployment_rate_LNU04032232.csv",  "aiie":-0.484},
+    "Construction":                {"output": "construction_value_added_RVAC.csv",       "unemp": "construction_unemployment_rate_LNU04032231.csv", "aiie":-0.997},
 }
 
 
@@ -116,7 +116,7 @@ def load_ffr_vars():
     negative once cuts begin. It captures "how far above recent history" the rate
     is, as opposed to its absolute level.
     """
-    ffr   = load_series("FEDFUNDS.csv", "ffr")
+    ffr   = load_series("fed_funds_rate_FEDFUNDS.csv", "ffr")
     ffr_q = ffr.resample("QS").mean()
     df    = pd.DataFrame({"ffr": ffr_q})
     df["delta_ffr_base"] = df["ffr"].diff(periods=4)
@@ -146,7 +146,7 @@ try:
     print(f"  Level spec captures that sustained drag; change specs miss it.\n")
 except FileNotFoundError:
     FFR_OK = False
-    print("  FEDFUNDS.csv not found — only simple OLS will run.\n")
+    print("  fed_funds_rate_FEDFUNDS.csv not found — only simple OLS will run.\n")
 
 
 # ─── REGRESSION FUNCTIONS ─────────────────────────────────────────────────────

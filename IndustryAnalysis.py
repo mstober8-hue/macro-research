@@ -45,25 +45,25 @@ DATA_DIR = "FRED-Data/"
 
 # Real Value Added: Information sector (quarterly, billions of chained $)
 # High-AI industry — software, cloud, data, media
-rvai = pd.read_csv(DATA_DIR + "RVAI.csv", parse_dates=["observation_date"])
+rvai = pd.read_csv(DATA_DIR + "information_sector_value_added_RVAI.csv", parse_dates=["observation_date"])
 rvai.columns = ["date", "rvai"]
 rvai = rvai.set_index("date")
 
 # Real Value Added: Leisure & Hospitality (quarterly, billions of chained $)
 # Low-AI industry — restaurants, hotels, entertainment
-rvaaeraf = pd.read_csv(DATA_DIR + "RVAAERAF.csv", parse_dates=["observation_date"])
+rvaaeraf = pd.read_csv(DATA_DIR + "leisure_hospitality_value_added_RVAAERAF.csv", parse_dates=["observation_date"])
 rvaaeraf.columns = ["date", "rvaaeraf"]
 rvaaeraf = rvaaeraf.set_index("date")
 
 # Unemployment rate: Information sector (monthly, %)
 # BLS series LNU04032237 (corrected — LNU04032240 is Education & Health Services)
-unemp_info = pd.read_csv(DATA_DIR + "LNU04032237.csv", parse_dates=["observation_date"])
+unemp_info = pd.read_csv(DATA_DIR + "information_sector_unemployment_rate_LNU04032237.csv", parse_dates=["observation_date"])
 unemp_info.columns = ["date", "u_info"]
 unemp_info = unemp_info.set_index("date")
 
 # Unemployment rate: Leisure & Hospitality (monthly, %)
 # BLS series LNU04032241
-unemp_lh = pd.read_csv(DATA_DIR + "LNU04032241.csv", parse_dates=["observation_date"])
+unemp_lh = pd.read_csv(DATA_DIR + "leisure_hospitality_unemployment_rate_LNU04032241.csv", parse_dates=["observation_date"])
 unemp_lh.columns = ["date", "u_lh"]
 unemp_lh = unemp_lh.set_index("date")
 

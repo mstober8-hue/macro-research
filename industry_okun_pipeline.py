@@ -48,67 +48,67 @@ WINDOW     = 12   # rolling regression quarters
 
 INDUSTRIES = {
     "Financial Activities": {
-        "output_file":  "FnceservcGDP.csv",
-        "unemp_file":   "LNU04032238.csv",
+        "output_file":  "financial_activities_value_added_VAFI.csv",
+        "unemp_file":   "financial_activities_unemployment_rate_LNU04032238.csv",
         "aiie":         1.538,
         "match":        "good",
         "notes":        "",
     },
     "Information": {
-        "output_file":  "RVAI.csv",
-        "unemp_file":   "LNU04032237.csv",
+        "output_file":  "information_sector_value_added_RVAI.csv",
+        "unemp_file":   "information_sector_unemployment_rate_LNU04032237.csv",
         "aiie":         1.268,
         "match":        "good",
         "notes":        "",
     },
     "Education & Health": {
-        "output_file":  "RVAHCSA.csv",
-        "unemp_file":   "LNU04032240.csv",
+        "output_file":  "health_care_social_assistance_value_added_RVAHCSA.csv",
+        "unemp_file":   "education_health_unemployment_rate_LNU04032240.csv",
         "aiie":         0.775,
         "match":        "partial",
         "notes":        "BEA RVAHCSA is Health Care & Social Assistance (NAICS 62) only; "
                         "BLS LNU04032240 covers Education & Health combined (NAICS 61+62).",
     },
     "Professional & Business": {
-        "output_file":  "RVAPBS.csv",
-        "unemp_file":   "LNU04032239.csv",
+        "output_file":  "professional_business_services_value_added_RVAPBS.csv",
+        "unemp_file":   "professional_business_services_unemployment_rate_LNU04032239.csv",
         "aiie":         0.654,
         "match":        "good",
         "notes":        "",
     },
     "Wholesale Trade": {
-        "output_file":  "RVAW.csv",
-        "unemp_file":   "LNU04032235.csv",
+        "output_file":  "wholesale_trade_value_added_RVAW.csv",
+        "unemp_file":   "wholesale_retail_trade_unemployment_rate_LNU04032235.csv",
         "aiie":         0.264,
         "match":        "partial",
         "notes":        "BLS LNU04032235 is 'Wholesale and Retail Trade' combined; "
                         "BEA RVAW is Wholesale only (NAICS 42).",
     },
     "Leisure & Hospitality": {
-        "output_file":  "RVAAERAF.csv",   # Arts+Entertainment+Recreation+Accommodation+Food = full NAICS 71+72
-        "unemp_file":   "LNU04032241.csv",
+        "output_file":  "leisure_hospitality_value_added_RVAAERAF.csv",   # Arts+Entertainment+Recreation+Accommodation+Food = full NAICS 71+72
+        "unemp_file":   "leisure_hospitality_unemployment_rate_LNU04032241.csv",
         "aiie":        -0.315,
         "match":        "good",
         "notes":        "RVAAERAF covers full Leisure & Hospitality (NAICS 71+72), matching BLS LNU04032241.",
     },
     "Transportation & Utilities": {
-        "output_file":  "RVAT.csv",
-        "unemp_file":   "LNU04032236.csv",
+        "output_file":  "transportation_warehousing_value_added_RVAT.csv",
+        "unemp_file":   "transportation_utilities_unemployment_rate_LNU04032236.csv",
         "aiie":        -0.342,
         "match":        "partial",
         "notes":        "BEA RVAT is Transportation & Warehousing (NAICS 48-49) only; "
                         "BLS LNU04032236 includes Utilities (NAICS 22).",
     },
     "Manufacturing": {
-        "output_file":  "MnfctGDP.csv",
-        "unemp_file":   "MnfctUrate.csv",
+        "output_file":  "manufacturing_value_added_RVAMA.csv",
+        "unemp_file":   "manufacturing_unemployment_rate_LNU04032232.csv",
         "aiie":        -0.484,
         "match":        "good",
         "notes":        "",
     },
     "Construction": {
-        "output_file":  "CnstGDP.csv",
-        "unemp_file":   "ConstUrate .csv",   # trailing space in filename
+        "output_file":  "construction_value_added_RVAC.csv",
+        "unemp_file":   "construction_unemployment_rate_LNU04032231.csv",   # trailing space in filename
         "aiie":        -0.997,
         "match":        "good",
         "notes":        "",
@@ -216,7 +216,7 @@ def rolling_okun(df, window=WINDOW):
 # most rate-sensitive industries in the economy. Any Okun breakdown
 # in those sectors post-2022 is confounded with rate effects.
 #
-# We try to load FEDFUNDS.csv (download from FRED: series FEDFUNDS).
+# We try to load fed_funds_rate_FEDFUNDS.csv (download from FRED: series FEDFUNDS).
 # If present, we compute YoY change in the Fed Funds Rate and add it
 # as a second regressor in each industry's post-2022 OLS:
 #   ΔU = α + β·%ΔY + γ·ΔFFR
@@ -226,13 +226,13 @@ def rolling_okun(df, window=WINDOW):
 
 def load_ffr_control():
     """
-    Try to load FEDFUNDS.csv. Returns a quarterly YoY-differenced Series,
+    Try to load fed_funds_rate_FEDFUNDS.csv. Returns a quarterly YoY-differenced Series,
     or None if the file is not found.
     To enable: download FEDFUNDS from https://fred.stlouisfed.org/series/FEDFUNDS
-    and save as 'FRED-Data/FEDFUNDS.csv'.
+    and save as 'FRED-Data/fed_funds_rate_FEDFUNDS.csv'.
     """
     try:
-        ffr = load_series("FEDFUNDS.csv", "ffr")
+        ffr = load_series("fed_funds_rate_FEDFUNDS.csv", "ffr")
         ffr_q  = ffr.resample("QS").mean()
         ffr_df = pd.DataFrame({"ffr": ffr_q})
         ffr_df["delta_ffr"] = ffr_df["ffr"].diff(periods=4)  # YoY change in FFR
@@ -242,9 +242,9 @@ def load_ffr_control():
 
 ffr_control = load_ffr_control()
 if ffr_control is not None:
-    print("  [Rate control] FEDFUNDS.csv loaded — will run rate-controlled regressions.")
+    print("  [Rate control] fed_funds_rate_FEDFUNDS.csv loaded — will run rate-controlled regressions.")
 else:
-    print("  [Rate control] FEDFUNDS.csv not found — add it from FRED to enable rate control.")
+    print("  [Rate control] fed_funds_rate_FEDFUNDS.csv not found — add it from FRED to enable rate control.")
 print()
 
 

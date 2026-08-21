@@ -40,7 +40,7 @@ import warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 DATA_DIR    = "FRED-Data/"
-SECTOR_FILE = os.path.join(DATA_DIR, "Sector.xlsx")
+SECTOR_FILE = os.path.join(DATA_DIR, "btos_sector_ai_adoption_survey.xlsx")
 
 # AIIE scores (Felten, Raj, Seamans 2023)
 AIIE = {
@@ -184,7 +184,7 @@ if __name__ == "__main__":
     print("=" * 72)
 
     # ── Step 1: Load BTOS ─────────────────────────────────────────────────────
-    print("\n[1] Loading BTOS Sector.xlsx Q7 AI adoption data...")
+    print("\n[1] Loading BTOS btos_sector_ai_adoption_survey.xlsx Q7 AI adoption data...")
     btos = load_btos_ai()
     print(f"  Biweekly panels : {len(btos)} periods × {btos.shape[1]} NAICS sectors")
     print(f"  Date range      : {btos.index.min().date()} → {btos.index.max().date()}")

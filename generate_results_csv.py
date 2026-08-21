@@ -563,7 +563,7 @@ row("BTOS Dec 2023-Feb 2024 supplement", "Sector-level AI data POOLED across 6 b
 row("BTOS core question end (national)", "August 2024 — not available in standard download files as sector-level")
 row("BTOS sector-level AI data (continuous)", "Begins November 2025 (period 202524) — 14 biweekly panels available as of Q1 2026")
 row("Data gap", "February 2024 – October 2025 (20 months) — no sector-level AI adoption data publicly available")
-row("Files checked", "National.xlsx (Q1-Q9, Q11-Q24), Sector.xlsx (Q3-Q23, Q24), Subsector.xlsx (Q3-Q23, Q24)")
+row("Files checked", "unused_btos_national_ai_adoption_survey.xlsx (Q1-Q9, Q11-Q24), btos_sector_ai_adoption_survey.xlsx (Q3-Q23, Q24), unused_btos_subsector_ai_adoption_survey.xlsx (Q3-Q23, Q24)")
 row("AI question code", "Question ID = 7 (Q7: 'Did this business use AI in the past two weeks?') — Yes responses by sector")
 row("BTOS panel approach verdict", "Infeasible with available public data — 20-month gap precludes continuous panel identification")
 row("BTOS approach used", "Cross-sectional: average sector-level AI adoption rate (Nov 2025–May 2026) as static exposure measure")
