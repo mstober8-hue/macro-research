@@ -37,7 +37,7 @@ How much the answer moves on the deflator alone (`finance_real_bracket.py`):
 
 ![Real output under two deflators vs employment](finance_real_bracket.png)
 
-The gap between the two real lines is the decoupling the finance deflator hides. Under the neutral deflator, finance real productivity is about **2.6 to 3.0 percent a year, double the ~1.5 percent US average**. That is a genuine output-to-jobs decoupling. A second, minor issue was a NAICS mismatch (output is Finance and Insurance, NAICS 52, while `USFIRE` employment adds Real Estate, NAICS 53); using Finance-and-Insurance-only employment (`CES5552000001`) barely changed anything, so the deflator was the whole story.
+The gap between the two real lines is the decoupling the finance deflator hides. Under the neutral deflator, finance real productivity is about **2.4 to 2.6 percent a year (CAGR, using the NAICS-consistent Finance & Insurance employment series), well above the ~1.5 percent US average**. That is a genuine output-to-jobs decoupling. A second, minor issue was a NAICS mismatch (output is Finance and Insurance, NAICS 52, while `USFIRE` employment adds Real Estate, NAICS 53); using Finance-and-Insurance-only employment (`CES5552000001`) barely changed anything, so the deflator was the whole story.
 
 ---
 
@@ -66,10 +66,10 @@ One further caution from `finance_employment.py`: the rolling employment-elastic
 ## Honest caveats
 
 - The whole thing still rests on a value-added output measure. Even the GDP-deflated version can be inflated by a financial-market boom rather than more real work per person, so part of the 2024-2025 spike may be a bull market rather than AI. The direction is robust; the exact magnitude is not.
-- The BEA finance deflator being unreliable does not make the GDP deflator exactly right for finance either. The truth is bracketed between them (0.3 to 2.6 percent a year full-period; the weight of evidence sits near the top given the FISIM problem).
+- The BEA finance deflator being unreliable does not make the GDP deflator exactly right for finance either. The truth is bracketed between them (0.3 to 2.6 percent a year full-period, CAGR; the weight of evidence sits near the top given the FISIM problem).
 - 2024-2025 is a short window, so the +7 percent acceleration is suggestive, not settled.
 - This does not resolve causation. It shows finance really did decouple output from labor in real terms, on the AI timeline. Whether AI caused it, versus a booming market plus a hiring pause, needs more than these series.
 
 ## What this implies for the main study
 
-The nine-industry cross-section was run on unemployment, which is saturated for full-employment service sectors like Finance. Re-measured on real productivity, Finance is a genuine high-AI decoupler, not the null the unemployment test made it look like. When the cross-section is corrected for this (using real output, and not the FISIM-broken finance deflator), the "AI exposure predicts less breakdown" result weakens. That rerun is the outstanding next step.
+The nine-industry cross-section was run on unemployment, which is saturated for full-employment service sectors like Finance. Re-measured on real productivity, Finance is a genuine high-AI decoupler, not the null the unemployment test made it look like. **This rerun is no longer outstanding.** [`real_productivity_ai_crosssection.py`](../real_productivity_ai_crosssection.py) at the repo root reruns the nine-industry cross-section on real productivity growth with Finance deflated by the neutral GDP deflator as established here, and it reverses the headline: AI exposure predicts *more* decoupling (r = +0.77, p = 0.016) rather than less. Finance's own real productivity in that corrected cross-section runs +2.8%/yr over 2013-2025, accelerating to +5.5%/yr in 2024-2025 (see the acceleration table above). Full detail and the surrounding robustness tests are in [Part 3 of the main README](../README.md#part-3-the-correction-that-reversed-the-headline).

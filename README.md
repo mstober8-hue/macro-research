@@ -9,10 +9,10 @@ This project set out to test that, reached a conclusion that seemed to *contradi
 ## The bottom line
 
 1. **A real, statistically extreme break in the growth-to-jobs relationship appears after Q4 2022 in the aggregate U.S. economy.** The rolling output-unemployment correlation, near −1.0 for two decades, inverts to +0.81. A distribution-free bootstrap puts the odds of that under a continuation of the pre-2022 regime at about 1 in 2,000 (p ≈ 0.0005).
-2. **Whether that break looks like AI depends entirely on how you measure labor.** Measured on unemployment, AI exposure predicts *less* breakdown (the "contradicts AI" result). But unemployment is saturated for the high-AI service sectors, which sit at their unemployment floor and cannot register a decoupling. Measured on **real productivity** (real output per worker, the variable AI actually targets), AI exposure significantly *predicts* the output-to-jobs decoupling (r = +0.77, p = 0.016). A purpose-built job-replaceability score predicts it even better (r = +0.90, p = 0.001), and the result reproduces on a measure built purely from **observed** AI usage rather than theory (r = +0.76, p = 0.017), which answers the circularity objection. **But this is a claim about levels, not timing:** a direct test of whether replaceable sectors *accelerated* after AI arrived comes back insignificant, so the result cannot be pinned to generative AI specifically.
-3. **What looked like a second story in the physical economy turned out to be an economy-wide hiring slowdown.** The biggest unemployment-side inversions landed in the low-AI goods sectors in 2024-2025, and neither AI nor the 2021-2022 fiscal wave explains them. Decomposing the inversion showed why: hiring slowed in **8 of 9 sectors**, one common factor explains 72% of sector employment growth, and that factor tracks the Fed funds rate lagged 8-9 quarters at **r = −0.74** (p < 0.0001, n = 75). The goods "inversion" is a fragile short-window artifact on top of that real slowdown; it reverses at a 20-quarter window.
+2. **Whether that break looks like AI depends entirely on how you measure labor.** Measured on unemployment, AI exposure predicts *less* breakdown (the "contradicts AI" result). But unemployment is saturated for the high-AI service sectors, which sit at their unemployment floor and cannot register a decoupling. Measured on **real productivity** (real output per worker, the variable AI actually targets), AI exposure significantly *predicts* the output-to-jobs decoupling (r = +0.77, p = 0.016). A purpose-built job-replaceability score predicts it even better (r = +0.90, p = 0.001), and the result reproduces on a measure built purely from **observed** AI usage rather than theory (r = +0.76, p = 0.017), which answers the circularity objection. **But it is not an AI effect:** the relationship is *strongest in 2013-2019* (r = +0.940), a clean window ending three years before ChatGPT, and weakens as the window moves toward the AI era. The acceleration test also fails at roughly 700 occupations, not just at nine sectors. Replaceability predicts productivity growth because it captures something structural about these sectors, not because generative AI changed them.
+3. **What looked like a second story in the physical economy turned out to be an economy-wide hiring slowdown.** The biggest unemployment-side inversions landed in the low-AI goods sectors in 2024-2025; the fiscal wave does not explain them (tested directly against USAspending obligations). Decomposing the inversion showed why: hiring slowed in **8 of 9 sectors**, one common factor explains 72% of sector employment growth, and that factor tracks the Fed funds rate lagged 8-9 quarters at **r = −0.74** (p < 0.0001, n = 75), directionally corroborated on identified monetary shocks. The goods "inversion" is a fragile short-window artifact on top of that real slowdown; it reverses at a 20-quarter window. **AI is not ruled out here**: the nine-sector AI null this section originally rested on was later shown to be underpowered and reverses sign, short of significance, when rebuilt at 73-industry scale (Part 4).
 
-So the honest headline is: the aggregate break is real; the AI-consistent part of it lives in the high-replaceability sectors (Information and Finance most clearly) and is visible in productivity, not unemployment; and the goods-sector break is not a separate mechanism at all but the visible edge of a rate-driven hiring slowdown that hit almost the whole economy.
+So the honest headline is: the aggregate break is real, was mostly monetary, and is unwinding on the rate-lag schedule; the productivity decoupling tracks job replaceability robustly, predates generative AI, but steepened into the AI era; displacement is absent from every occupation and sector *total* across four well-powered designs, yet present exactly where those totals cannot see, in young college graduates, who now run +4.8 standard deviations above their cyclical prediction while their non-graduate peers sit at prediction. Two puzzles remain live: the Information sector, shedding a tenth of its workforce during an expansion with capital conditions the reverse of the dot-com bust, and the entry-level anomaly, which is the first displacement evidence in this project that is correctly timed, correctly located, and growing. A ramp test confirms the separation: the entry-level penalty builds monotonically (+0.30pp/yr, t = 15.9) and is still climbing, while the aggregate Okun correlation peaked in 2025 and has since reversed. Diffusion ramps; monetary transmission peaks and unwinds.
 
 **Study design at a glance:**
 
@@ -94,6 +94,13 @@ Finance originally had a fourth mismatch (employment included Real Estate); it i
 | [`okun_employment_form.py`](okun_employment_form.py) | Part 5: shows the unemployment form is blind for 7 of 9 sectors, and the transform flips the AI sign |
 | [`cyclical_abnormality.py`](cyclical_abnormality.py) | Part 5: repairs the nine-sector test with rank statistics, cyclical baselines, and episodes as a null |
 | [`tech_capital_vs_labor.py`](tech_capital_vs_labor.py) | Part 5: the capital-side discriminator; same job losses as 2001, opposite capital conditions |
+| [`occupation_ai_panel.py`](occupation_ai_panel.py) | Part 5: the acceleration test at ~700 occupations, plus the entry-level wage-distribution proxy |
+| [`within_between_decomposition.py`](within_between_decomposition.py) | Part 5: shift-share; tests whether the AI effect hides between industries where fixed effects cannot see it |
+| [`headline_result_stress_test.py`](headline_result_stress_test.py) | Part 5: leverage and timing checks on the one surviving AI result |
+| [`robotic_exposure_test.py`](robotic_exposure_test.py) | Part 5: builds a robotic-exposure measure and tests the anticipatory-robotics hypothesis |
+| [`what_the_stocks_missed.py`](what_the_stocks_missed.py) | Part 5: the rebuttal tests; young-graduate anomaly, search duration, slopes vs correlations |
+| [`cps_within_occupation_age.py`](cps_within_occupation_age.py) | Part 5: the closing test; within-occupation age composition, CPS 2016-2025 |
+| [`ai_intensity_ramp.py`](ai_intensity_ramp.py) | Part 5: replaces the Q4 2022 step dummy with diffusion; the ramp test that separates the two channels |
 | [`physical-sector-inversion/does_okun_break_in_recessions.py`](physical-sector-inversion/does_okun_break_in_recessions.py) | Tests whether goods-sector Okun always breaks in downturns. It does not: it works best in them |
 | [`finance/`](finance/README.md) | Finance deep dive (all content also summarized in Part 3 below) |
 | [`physical-sector-inversion/`](physical-sector-inversion/README.md) | Goods-sector deep dive, including the fiscal test (`fiscal_control.py`, USAspending) |
@@ -296,12 +303,12 @@ The finance re-measurement went wrong twice before it went right, and the swing 
 
 | Deflator | Real output growth | Real productivity |
 |---|---:|---:|
-| BEA finance deflator (FISIM-contaminated) | 1.5%/yr | 0.3%/yr |
-| **GDP deflator (neutral)** | **3.8%/yr** | **2.4-2.8%/yr** |
+| BEA finance deflator (FISIM-contaminated) | 1.5%/yr | 0.3-0.4%/yr |
+| **GDP deflator (neutral)** | **3.8%/yr** | **2.4-2.6%/yr** |
 
 ![Real finance output under two deflators vs employment](finance/finance_real_bracket.png)
 
-Under the neutral deflator, finance real productivity runs roughly **double the ~1.5%/yr US average**. A NAICS fix (using Finance & Insurance employment, `CES5552000001`, instead of Financial Activities employment that includes Real Estate) barely moved anything, so the deflator was the whole story.
+Under the neutral deflator, finance real productivity runs roughly **2.4-2.6%/yr (CAGR, endpoint to endpoint), well above the ~1.5%/yr US average**; the acceleration table below, which averages YoY growth rather than taking a single endpoint CAGR, gives the full-period figure as +2.8%/yr, a different but consistent method landing slightly higher. A NAICS fix (using Finance & Insurance employment, `CES5552000001`, instead of Financial Activities employment that includes Real Estate) barely moved anything, so the deflator was the whole story.
 
 **And the decoupling is accelerating.** In real terms, averaging YoY growth within each period (`finance/productivity_acceleration.py`):
 
@@ -325,9 +332,9 @@ The decomposition next to Information adds the key nuance: both of the two most 
 
 </details>
 
-## The corrected cross-section: measured on real productivity, AI supports the decoupling
+## The corrected cross-section: measured on real productivity, exposure predicts the decoupling
 
-> **Verdict: SUPPORTS AI (reverses Phase 3)**
+> **Verdict: REVERSES PHASE 3. Later qualified hard: the relationship is real and robust, but it is strongest *before* generative AI, so it is not evidence AI caused it. See the loose-ends section in Part 5.**
 
 Re-run the nine-industry cross-section on real productivity growth (real output per worker), with finance deflated by the GDP deflator and the other eight using their BEA real value added:
 
@@ -357,7 +364,7 @@ The middle row is included for completeness: the change in each sector's output-
 
 ## A better predictor than AIIE: the job-replaceability score
 
-> **Verdict: SUPPORTS AI, more cleanly**
+> **Verdict: A BETTER PREDICTOR of the decoupling. Same qualification as above: it predicts productivity growth best in the pre-AI window, so it is measuring a structural sector property rather than an AI effect.**
 
 AIIE measures whether AI can *touch* a job. What determines whether Okun's law breaks is whether AI *replaces* the worker (automation) or *assists* them (augmentation). Education and Finance can have similar exposure but opposite substitution: finance tasks are largely substitutable, teaching needs a human in the room. So the project builds a replaceability score:
 
@@ -467,7 +474,7 @@ Reproduce with `aei_revealed_validation.py` (streams and caches the AEI release 
 
 # Part 4: The goods sectors, and the economy-wide hiring slowdown
 
-> **Verdict: NOT a goods-sector story. An economy-wide, rate-driven hiring slowdown. COVID, AI, and fiscal spending all ruled out.**
+> **Verdict: NOT a goods-sector story. An economy-wide, rate-driven hiring slowdown. COVID and fiscal spending ruled out. AI is not ruled out**: the nine-sector null below was later rebuilt at 73-industry scale and reverses sign; see the revisit near the end of this Part.
 
 This part began by treating the goods sectors as a separate puzzle needing a separate cause, and ended up somewhere else entirely. It deliberately **keeps COVID in the data**, unlike the root analysis, because seeing the pandemic is the point (full detail in [`physical-sector-inversion/`](physical-sector-inversion/README.md)).
 
@@ -527,6 +534,22 @@ With COVID, rates, AI exposure, and fiscal spending all failing, `what_actually_
 At a 20-quarter window three of four sectors are negative again. A structural break should not depend on whether you look through a 12-quarter or 20-quarter window. **The inversion should be treated as a short-window artifact, and the hiring slowdown as the real finding.**
 
 Honest limits: the hiring and rate results rest on n = 75 quarterly observations with a clean natural control and are solid; the inversion rests on 13 post-2022 quarters and is not. Rates are also not the only candidate for a broad hiring slowdown, since immigration and labor-force changes could produce similar timing. That objection used to sit here as an untestable caveat on the grounds that sector-level JOLTS data existed for only two of the nine sectors, which was wrong: FRED carries all four JOLTS rates for all nine. It has since been collected and tested, in Part 5 below. Correlation with a long lag is suggestive of a transmission channel, not proof of one.
+
+### The AI question inside the goods sectors, revisited at scale
+
+Everything above rules AI out using the same nine-sector cross-section the rest of this project eventually diagnosed as underpowered (minimum detectable correlation r = 0.82; the confidence interval on the observed r = +0.18 spans −0.55 to +0.75). The physical-sector-inversion sub-project later ran the identical exercise properly, and the conclusion changes. Full detail is in [`physical-sector-inversion/PAPER.md`](physical-sector-inversion/PAPER.md); the headline results:
+
+**Rebuilt at 73 three-digit NAICS industries, the sign reverses and approaches significance.** [`naics3_ai_test.py`](physical-sector-inversion/naics3_ai_test.py) replaces the nine broad sectors with 73 BLS three-digit industries, and builds AI exposure from each industry's occupation mix (OEWS) times occupational exposure scores (AEI), computed from the **May 2019** mix specifically so the regressor predates generative AI and cannot be an outcome of it. With n = 65 complete cases the minimum detectable correlation drops to 0.34, so a null here is actually informative. The result: **r = −0.220 (p = 0.079)** on the 2019 mix, **r = −0.231 (p = 0.064)** on the 2025 mix, the opposite sign from the nine-sector r = +0.18. Higher AI exposure now goes with a *larger* slowdown, marginally.
+
+**A horse race against rate sensitivity turns on one specification choice.** AI exposure and identified-shock rate sensitivity are nearly uncorrelated (r = −0.045, VIF ≈ 1), so they identify separately. Estimating rate sensitivity with shocks that overlap the 2024-2025 outcome window, rate sensitivity wins decisively (p = 0.002 vs p = 0.17 for AI). Remove the overlap (shocks through 2021 only) and the ranking flips: rate sensitivity falls to p = 0.26 while AI exposure strengthens to p = 0.076. In the specification without mechanical overlap, AI exposure is the stronger of the two predictors. Neither clears conventional significance.
+
+**A genuine causal test (identified monetary shocks, not the raw Fed funds rate) corroborates the rate channel directionally without settling the AI question either way.** [`identified_shocks.py`](physical-sector-inversion/identified_shocks.py) replaces the endogenous policy rate with Bauer-Swanson and Jarociński-Karadi identified shock series and re-estimates as a local projection. At the pre-specified 8-quarter horizon, the contractionary sign appears in all three goods sectors and is absent in the Education & Health control, which is the strongest causal evidence in the project, but none of the three goods-sector effects reach conventional significance (Construction closest, t = −1.9). A genuine complication turns up alongside it: the "central-bank information" shock (the Fed revealing the economy is stronger than believed) is *significantly positive* in Manufacturing and Transportation, meaning two channels of opposite sign operate simultaneously and any correlation against the raw funds rate sums them together.
+
+**The immigration objection is baseline-dependent, and the recent direction favors demand, not supply.** [`immigration_confound.py`](physical-sector-inversion/immigration_confound.py) checks Construction against the four-observable signature of a labor-supply contraction (job openings, hires-per-opening, wage growth, unemployment) under two baselines. Against 2013-2019, Construction matches a supply contraction on all four. Against the 2022-2023 peak instead, every measure reverses: vacancy yield is *recovering* (+35.4%), not deteriorating. The honest synthesis is that the post-COVID labor market is structurally supply-tighter than the 2010s, but the 2024-2025 *change* from that starting point is demand cooling, consistent with the rate channel. This also means the "hiring slowdown" measured throughout this section (2024-25 growth minus the 2013-19 trend) cannot cleanly separate a smaller workforce from weaker demand, so industries with heavier immigrant-labor reliance could show inflated slowdowns for reasons unrelated to either rates or AI.
+
+**Even the deflating objection to the goods-sector inversion itself needed correcting.** [`does_okun_break_in_every_hike.py`](physical-sector-inversion/does_okun_break_in_every_hike.py) tests "Okun's Law always breaks when the Fed hikes" directly against all nine hiking cycles since 1954. It is false as stated (4 of 9 broke; the two largest hikes on record, +7.01pp and +5.41pp in the 1970s, did not). But the split is by era, not size: every cycle from 1994 onward broke it except the smallest one (2015-18, +1.04pp), while none before 1994 did. So the more defensible version of the objection holds: 2022-23 is the fourth consecutive meaningful modern tightening to break Okun, which does make the goods-sector inversion considerably less remarkable as a standalone event.
+
+**Net effect on the verdict above.** "COVID and fiscal spending ruled out" stands. "**AI ruled out**" does not: the test that produced that conclusion was replaced with a properly powered one, and it points, weakly and short of significance, in the *other* direction. The physical-sector-inversion paper's own current position, after this full sequence of adversarial testing, is that the evidence here is **not evidence against an AI channel** in the goods sectors either. It directionally corroborates the rate-transmission timing story on identified shocks, while leaving the cross-industry AI question genuinely open rather than settled.
 
 ---
 
@@ -754,6 +777,157 @@ A funding collapse cannot produce rising capex alongside falling headcount. Capi
 
 **Where this leaves the Information anomaly.** Three things now hold at once. Information's 2024-2026 slowdown is a real anomaly against its own cyclical history, 2.84pp worse than its beta predicts and 1.74 standard deviations off its normal-downturn resilience, occurring in an expansion. The labor-side pattern it produces is not new, since 2001 produced a larger one. But the capital conditions are the reverse of 2001, so the one concrete precedent for that labor-side pattern describes a different event. The defensible position has moved: something sector-specific is hitting Information, it is not the business cycle, and it is not a capital-withdrawal event. That is a materially narrower space than the project had before, and AI substitution is the leading occupant of it. Confirming it still needs task-level evidence, because sector aggregates cannot show which work changed hands.
 
+## The four loose ends, tested
+
+Three scripts close out the questions the project had left genuinely open. Two of them shut doors the AI story needed, one vindicates the surviving result against an obvious objection, and the fourth is the most consequential finding in this section.
+
+### 1. The acceleration test, finally run with power (`occupation_ai_panel.py`)
+
+The project's single biggest admitted weakness was the recency failure: replaceability predicts productivity *levels* but not *acceleration* after AI arrived. That was tested five ways and always at n = 9, where the critical correlation is 0.666, so the failure could always have been a power problem rather than a real limitation.
+
+BLS OEWS national files give roughly 800 detailed occupations across four vintages, which allows the identical test at 70 times the sample size, clustered on the 22 SOC major groups. Annualized log employment growth against replaceability, by window:
+
+| window | what it is | occupations | beta | p |
+|---|---|---:|---:|---:|
+| 2013-2019 | placebo, pre-AI and pre-COVID | 662 | −0.0400 | 0.096 |
+| 2019-2022 | spans COVID | 706 | +0.0264 | 0.53 |
+| 2022-2025 | the generative-AI window | 749 | −0.0467 | 0.22 |
+
+The AI window coefficient (−0.047) is barely distinguishable from the pre-AI placebo (−0.040). The acceleration test itself, AI window minus placebo, gives beta = −0.035, p = 0.22 weighted, and flips sign to +0.020 unweighted. **The failure is not a power artifact.** It reproduces at n = 661 occupations with the same non-result it gave at n = 9.
+
+**A significant result appeared here and turned out to be an artifact, which is worth recording.** A stacked difference-in-differences with occupation fixed effects across all three windows returns beta = −0.068, p = 0.0017, which looks like the timing evidence the project had been missing. Dropping the COVID window from the baseline collapses it to p = 0.125. The significance was coming from contrasting the AI window against the COVID window, when high-replaceability desk occupations grew relative to in-person ones for reasons that have nothing to do with AI. The clean pre-AI-versus-AI contrast is null.
+
+**The component split confirms the diagnosis already found at the industry level.** Splitting replaceability into exposure and complementarity, GPT exposure alone gives −0.0172 in the placebo and −0.0185 in the AI window, essentially identical and near zero in both. Complementarity carries everything, and it is significant in the *placebo* comparison (+0.072, p = 0.004). The measure's apparent signal is its physical-work component, which was trending before AI existed.
+
+### 2. The between-industry escape hatch is closed (`within_between_decomposition.py`)
+
+Part 5 flagged but never tested an obvious objection to the within-industry null: industry fixed effects absorb any AI effect that operates by shrinking whole industries rather than by substituting occupations inside them. A shift-share decomposition splits each occupation's employment growth into a between-industry component (its industries grew or shrank, share held constant) and a within-industry component.
+
+| window | regressor | between | within |
+|---|---|---:|---:|
+| 2013-2019 placebo | exposure alone | **−0.0149** (p = 0.019) | +0.0004 (p = 0.98) |
+| 2022-2025 AI window | exposure alone | −0.0107 (p = 0.15) | −0.0062 (p = 0.75) |
+| 2022-2025 AI window | complementarity | **+0.0489** (p < 0.001) | +0.0180 (p = 0.58) |
+
+The between channel does carry signal, but it is *weaker and insignificant* in the AI window than in the pre-AI placebo, and what loads on it in the AI window is complementarity, not exposure. Between-industry reallocation is also only **10% of the variance** in occupation employment growth in both windows, which bounds how much the fixed-effects design could have been hiding. The escape hatch does not contain an AI effect.
+
+### 3. The entry-level hypothesis, tested by proxy (`occupation_ai_panel.py`, part 4)
+
+The leading current finding in the AI-labor literature is that displacement concentrates in entry-level work and is invisible in occupation totals. OEWS has no age or tenure field, so this uses the wage distribution: a thinning junior tier should push the 10th percentile wage up relative to the median. Testing whether that compression scales with replaceability:
+
+| window | beta on p10/median | p |
+|---|---:|---:|
+| 2013-2019 placebo | +0.0183 | 0.078 |
+| 2019-2022 COVID | +0.0297 | 0.21 |
+| 2022-2025 AI window | +0.0048 | 0.74 |
+
+The compression is *largest in the placebo and smallest in the AI window*. No entry-level squeeze specific to AI on this measure. The proxy is crude and cannot see the 22-to-25-year-old margin the literature actually studies, so this does not refute that work; it does mean this dataset shows no trace of it.
+
+### 4. The one surviving result: robust to leverage, but it predates AI (`headline_result_stress_test.py`)
+
+The productivity level result is the last AI-supporting finding standing, so it gets two checks it had never been given.
+
+**It is not an outlier artifact.** Information sits at +7.2%/yr against +2.8%/yr for the next highest, a 4.3pp gap on a range of 8.0pp, which is exactly the setup where one point can manufacture a correlation at n = 9. Leave-one-out: the correlation ranges from +0.853 to +0.944 and stays significant when **any** of the nine sectors is dropped, on both replaceability and AIIE, in both Pearson and rank form. Excluding Information entirely, Spearman is still +0.833 (p = 0.010). This check passes cleanly.
+
+**But the relationship is strongest before generative AI existed.**
+
+| window | what it is | r | p |
+|---|---|---:|---:|
+| 2005-2013 | entirely pre-AI (GFC-contaminated) | +0.648 | 0.059 |
+| **2013-2019** | **clean pre-AI benchmark** | **+0.940** | **0.0002** |
+| 2013-2025 | the project's headline window | +0.896 | 0.0011 |
+| 2019-2025 | weighted toward the AI era | +0.835 | 0.0051 |
+
+The fit peaks in a clean post-GFC window that ends three years before ChatGPT, and decays monotonically as the window is shifted toward the AI era. That is the opposite of what an AI-caused relationship produces.
+
+This is a materially sharper statement than the project's existing recency caveat. That caveat established only that the *acceleration* test was insignificant. This shows the *level* relationship itself is a pre-AI phenomenon. Replaceability is capturing a structural property of these sectors that has predicted their productivity growth since at least 2013, and generative AI did not strengthen it.
+
+(The 2005-2013 window contains the financial crisis, which hit the two lowest-replaceability sectors hardest and can generate the correlation mechanically, so the verdict rests on 2013-2019 rather than on that row.)
+
+## The rebuttal that landed: what the stocks missed (`what_the_stocks_missed.py`)
+
+After the loose-ends section concluded there was "no identified evidence of AI-driven displacement," a rebuttal pointed at the real-world pattern that conclusion seemed to ignore: new graduates unable to find work while output grows. Diagnosing how every design in this project could miss that pattern turned up three shared blind spots, and testing them changed the verdict.
+
+**The blind spots.** Every displacement test used employment *stocks*, but entry-level displacement stops hiring rather than firing, which appears in flows years before stocks move (and the project's own only significant JOLTS margin, openings falling most where work is replaceable at p = 0.045, had been buried under a Bonferroni caveat while "layoffs are flat" was promoted to "no displacement"; a hiring freeze is what rate transmission looks like *and* what entry-level displacement looks like, so layoffs-flat discriminates nothing). Every occupation test used occupation *totals*, which net juniors against seniors and can hide a hollowed-out entry tier completely. And the timing verdict compared correlations across windows when the economically meaningful quantity is the slope.
+
+**1. The worker the project never tested: young college graduates.** The entry point to AI-exposed knowledge work is a 20-24 year old with a bachelor's degree. Regressing their unemployment rate on the prime-age rate (fit 2001-2019, r = +0.96, 12-month means) and tracking the residual:
+
+| period | young grads vs cyclical prediction |
+|---|---:|
+| 2001-2019 fit window | +0.00pp (sd 0.40) |
+| largest pre-2020 deviation ever, incl. GFC | +0.88pp |
+| 2023 | +0.96pp |
+| 2024 | +1.26pp |
+| 2025 | +1.60pp |
+| **latest (mid-2026)** | **+1.93pp, which is +4.8 sd** |
+
+Young graduates are running almost two points above what the business cycle predicts, more than double the worst deviation in the previous quarter century, and the residual is *climbing* while the aggregate labor market normalizes. The control makes it sharp: the same adjustment for **all** 20-24 year olds, a pool dominated by non-graduates in service and physical work, sits at **−0.35pp**, slightly *better* than predicted. A degree's protection against the rest of the youth cohort has collapsed from its historical 2.9-3.7pp to **0.58pp**. Whatever is hitting young workers is selecting precisely the ones entering AI-exposed knowledge work, on a schedule that worsens through 2024-2026. This is the project's first affirmative, correctly-timed, correctly-located displacement evidence, and it corroborates the ADP-microdata finding in Brynjolfsson, Chandar and Chen (2025) from a fully independent data source. Honest caveats: the residual was already elevated in the COVID disruption (+1.41 in 2021-22) before dipping in 2023, the series is a small-sample CPS cut, and unemployment among grads mixes displacement with longer search.
+
+**2. The "nobody can find a job" anomaly is real but does not discriminate.** Conditioning on months with unemployment between 4.0 and 4.6%, the median search now runs 9.9 weeks against 7.6 historically (83rd percentile), with 22% of the unemployed out 27+ weeks against 16% historically. But the 2010s in the same band show similar durations, and a low-hire low-fire market is what the rate story predicts too. Established: "unemployment is low so the labor market is fine" is false for searchers. Not established: which mechanism.
+
+**3. The timing verdict, corrected on slopes.** The "predates AI" conclusion rested on r falling from 0.940 (2013-19) to 0.835 (2019-25), an untestable difference at n = 9, and r measures fit tightness rather than effect size. The slope, which is the economic quantity, moves the other way: **+24.9 → +28.7 → +32.1** pp/yr per unit of replaceability across 2013-19, 2019-25, and 2022-25. The gradient *steepened* into the AI era. Neither movement is formally testable at n = 9, which cuts both ways: the earlier "predates AI, full stop" verdict rested on a difference no stronger than this one. Corrected verdict: **a pre-existing structural gradient that has steepened since 2019.** That is what AI layered on top of prior automation would look like, and also what several non-AI stories would look like. Undetermined, not dead.
+
+**4. The synthesis that reconciles the rate story with the displacement story.** The aggregate difference-form Okun correlation peaked at +0.55 in mid-2025 and by mid-2026 is oscillating near zero, unwinding on roughly the schedule the rate-lag work predicted. The young-graduate residual is doing the opposite: still climbing. Both facts fit one picture: **the economy-wide Okun break was mostly monetary and is healing, while an entry-level displacement signal in degreed knowledge-work entrants persists and grows beneath it**, too concentrated to move aggregate Okun's Law but exactly what the anecdotal reports describe. The aggregate lens and the entry-level lens were answering different questions, and the project spent months pointing the aggregate lens at an entry-level phenomenon.
+
+## The closing test: age within occupation (`cps_within_occupation_age.py`)
+
+The rebuttal section had age but not occupation. CPS table 11b (employed persons by detailed occupation and age) has both, and its vintages split cleanly around the AI arrival: 2016→2019 and 2022→2025 are both three-year windows computed inside a consistent occupation classification, so one is a placebo and the other is the test, with the 2020 reclassification quarantined between them. The 2025 endpoint was verified against a user-provided extract (totals match to the thousand).
+
+**The method point that decides it.** CPS occupation-by-age cells carry heavy sampling error, and a per-occupation regression of share changes attenuates toward zero; run naively it gives the right sign and p ≈ 0.47, which is exactly how this project's earlier designs kept missing the effect. Pooling *headcounts* into exposure groups before computing anything, the ADP-literature design, removes the attenuation.
+
+**The result.** In the top replaceability quintile (44 occupations, 17.7M workers), over 2022-2025:
+
+| | top quintile | bottom 80% |
+|---|---:|---:|
+| 20-24 employment | **−5.4%** | +6.3% |
+| 35+ employment | +2.2% | |
+| total employment | +0.8% | |
+
+The young-growth gap (Q5 minus rest) by window: **+1.5pp** in the 2016-2019 placebo, **−0.6pp** in the 2019-2022 COVID bridge, **−11.7pp** in the AI window. Triple difference: **−13.1pp**, with a SOC-major cluster bootstrap p = **0.011** (the more conservative occupation-level bootstrap gives p = 0.054).
+
+**Three signatures line up.** The age gradient is monotone: −13.1pp for 20-24, −2.8pp for 25-34, **−0.0pp for 35+**. Incumbents are untouched; entrants absorb all of it, which is what displacement at the hiring margin predicts and what a sectoral demand shock does not. The timing break sits in 2022-2025, not in the COVID window. And the composition is the concrete version of the story: accountants and auditors grew +6.9% overall while their 20-24 tier shrank; operations research analysts grew +31.9% while losing young workers; market research analysts +19.1%, same shape. An occupation that expands while its entry tier contracts has not declined. It has stopped hiring at the bottom.
+
+**Robustness.** The triple difference holds at minimum-size cutoffs of 60k/100k/200k (−13.1/−10.9/−11.6pp), sharpens to −17.9pp for the top decile, survives leave-one-occupation-out ([−14.2, −11.3]pp), and keeps its sign under raw GPT exposure with no complementarity term (−5.3pp). This independently reproduces the Brynjolfsson, Chandar and Chen ADP-microdata finding in fully public CPS data at nearly the same magnitude.
+
+**What it does not settle.** CPS published tables cannot separate "AI took the tasks" from "employers froze entry hiring for AI-adjacent reasons while keeping incumbents," and the exposure score is the same one whose complementarity half carries non-AI content, though the raw-exposure version keeps the sign. It is the project's second affirmative displacement result, and the first that is significant, placebo-clean, age-graded, and located inside occupations.
+
+## The step dummy, and the ramp test that separates the two channels (`ai_intensity_ramp.py`)
+
+Every AI test in this project splits time with a **step dummy** at Q4 2022. That encodes an assumption nobody would defend if stated aloud: that AI's labor-market effect switched on fully the moment ChatGPT launched. It did not. GPT-4 arrived in March 2023, enterprise deployment ran through 2024, agentic coding tools through 2025. A step dummy applied to a ramping treatment is a known attenuation problem, because the post-period average blends heavily-treated late quarters with barely-treated early ones. Every null in this project's AI arm was produced under that specification, so the criticism is correct in principle and had to be tested.
+
+**A measured adoption ramp is not available, and no substitute was invented.** Census BTOS asks firms directly whether they used AI in the last two weeks, which would be ideal. In both the project's local copies and the full national history pulled from Census, that question carries data for only **19 biweekly waves, from late 2025 onward**; the 2023-2025 history is not in the published national file. A parametric S-curve could have been substituted, but that is an assumption wearing the costume of a measurement. The diffusion story was tested through its observable implication instead: if diffusion drives the effect, the effect should build year over year.
+
+**On occupation totals, nothing builds, so the attenuation costs nothing.** Annual OEWS files (2022, 2023, 2024, 2025) allow the exposure coefficient to be estimated one year at a time rather than endpoint-to-endpoint:
+
+| window | replaceability | GPT exposure |
+|---|---:|---:|
+| 2022-2023 | −0.027 | −0.015 |
+| 2023-2024 | −0.061 | −0.020 |
+| 2024-2025 | −0.041 | −0.015 |
+
+Trend across the three AI years: **p = 0.74** and **p = 0.96**. The step dummy was not concealing a growing effect on this margin. The null is a genuine null, not an artifact of the specification.
+
+**On the entry-level margin, a strong monotone ramp.**
+
+| series | slope/yr | t | p |
+|---|---:|---:|---:|
+| young-graduate penalty | **+0.304pp** | 15.9 | <0.00001 |
+| all-youth penalty (placebo) | +0.163pp | 4.4 | 0.00008 |
+| **graduate-specific gap** | **+0.142pp** | 4.2 | 0.0002 |
+
+Annual means run 0.96 → 1.26 → 1.60 → 1.77pp and are still climbing. The placebo also trends up, so part of this is a general youth labor market that has deteriorated; the graduate-specific gap is the cleaner quantity and it still builds.
+
+**The shape discriminator, which is the payoff.** Shape is identifying information. A diffusion-driven effect ramps monotonically and keeps going as adoption spreads. An effect built on an 8-9 quarter monetary transmission lag peaks and unwinds. Over 2023-2026:
+
+| year | entry-level penalty | aggregate Okun correlation |
+|---|---:|---:|
+| 2023 | 0.96pp | −0.340 |
+| 2024 | 1.26pp | −0.084 |
+| 2025 | 1.60pp | **+0.347 (peak)** |
+| 2026 | **1.77pp (still climbing)** | +0.019 |
+
+One ramps and does not stop. The other rises, peaks, and reverses. That is the signature difference between an AI channel and a rate channel, and neither the step dummy nor any level comparison in this project could have produced it. It is the cleanest evidence the project has that these are two distinct phenomena rather than one story told two ways.
+
 ---
 
 # Where the whole thing stands
@@ -763,24 +937,28 @@ The project split one question into pieces with different answers.
 ### The aggregate break → **ESTABLISHED**
 The output-unemployment correlation inverted from about −1.0 to +0.81 after Q4 2022 (+0.55 in the difference form). A distribution-free block bootstrap puts this at p ≈ 0.0005 under the null that the pre-2022 regime continued, so it survives the stricter test that replaced the project's original normal approximation. Stands on its own.
 
-### AI is driving a real output-to-jobs decoupling in the high-replaceability sectors → **SUPPORTED, once measured correctly**
-On unemployment the dose-response test contradicts AI, but that is an artifact of the unemployment floor in the high-AI service sectors. On real productivity, AI exposure predicts the decoupling (r = +0.77, p = 0.016), the job-replaceability score predicts it better (r = +0.90, p = 0.001), and a score rebuilt from observed Claude usage reproduces it independently (r = +0.76, p = 0.017), with the two constructions agreeing at +0.96. Information and Finance are the clearest cases: both accelerate sharply in 2024-2025, tech by cutting jobs while output holds, finance by growing real output ~+5.6%/yr with hiring at +0.2%/yr.
+### A real output-to-jobs decoupling tracks replaceability → **ESTABLISHED AS A RELATIONSHIP; PREDATES AI BUT STEEPENED INTO THE AI ERA**
+On unemployment the dose-response test contradicts AI, but that is an artifact of the unemployment floor in the high-AI service sectors. On real productivity, AI exposure predicts the decoupling (r = +0.77, p = 0.016), the job-replaceability score predicts it better (r = +0.90, p = 0.001), and a score rebuilt from observed Claude usage reproduces it independently (r = +0.76, p = 0.017), with the two constructions agreeing at +0.96. The relationship is also robust to leverage: it survives dropping any one of the nine sectors, including Information, in both Pearson and rank form.
 
-**Important limit, established by direct test.** This is a levels claim. When the same nine sectors are tested on whether replaceable industries *accelerated* more after AI arrived (2024-2025 versus their own 2013-2019 baseline), the relationship is not significant (r = +0.45, p = 0.22), because three of the four least-replaceable sectors accelerated just as much. So the evidence supports "sectors with replaceable work sustain higher productivity growth" but not "AI caused a break in 2022."
+**The relationship predates generative AI, but the timing verdict is weaker than first written.** The correlation is already +0.940 in 2013-2019, a clean window ending three years before ChatGPT, so the *existence* of the gradient is not an AI effect. An earlier draft went further and read the small decline in r toward the AI era as evidence AI did not strengthen it; the rebuttal section in Part 5 corrects that. At n = 9 the r differences are untestable, and the economically meaningful quantity, the slope, *steepened* into the AI era (+24.9 to +28.7 to +32.1 pp/yr per unit of replaceability). The defensible verdict is a pre-existing structural gradient that has steepened since 2019, with the cause of the steepening undetermined.
 
-### The same claim tested on employment, at the occupation level → **NOT SUPPORTED**
-Part 5 runs the labor-side version of this test where it can actually be identified: within industry, across 28,000 occupation-by-industry cells. Replaceable occupations show no significant employment decline relative to less replaceable occupations in the same industry during 2022-2025 (β = −0.109, p = 0.156), and the coefficient is statistically indistinguishable from the pre-AI, pre-COVID placebo window (β = −0.143 in 2013-2019). The wage effect that looks strong over 2019-2025 disappears once COVID is excluded. This is a well-powered null, not an underpowered one, and it does not contradict the productivity finding: output per worker can rise without any occupation inside an industry losing employment relative to another. It does mean the project has no identified evidence for AI-driven labor *displacement*.
+**The acceleration test also fails with real power, so that limitation is no longer a small-sample excuse.** At nine sectors the acceleration test gave r = +0.45, p = 0.22, which could always have been underpowered. Rerun across roughly 700 OEWS occupations clustered on 22 SOC major groups, it fails again (beta = −0.035, p = 0.22, sign-flipping to +0.020 unweighted), and GPT exposure alone gives near-identical coefficients in the pre-AI placebo (−0.0172) and the AI window (−0.0185).
 
-### The goods-sector inversions → **NOT A SEPARATE MECHANISM: an economy-wide, rate-driven hiring slowdown**
-Construction, Manufacturing, Transportation, and Wholesale appeared to invert together in 2024-2025 with the lowest AI exposure in the sample, which looked like a distinct goods-sector puzzle. Neither AI nor the fiscal wave explains it (the latter tested directly against USAspending obligations by NAICS and **not supported**). Decomposing the inversion resolved it: hiring slowed in **8 of 9 sectors**, one common factor explains **72%** of sector employment growth, and that factor tracks the Fed funds rate lagged 8-9 quarters at **r = −0.74** (p < 0.0001, n = 75). The clinching detail is the natural control: Education & Health is the only sector with no rate sensitivity (r = +0.016) and the only one that did not slow hiring.
+### AI-driven displacement in occupation and sector TOTALS → **NOT SUPPORTED. In entry-level workers specifically → SUPPORTED, the project's first affirmative displacement evidence**
+Part 5 runs the labor-side version of this test where it can actually be identified: within industry, across 28,000 occupation-by-industry cells. Replaceable occupations show no significant employment decline relative to less replaceable occupations in the same industry during 2022-2025 (β = −0.109, p = 0.156), and the coefficient is statistically indistinguishable from the pre-AI, pre-COVID placebo window (β = −0.143 in 2013-2019). The wage effect that looks strong over 2019-2025 disappears once COVID is excluded. This is a well-powered null, not an underpowered one, and it does not contradict the productivity finding: output per worker can rise without any occupation inside an industry losing employment relative to another. It does mean the project has no identified evidence for AI-driven labor *displacement*. The loose-ends section closes the three remaining ways that null could have been wrong: the acceleration test reproduces its non-result at roughly 700 occupations rather than 9 sectors; a shift-share decomposition shows the effect is not hiding in between-industry reallocation, which is only 10% of the variance and loads on the wrong component; and the entry-level hypothesis leaves no trace in the wage distribution. Four designs, same answer, and that answer stands for what those designs measure: totals. The rebuttal section then found what the totals hide. Young college graduates, the entry point to AI-exposed knowledge work, are running +1.93pp above their cyclical prediction (+4.8 sd, more than double the worst pre-2020 deviation including the GFC), climbing through 2024-2026 while the aggregate market normalizes, while the mostly-non-graduate 20-24 pool sits slightly *below* prediction. Displacement concentrated at the entry level of knowledge work is invisible to stocks and totals by construction; on the one margin where age is observable it is visible, correctly timed, and correctly located. The closing CPS test then confirmed it inside occupations: top-quintile-exposed occupations lost 5.4% of their 20-24 workers over 2022-2025 while their 35+ workforce grew, a triple difference of −13.1pp against the pre-AI placebo (cluster bootstrap p = 0.011), with a monotone age gradient and no break in the COVID window. The effect also builds year over year (+0.30pp/yr, t = 15.9), the shape diffusion predicts, while the aggregate Okun break peaked in 2025 and is unwinding.
+
+### The goods-sector inversions → **NOT A SEPARATE MECHANISM: an economy-wide, rate-driven hiring slowdown, and AI is not ruled out here either**
+Construction, Manufacturing, Transportation, and Wholesale appeared to invert together in 2024-2025 with the lowest AI exposure in the sample, which looked like a distinct goods-sector puzzle. The fiscal wave does not explain it (tested directly against USAspending obligations by NAICS and **not supported**). Decomposing the inversion resolved it: hiring slowed in **8 of 9 sectors**, one common factor explains **72%** of sector employment growth, and that factor tracks the Fed funds rate lagged 8-9 quarters at **r = −0.74** (p < 0.0001, n = 75), and now directionally corroborated on identified monetary policy shocks (contractionary sign in all three goods sectors at the predicted 8-quarter horizon, absent in the control, though not individually significant). The clinching detail is the natural control: Education & Health is the only sector with no rate sensitivity (r = +0.016) and the only one that did not slow hiring.
 
 Two things follow. First, Phase 4's rejection of the rate hypothesis used lags of 0, 2, and 4 quarters and therefore never tested the channel, which peaks at 8-9. Second, the inversion itself is **not robust**: at a 20-quarter rolling window three of the four sectors turn negative again (Transportation −0.74, Manufacturing −0.58), and the trio's synchrony vanishes once the economy-wide factor is removed (residual co-movement −0.01, so there is no separate goods factor). The hiring slowdown is the finding; the inversion is a short-window artifact and should not be carried into a write-up as a structural break.
+
+**A third thing follows, and it reverses this section's original AI conclusion.** The nine-sector "AI exposure predicts none of this" claim was underpowered (minimum detectable r = 0.82). Rebuilt at 73 three-digit NAICS industries with a properly constructed, pre-AI-dated exposure measure, the correlation reverses sign and approaches significance (r = −0.22 to −0.23, p ≈ 0.06-0.08), and in the cleanest specification (no mechanical overlap between the rate-sensitivity estimation window and the outcome window) AI exposure is the stronger of the two predictors, though neither reaches conventional significance. The defensible statement changed from "AI exposure predicts none of it" to "AI exposure is not ruled out, and the properly powered test points weakly toward it." Full detail in the AI subsection near the end of Part 4 and in [`physical-sector-inversion/PAPER.md`](physical-sector-inversion/PAPER.md).
 
 ### Tech's break survived everything thrown at it → **BEST-STRESS-TESTED SINGLE RESULT**
 Information's post-2022 slope stays inside +0.150 to +0.223 across eight specifications (baseline, five rate controls, two overhang controls), and its real productivity (+7.2%/yr, with genuine falling deflators, no FISIM issue) is the highest in the sample while its 2024-2025 employment is shrinking.
 
 ### What this is not
-Correlation, at n = 9. Two objections were tested directly rather than left as caveats, and both bit: the overlapping-window problem (a block bootstrap raised the aggregate p from 0.0000 to 0.0005, and the physical sectors from ~0.007 to ~0.04) and the long-run-automation objection, which was tested via the recency test and **survived** (and survives against the revealed-usage measure too), since exposure does not significantly predict the post-2022 acceleration in productivity growth. The circularity worry (AIIE and the replaceability score are both built from task automatability, so the finding risks restating its own construction) was tested by rebuilding the measure from observed AI usage; it reproduced at r = +0.76 and agreed with the theoretical score at +0.96, so this objection is substantially answered rather than outstanding. Finance's magnitude depends on a deflator judgment. The defensible claim is precise and narrow: the original "contradicts AI" headline does not survive correct measurement, and sectors whose jobs are more replaceable by AI sustain materially higher real productivity growth, including in 2024-2025. What is *not* established is that generative AI caused a discontinuity at its arrival.
+Correlation, at n = 9. Two objections were tested directly rather than left as caveats, and both bit: the overlapping-window problem (a block bootstrap raised the aggregate p from 0.0000 to 0.0005, and the physical sectors from ~0.007 to ~0.04) and the long-run-automation objection, which was tested via the recency test and **survived** (and survives against the revealed-usage measure too), since exposure does not significantly predict the post-2022 acceleration in productivity growth. The circularity worry (AIIE and the replaceability score are both built from task automatability, so the finding risks restating its own construction) was tested by rebuilding the measure from observed AI usage; it reproduced at r = +0.76 and agreed with the theoretical score at +0.96, so this objection is substantially answered rather than outstanding. Finance's magnitude depends on a deflator judgment. The defensible claim is precise and narrow: the original "contradicts AI" headline does not survive correct measurement, and sectors whose jobs are more replaceable by AI sustain materially higher real productivity growth, including in 2024-2025. What is *not* established is that generative AI caused a discontinuity at its arrival. The physical-sector sub-project ran the same n=9 fix for real (73 industries instead of nine) and got a different answer, the AI correlation reversed sign, which is the clearest demonstration in this repository that the small-n problem was not a rhetorical caveat.
 
 ## Methodology bugs and errors caught
 
@@ -824,7 +1002,7 @@ The finance re-examination first reported nominal output ("doubled, +79% product
 <details>
 <summary>Error 6: over-trusting the FISIM-broken finance deflator</summary>
 
-The first correction of Error 5 deflated finance with BEA's own finance deflator and concluded "no decoupling" (0.3%/yr). That deflator is FISIM-contaminated and understates real finance output; the neutral GDP deflator gives the honest ~2.4-2.8%/yr. Swinging from a nominal overstatement to trusting a known-broken deflator is its own error.
+The first correction of Error 5 deflated finance with BEA's own finance deflator and concluded "no decoupling" (0.3%/yr). That deflator is FISIM-contaminated and understates real finance output; the neutral GDP deflator gives the honest ~2.4-2.6%/yr. Swinging from a nominal overstatement to trusting a known-broken deflator is its own error.
 
 </details>
 
