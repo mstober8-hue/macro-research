@@ -1,42 +1,50 @@
 """
 okun_decomposed.py
-Does any of the timing work actually bear on Okun's Law? Decomposing the question.
+Which link in Okun's Law actually broke: output->employment, or employment->unemployment?
 
-THE CHALLENGE THIS ANSWERS
-The timing mechanism (unemployment responds to a rate shock before output does)
-was invented to explain why the measured Okun correlation flipped sign. But it
-tests how output and unemployment each respond to a MONETARY SHOCK, and infers
-their relationship to each other from that. It is two steps removed from Okun's
-Law, and it failed on its own terms in timing_stress_test.py.
+CORRECTION NOTICE
+An earlier version of this script concluded the opposite of what it now reports.
+It claimed the inversion is LARGER in employment form, and therefore that the
+break is in labour demand rather than in the unemployment statistic. That was
+wrong, and the error is worth stating precisely because it is easy to repeat.
 
-The direct question was answerable the whole time. Okun's Law is a chain:
+The earlier version compared the MEAN OF A ROLLING CORRELATION over dates labelled
+2024-2026. A 12-quarter rolling correlation indexed at quarter t is computed from
+quarters t-11 through t. So the values labelled "2024-2026" were computed from
+windows spanning roughly 2021-2026, dominated by the post-COVID period in which
+output was normalising downward while employment was still rebounding upward.
+That combination produces a negative correlation which has nothing to do with
+2024-2025. Labelling a rolling statistic by its END DATE and then describing it
+as a property of that date is a trap, and this project fell into it.
+
+Measured directly on 2024-2026 observations, with no rolling window, the answer
+reverses.
+
+THE DECOMPOSITION
+Okun's Law chains two links:
 
     output  ->  employment  ->  unemployment
+            (labour demand)   (labour-force accounting)
 
-The first link is labour demand: does more output mean more jobs. The second is
-an accounting identity that depends on the labour force, since unemployment is
-unemployed/labour force and a displaced worker who exits the labour force never
-appears in it. Okun's Law as normally measured collapses both links into one
-coefficient, so when it moves, either link could be responsible.
+The first link is economics: does more output mean more jobs. The second is
+arithmetic through the labour force, since unemployment is unemployed/labour
+force and a displaced worker who exits never enters it. Measuring only the
+unemployment version cannot say which link moved.
 
-okun_employment_form.py showed the second link is compromised here: seven of nine
-sectors lost employment while their unemployment rate ALSO fell, which requires
-labour-force exit. The natural next hypothesis is that the whole "Okun inversion"
-is an artifact of that, and that the output-employment relationship is intact.
+WHAT THE DATA SAY
+Pooled correlations on 2024-2026 quarters, COVID excluded, against the 2013-2019
+baseline. In three of four sectors the output-employment link is INTACT and in
+fact TIGHTER than before, while the unemployment version inverts. The break is in
+the second link, the labour-force step, which is exactly what
+okun_employment_form.py found independently when seven of nine sectors lost
+employment while their unemployment rate also fell.
 
-THAT HYPOTHESIS IS WRONG, AND THIS SCRIPT SHOWS WHY.
-Measured on employment instead of unemployment, the inversion is not weaker. It
-is STRONGER, and it is unambiguous. Employment is a headcount, not a rate, so it
-cannot be distorted by labour-force exit at all. Whatever is happening is a break
-in the output-to-employment link itself, which is the labour-demand link, not a
-measurement problem in the unemployment statistic.
-
-WHAT IS MEASURED
-  Unemployment form  corr(output growth, 4q change in unemployment), 12q rolling.
-                     Normal is NEGATIVE. Inversion means it goes POSITIVE.
-  Employment form    corr(output growth, employment growth), 12q rolling.
-                     Normal is POSITIVE. A break means it goes toward zero or
-                     NEGATIVE, i.e. output rising while employment falls.
+WHY THIS MATTERS FOR THE AI QUESTION
+Labour-saving technological change means output rising while employment does not
+follow, which is a WEAKENING of the output-employment correlation. Three of four
+goods sectors show the opposite: the correlation strengthened. That is evidence
+against AI displacement in those sectors specifically, and consistent with a
+labour-supply account. Wholesale is the exception and does break.
 
 Reads FRED CSVs from ../FRED-Data/. Writes okun_decomposed.png.
 """
@@ -49,9 +57,11 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-DATA = os.path.join(HERE, "..", "FRED-Data") + os.sep
-W = 12
+HERE  = os.path.dirname(os.path.abspath(__file__))
+DATA  = os.path.join(HERE, "..", "FRED-Data") + os.sep
+COVID = pd.date_range("2020-04-01", "2021-10-01", freq="QS")
+RNG   = np.random.default_rng(31337)
+NBOOT = 4000
 
 SEC = {
     "Construction": ("construction_value_added_RVAC.csv",
@@ -64,6 +74,9 @@ SEC = {
                        "transportation_utilities_unemployment_rate_LNU04032236.csv",
                        ["transportation_warehousing_employment_CES4300000001.csv",
                         "utilities_employment_CES4422000001.csv"], "#6fb0d6"),
+    "Wholesale": ("wholesale_trade_value_added_RVAW.csv",
+                  "wholesale_retail_trade_unemployment_rate_LNU04032235.csv",
+                  ["wholesale_trade_employment_USWTRADE.csv"], "#9dc6e0"),
 }
 
 
@@ -76,28 +89,52 @@ def rd(n):
     return pd.to_numeric(d.iloc[:, 0], errors="coerce").dropna()
 
 
-def roll(a, b):
+def pooled(a, b, lo, hi):
+    d = pd.DataFrame({"a": a, "b": b}).dropna().loc[lo:hi]
+    d = d[~d.index.isin(COVID)]
+    if len(d) < 4 or d.a.std() < 1e-9 or d.b.std() < 1e-9:
+        return np.nan, len(d)
+    return np.corrcoef(d.a, d.b)[0, 1], len(d)
+
+
+def matched_null_p(a, b, obs, n_obs, tail):
+    """
+    Null preserving each series' autocorrelation, drawn at the SAME window length
+    as the observed statistic. Comparing a short-window statistic against a
+    full-sample null understates its spread enormously and is invalid.
+    """
     d = pd.DataFrame({"a": a, "b": b}).dropna()
-    idx = d.index.tolist()
-    o = {}
-    for i in range(W, len(idx) + 1):
-        w = d.iloc[i - W:i]
-        if w.a.std() > 1e-9 and w.b.std() > 1e-9:
-            o[idx[i - 1]] = np.corrcoef(w.a, w.b)[0, 1]
-    return pd.Series(o)
+    d = d[~d.index.isin(COVID)]
+    x, y = d.a.to_numpy(), d.b.to_numpy()
+    if len(x) < n_obs + 5 or np.isnan(obs):
+        return np.nan
+    vals = []
+    for _ in range(NBOOT):
+        ys = np.roll(y, RNG.integers(1, len(y) - 1))
+        st = RNG.integers(0, len(x) - n_obs)
+        s1, s2 = x[st:st + n_obs], ys[st:st + n_obs]
+        if np.std(s1) > 1e-9 and np.std(s2) > 1e-9:
+            vals.append(np.corrcoef(s1, s2)[0, 1])
+    v = np.array(vals)
+    return float((v <= obs).mean()) if tail == "low" else float((v >= obs).mean())
 
 
-print("=" * 96)
+print("=" * 98)
 print("DECOMPOSING OKUN: output -> employment -> unemployment")
-print("=" * 96)
-print("\n  Okun's Law chains two links. The first is labour demand (does output growth")
-print("  mean job growth). The second is an accounting step through the labour force.")
-print("  Measuring only the unemployment version cannot tell you which link moved.\n")
-print("  Unemployment form: normal NEGATIVE, inversion means POSITIVE.")
-print("  Employment form:   normal POSITIVE, break means NEGATIVE.\n")
+print("=" * 98)
+print("\n  CORRECTION: an earlier version of this script reported the opposite")
+print("  conclusion. It averaged a 12-quarter ROLLING correlation over dates labelled")
+print("  2024-2026, but a rolling value indexed at quarter t is built from quarters")
+print("  t-11 to t, so those values described 2021-2026, dominated by the post-COVID")
+print("  period when output was normalising down while employment still rebounded.")
+print("  Measured directly on 2024-2026 observations the answer reverses.\n")
 
-res = {}
-print(f"  {'sector':<16}{'form':<7}{'2013-19':>10}{'2024-26':>10}{'extreme':>10}   broke?")
+print("  Unemployment form: normal NEGATIVE, inversion = POSITIVE")
+print("  Employment form:   normal POSITIVE, break     = NEGATIVE\n")
+print(f"  {'sector':<16}{'form':<7}{'2013-2019':>12}{'2024-2026':>12}{'n':>4}"
+      f"{'boot p':>9}   verdict")
+
+rows = []
 for nm, (of, uf, efs, _) in SEC.items():
     y = (rd(of).pct_change(4) * 100).dropna()
     u = rd(uf).resample("QS").mean().diff(4).dropna()
@@ -106,53 +143,73 @@ for nm, (of, uf, efs, _) in SEC.items():
         x = rd(f).resample("QS").mean()
         e = x if e is None else e.add(x, fill_value=np.nan)
     eg = (e.pct_change(4) * 100).dropna()
-    ru, re_ = roll(y, u), roll(y, eg)
-    res[nm] = (ru, re_)
-    a1, a2, a3 = ru.loc["2013":"2019"].mean(), ru.loc["2024":"2026"].mean(), ru.loc["2024":"2026"].max()
-    b1, b2, b3 = re_.loc["2013":"2019"].mean(), re_.loc["2024":"2026"].mean(), re_.loc["2024":"2026"].min()
-    print(f"  {nm:<16}{'unemp':<7}{a1:>+10.3f}{a2:>+10.3f}{a3:>+10.3f}   "
-          f"{'YES' if a3 > 0 else 'no'}")
-    print(f"  {'':<16}{'emp':<7}{b1:>+10.3f}{b2:>+10.3f}{b3:>+10.3f}   "
-          f"{'YES' if b3 < 0 else 'no'}")
 
-print("\n  THE RESULT. The inversion is present in BOTH forms, and the employment form")
-print("  is the more extreme of the two in every sector. Employment is a headcount,")
-print("  not a rate, so labour-force exit cannot touch it. The break is therefore in")
-print("  the output-to-EMPLOYMENT link, which is labour demand, and is not an artifact")
-print("  of how unemployment is measured.")
-print("\n  Output growing while employment falls is the literal description of")
-print("  labour-saving change. That does not identify AI as the cause: it is equally")
-print("  the description of automation, offshoring, or a capital-labour substitution")
-print("  of any kind. What it does rule out is the reading that nothing real happened")
-print("  to the output-labour relationship.")
+    pu, _ = pooled(y, u, "2013", "2019")
+    cu, nu = pooled(y, u, "2024", "2026")
+    pe, _ = pooled(y, eg, "2013", "2019")
+    ce, ne = pooled(y, eg, "2024", "2026")
+    p_u = matched_null_p(y, u, cu, nu, "high")
+    p_e = matched_null_p(y, eg, ce, ne, "low")
+    rows.append(dict(sector=nm, pre_u=pu, cur_u=cu, pre_e=pe, cur_e=ce,
+                     p_u=p_u, p_e=p_e, n=ne))
+    print(f"  {nm:<16}{'unemp':<7}{pu:>+12.3f}{cu:>+12.3f}{nu:>4}{p_u:>9.3f}   "
+          f"{'INVERTED' if cu > 0 else 'normal'}")
+    print(f"  {'':<16}{'emp':<7}{pe:>+12.3f}{ce:>+12.3f}{ne:>4}{p_e:>9.3f}   "
+          f"{'BROKEN' if ce < 0 else 'normal, and TIGHTER' if ce > pe else 'normal'}")
+R = pd.DataFrame(rows)
 
-print("\n  CAVEATS. The 2013-2019 baseline correlation in employment form is only")
-print("  +0.09 to +0.27, so the relationship was weak to begin with and the move to")
-print("  -0.5 or lower is a large swing from a low base. A 12-quarter rolling window")
-print("  over 2024-2026 is roughly 8 usable windows, and why_in_sync.py showed the")
-print("  unemployment-form inversion reverses at 20-quarter windows. The employment")
-print("  form has not been tested at longer windows here and should be before it is")
-print("  leaned on.")
+inv = int((R.cur_u > 0).sum())
+brk = int((R.cur_e < 0).sum())
+tighter = int(((R.cur_e > 0) & (R.cur_e > R.pre_e)).sum())
+print(f"\n  Sectors where the UNEMPLOYMENT form inverted        : {inv} of {len(R)}")
+print(f"  Sectors where the EMPLOYMENT form broke             : {brk} of {len(R)}")
+print(f"  Sectors where the EMPLOYMENT link got TIGHTER       : {tighter} of {len(R)}")
 
-fig, axes = plt.subplots(1, 3, figsize=(18, 5.8))
-for i, (nm, (ru, re_)) in enumerate(res.items()):
-    ax = axes[i]
-    ax.axhline(0, color="black", lw=1.1)
-    a = ru.loc["2010":]
-    b = re_.loc["2010":]
-    ax.plot(a.index, a.values, lw=2.3, color="#c0392b",
-            label="unemployment form (normal < 0)")
-    ax.plot(b.index, b.values, lw=2.3, color="#1f4e79",
-            label="employment form (normal > 0)")
-    ax.axvspan(pd.Timestamp("2024-01-01"), b.index[-1], color="gold", alpha=0.15)
-    ax.set_title(nm, fontsize=12, fontweight="bold")
-    ax.set_ylim(-1.05, 1.05)
-    if i == 0:
-        ax.set_ylabel("rolling 12q correlation", fontsize=9.5)
-        ax.legend(fontsize=8, loc="lower left")
-    ax.grid(True, ls="--", alpha=0.3)
-fig.suptitle("The inversion is not an unemployment artifact: it is larger in employment form, "
-             "which labour-force exit cannot distort", fontsize=13, fontweight="bold", y=1.02)
+print("\n  THE RESULT. The output-to-employment link is intact, and in three of four")
+print("  sectors it is tighter than in 2013-2019. What decoupled is the step from")
+print("  employment to unemployment. That matches okun_employment_form.py, which")
+print("  found seven of nine sectors losing employment while their unemployment rate")
+print("  ALSO fell, a combination that requires labour-force exit.")
+
+print("\n  WHAT THIS MEANS FOR AI. Labour-saving technological change means output")
+print("  rising while employment does not follow, which WEAKENS the output-employment")
+print("  correlation. Three of four goods sectors show the opposite. That is evidence")
+print("  against AI displacement in these sectors and consistent with a labour-supply")
+print("  account. Wholesale is the exception and does break, from +0.70 to -0.78.")
+
+print("\n  CAVEATS. The 2024-2026 window supplies only 8 quarterly observations after")
+print("  removing COVID, so these correlations are individually imprecise, which is")
+print("  what the bootstrap column reflects. The finding rests on the direction being")
+print("  consistent across three sectors, not on any single estimate.")
+
+# ---- chart ----------------------------------------------------------------
+fig, axes = plt.subplots(1, 2, figsize=(15, 6))
+x = np.arange(len(R))
+w = 0.36
+
+ax = axes[0]
+ax.bar(x - w/2, R.pre_u, w, color="#95a5a6", label="2013-2019")
+ax.bar(x + w/2, R.cur_u, w, color="#c0392b", label="2024-2026")
+ax.axhline(0, color="black", lw=1.2)
+ax.set_xticks(x); ax.set_xticklabels(R.sector, fontsize=9, rotation=15)
+ax.set_ylabel("corr(output growth, change in unemployment)", fontsize=9.5)
+ax.set_title("Unemployment form\nnormal is NEGATIVE, so positive = inverted",
+             fontsize=11.5, fontweight="bold")
+ax.legend(fontsize=8.5); ax.grid(True, axis="y", ls="--", alpha=0.3)
+
+ax = axes[1]
+ax.bar(x - w/2, R.pre_e, w, color="#95a5a6", label="2013-2019")
+ax.bar(x + w/2, R.cur_e, w, color="#1f4e79", label="2024-2026")
+ax.axhline(0, color="black", lw=1.2)
+ax.set_xticks(x); ax.set_xticklabels(R.sector, fontsize=9, rotation=15)
+ax.set_ylabel("corr(output growth, employment growth)", fontsize=9.5)
+ax.set_title("Employment form\nnormal is POSITIVE, so it did NOT break",
+             fontsize=11.5, fontweight="bold")
+ax.legend(fontsize=8.5); ax.grid(True, axis="y", ls="--", alpha=0.3)
+
+fig.suptitle("The output-employment link held and mostly tightened. What broke is the "
+             "step from employment to unemployment.",
+             fontsize=13, fontweight="bold", y=1.0)
 plt.tight_layout()
 out = os.path.join(HERE, "okun_decomposed.png")
 plt.savefig(out, dpi=150, bbox_inches="tight")

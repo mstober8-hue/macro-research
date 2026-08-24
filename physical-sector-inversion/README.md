@@ -714,7 +714,7 @@ Vacancy yield is **recovering**, not deteriorating. Firms are filling jobs *more
 
 ### Does any of this bear on Okun's Law? Decomposing the question
 
-The timing mechanism was invented to explain an Okun break, but it tests how output and unemployment each respond to a *monetary shock* and infers their relationship to each other from that. It is two steps removed from Okun's Law, and it failed on its own terms. The direct question was answerable the whole time.
+The timing mechanism was invented to explain an Okun break, but it tests how output and unemployment each respond to a *monetary shock* and infers their relationship to each other from that. It is two steps removed, and it failed on its own terms. The direct question was answerable the whole time.
 
 **Okun's Law chains two links:**
 
@@ -723,26 +723,32 @@ output  ->  employment  ->  unemployment
         (labour demand)   (labour-force accounting)
 ```
 
-The first link is economics: does more output mean more jobs. The second is arithmetic that depends on the labour force, since a displaced worker who exits never appears in the unemployment rate. Measuring only the unemployment version cannot tell you which link moved.
+The first link is economics. The second is arithmetic through the labour force, since a displaced worker who exits never appears in the unemployment rate. Measuring only the unemployment version cannot say which link moved.
 
-Given that seven of nine sectors lost employment while unemployment *also* fell, the natural hypothesis is that the whole inversion is a labour-force artifact and the output-employment link is intact. **That hypothesis is wrong.**
+> **Correction.** An earlier version of this section claimed the inversion is *larger* in employment form, and concluded the break was in labour demand. That was wrong. It compared the mean of a **12-quarter rolling** correlation over dates labelled 2024-2026, but a rolling value indexed at quarter *t* is built from quarters *t−11* to *t*, so those values described roughly 2021-2026, dominated by the post-COVID period when output was normalising downward while employment was still rebounding. Labelling a rolling statistic by its end date and then describing it as a property of that date is a trap. Measured directly on 2024-2026 observations, the answer reverses.
 
 ![Okun decomposed](okun_decomposed.png)
 
-| Sector | Form | 2013-19 | 2024-26 | Extreme |
-|---|---|---:|---:|---:|
-| Construction | unemployment *(normal < 0)* | +0.133 | +0.577 | +0.816 |
-| | **employment** *(normal > 0)* | +0.269 | **−0.608** | **−0.902** |
-| Manufacturing | unemployment | −0.146 | +0.296 | +0.677 |
-| | **employment** | +0.086 | **−0.517** | **−0.721** |
-| Transportation | unemployment | −0.100 | +0.025 | +0.602 |
-| | **employment** | +0.100 | **−0.124** | **−0.842** |
+**Pooled correlations, COVID excluded, 8 quarterly observations in the current window:**
 
-**The inversion is larger in employment form in every sector.** Employment is a headcount, not a rate, so labour-force exit cannot distort it. The break is in the **output-to-employment link**, which is labour demand, and is not an artifact of the unemployment statistic.
+| Sector | Form | 2013-2019 | 2024-2026 | |
+|---|---|---:|---:|---|
+| Construction | unemployment *(normal < 0)* | −0.097 | **+0.579** | inverted |
+| | employment *(normal > 0)* | +0.350 | **+0.858** | normal, tighter |
+| Manufacturing | unemployment | −0.086 | −0.072 | normal |
+| | employment | +0.512 | **+0.889** | normal, tighter |
+| Transportation | unemployment | −0.272 | **+0.288** | inverted |
+| | employment | −0.062 | **+0.470** | normal, tighter |
+| Wholesale | unemployment | −0.519 | **+0.483** | inverted |
+| | employment | +0.696 | **−0.780** | **broken** |
 
-**What that does and does not mean.** Output rising while employment falls is the literal description of labour-saving change. It does not identify AI: automation, offshoring, or any capital-labour substitution produces the same signature. What it rules out is the reading that nothing real happened to the output-labour relationship. Something did, and it is measured more cleanly than this project had been measuring it.
+**The output-employment link held, and in three of four sectors it got tighter.** The unemployment form inverted in three of four. What decoupled is the step from employment to unemployment, which is exactly what the employment-form section found independently: seven of nine sectors lost employment while their unemployment rate *also* fell, a combination requiring labour-force exit.
 
-**Caveats.** The 2013-2019 employment-form baseline is only +0.09 to +0.27, so the relationship was weak before and this is a large swing from a low base. The 2024-2026 window supplies roughly 8 usable rolling windows. And `why_in_sync.py` showed the *unemployment*-form inversion reverses at 20-quarter windows; the employment form has not been tested at longer windows and should be before anyone leans on it.
+**What this means for the AI question, and it cuts against it.** Labour-saving technological change means output rising while employment does not follow, which *weakens* the output-employment correlation. Three of four goods sectors show the opposite. That is evidence against AI displacement in these sectors and consistent with the labour-supply account. Wholesale is the sole exception, breaking from +0.696 to −0.780 (bootstrap p = 0.079).
+
+**Window-length robustness, which was the open question.** `window_robustness.py` tests both forms at 8, 12, 16, 20 and 24 quarters, with and without COVID in the window. The original 20-quarter reversal that killed the inversion turns out to be substantially a COVID artifact: a 20-quarter window ending in 2025 reaches back to 2020, the most Okun-consistent episode in the sample. With COVID removed before windowing, the unemployment-form inversion persists at 20 quarters in three of four sectors rather than reversing. That partially rehabilitates the original inversion finding, though on a measure now known to be contaminated by labour-force exit.
+
+**Significance.** None of the 2024-2026 correlations differ significantly from a matched-length circular-shift null at 8 observations. Wholesale's break is closest (p = 0.079). The finding rests on the *direction* being consistent across three sectors, not on any single estimate. An earlier bootstrap here returned p = 1.0 for a strongly negative correlation, because it compared an 8-quarter statistic against a null built from full-length series; the null must be drawn at the same window length as the statistic.
 
 ### Honest limits
 
@@ -807,6 +813,7 @@ python3 why_rates_break_okun.py      # the MECHANISM: why a rate shock inverts t
 python3 identification_check.py     # tests whether that mechanism's timing gap is identified (it isn't)
 python3 timing_stress_test.py       # 50yr stress test of the timing claim: still no, but sharper
 python3 okun_decomposed.py          # output->employment->unemployment: which link actually broke
+python3 window_robustness.py        # window-length + COVID robustness of both forms
 python3 cf_style_comparison.py      # tests the Cleveland Fed's own lag spec against these 3 sectors
 python3 prediction_stress_tests.py  # the 3 failure modes: fresh data, lag sensitivity, 70yr history
 python3 desync_dynamics.py          # re-tests DESYNC dynamically: window-matched, changes, event study
