@@ -91,6 +91,7 @@ Finance originally had a fourth mismatch (employment included Real Estate); it i
 | [`jolts_margins.py`](jolts_margins.py) | Part 5: which margin moved (openings, hires, layoffs, quits), all nine sectors |
 | [`oews_within_industry.py`](oews_within_industry.py) | Part 5: the occupation-level test with industry fixed effects, plus a pre-AI placebo |
 | [`is_the_slowdown_distinctive.py`](is_the_slowdown_distinctive.py) | Part 5: benchmarks the episode against every downturn since 1990; shows the nine-sector AI test fails on the dot-com bust |
+| [`freeze_vs_substitution.py`](freeze_vs_substitution.py) | Part 5: Indeed postings flows; the exposed-occupation gap peaked in 2023 and has closed 65% |
 | [`okun_employment_form.py`](okun_employment_form.py) | Part 5: shows the unemployment form is blind for 7 of 9 sectors, and the transform flips the AI sign |
 | [`stats_inference.py`](stats_inference.py) | The single correct place to compute a p-value in this project; HAC, circular-shift bootstrap, power |
 | [`pvalue_purge.py`](pvalue_purge.py) | Recomputes every load-bearing claim with valid inference; the out-of-sample rate result fails |
@@ -573,6 +574,45 @@ Employment is a net number, and three very different stories produce the same ne
 **One test clears, and does not survive correction.** Of five margins tested against replaceability, only the change in job openings reaches significance (r = −0.676, p = 0.045), meaning labor demand fell most where work is most replaceable. That is the right sign for an AI story and the sharpest cross-sectional result in the project outside the productivity level. It also fails Bonferroni across the five tests (which asks for p < 0.010), and its Spearman equivalent is −0.600, p = 0.088. Report it as suggestive.
 
 **The immigration objection, tested rather than flagged.** If a shrinking labor force drove the slowdown, firms would post jobs they could not fill, so hires per opening would fall. Construction's fill rate did collapse, from 1.78 in 2015-2019 to 1.01 in 2023, but it has been *recovering* since (1.22, 1.46, 1.32), and the same trough-and-recovery shape appears in sectors with no particular immigrant intensity. The matching collapse belongs to the 2021-2023 reopening, and it is unwinding through exactly the window a 2025 immigration shock would need to be tightening it. The qualification worth keeping is that Construction's fill rate is still 26% below pre-pandemic, the largest gap of the nine, so a residual supply constraint is not excluded.
+
+## Freeze or substitution? Job postings as the discriminating evidence (`freeze_vs_substitution.py`)
+
+The entry-level result is the project's strongest affirmative finding, and the README states its own load-bearing ambiguity: CPS tables "cannot separate 'AI took the tasks' from 'employers froze entry hiring for AI-adjacent reasons while keeping incumbents.'" Both stories predict fewer junior hires in exposed work. They differ in what happens next.
+
+- **Substitution**: the task is now done by software. The vacancy is destroyed. Postings fall and keep falling as capability diffuses.
+- **Freeze**: the work still needs doing, but firms paused. The vacancy is deferred, not destroyed, so postings recover when the uncertainty resolves.
+
+**Employment stocks cannot separate these and postings can.** Employment is a stock: it confounds hiring with separations and moves slowly, so a freeze and a wave of automation look identical in it for years. Postings are a flow, observed daily, and they are the firm's forward-looking statement about labour it intends to buy.
+
+**Data.** Indeed Hiring Lab new-postings index, 44 occupational categories, daily, February 2020 to **August 2026**, the most recent data anywhere in this project. Exposure is not hand-assigned: each category maps to SOC major groups and takes the mean AEI occupational exposure within them.
+
+![Freeze vs substitution](freeze_vs_substitution.png)
+
+**The cross-section is significant but its tails contradict it.** Postings in 2026 relative to a 2021 base correlate with exposure at r = −0.384 (p = 0.010, n = 44). But the largest decliners include **Food Preparation (exposure 0.009, −53.7%)** and **Driving (0.006, −48.0%)**, the two least exposed categories in the sample, sitting alongside Data & Analytics (−49.5%) and Software Development (−48.6%). A relationship whose extreme observations sit at both ends of the exposure range is not measuring exposure cleanly.
+
+**The discriminating test is the shape of the gap over time.** Scaling each group by its own 2021 base so the common decline drops out:
+
+| Year | High exposure | Low exposure | Gap |
+|---|---:|---:|---:|
+| 2022 | 1.104 | 1.174 | −7.0pp |
+| **2023** | 0.802 | 1.072 | **−27.0pp** |
+| 2024 | 0.685 | 0.846 | −16.1pp |
+| 2025 | 0.604 | 0.716 | −11.2pp |
+| 2026 | 0.587 | 0.682 | **−9.5pp** |
+
+**The gap peaked in 2023 and has closed 65% since.** That is the answer. Substitution should *widen* as capability diffuses, and AI capability improved enormously between 2023 and 2026. Instead the exposed-occupation penalty is unwinding. A gap that peaks and closes is a freeze lifting or a cyclical shock passing, not tasks being permanently absorbed by software.
+
+**Timing is genuinely ambiguous and should not be oversold.** The gap widened −9.7pp during the hiking cycle before ChatGPT existed (March to October 2022), then −29.3pp in the ten months after it. That looks AI-timed. But that same window is exactly the tech layoff wave, which hit Software, Data, Marketing and HR for reasons widely attributed to over-hiring correction and rates. The timing cannot separate them; the unwinding can.
+
+### What this settles, and what it does not
+
+**Settled: the occupation-level substitution story does not hold.** At the level of whole occupations, the AI-exposed penalty is closing, not widening. This corroborates the project's own null on occupation totals from a completely independent dataset and a different measurement concept (flows rather than stocks).
+
+**Not settled: the entry-level question, which is the one that mattered.** Indeed publishes postings by occupational category, **not by seniority**. This test cannot see the junior tier, so it cannot confirm or refute the entry-level finding. What it does is narrow the space: whatever is happening is specific to the entry margin and is *not* a wholesale destruction of exposed occupations. That makes the entry-level claim more precise and more unusual, and it means the finding cannot be dismissed as a special case of a general occupation-level collapse, because there is no general occupation-level collapse.
+
+**What would actually settle it.** Postings data broken out by seniority or years-of-experience requirement. Lightcast has it and it is proprietary; Indeed's research team publishes entry-level cuts in write-ups but not in the open tracker. That is the single dataset acquisition that would close this question.
+
+**Caveat on the data.** Indeed measures postings on Indeed, so a shift in employer recruiting channels registers as a decline that is not a decline in labour demand. The index is share-based within Indeed's own volume. Comparisons across categories at the same date are the defensible use; a single category's absolute level over six years is not.
 
 ## The unemployment rate cannot see what happened (`okun_employment_form.py`)
 
