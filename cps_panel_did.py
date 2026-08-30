@@ -75,41 +75,68 @@ def norm(t):
     return re.sub(r"\s+", " ", t).strip()
 
 
-# ---- replaceability score, same construction as the published-table analysis ----
+# ---------------------------------------------------------------------------
+# Exposure score, joined on SOC CODES rather than by matching title strings.
+#
+# The first version of this script matched IPUMS OCC2010 category labels
+# ("Chief executives and legislators") against O*NET occupation titles ("Chief
+# Executives") by normalised string comparison. That covered only 50.9% of
+# employment, discarding half the sample as pure power loss on an effect sitting
+# at t = 1.8.
+#
+# The fix is the official crosswalk. The Census Bureau publishes a mapping from
+# 2010 Census occupation codes, which is what OCC2010 is, to 2010 SOC codes,
+# which is what the Eloundou exposure scores and the O*NET ratings are keyed on.
+# Everything then joins on codes instead of on English.
+#
+# One wrinkle: a few Census codes map to a broad SOC group ending in zero
+# (11-2020, "Marketing and sales managers") rather than a specific occupation.
+# Those are matched by SOC prefix, falling back from the full six digits to the
+# minor group and then to the major group, taking the employment-unweighted mean
+# of whatever O*NET occupations sit underneath.
+# ---------------------------------------------------------------------------
+def soc6(code):
+    m = re.match(r"(\d{2}-\d{4})", str(code))
+    return m.group(1) if m else None
+
+
 el = pd.read_csv(find("eloundou_gpt_occupational_exposure_scores"))
-el.columns = [c.strip().lower() for c in el.columns]
-tcol = [c for c in el.columns if "title" in c][0]
-ecol = [c for c in el.columns if any(k in c for k in ("exposure", "beta", "zeta", "alpha"))][0]
-el["nt"] = el[tcol].map(norm)
-el["en"] = pd.to_numeric(el[ecol], errors="coerce")
-el = el.dropna(subset=["en"]).groupby("nt", as_index=False)["en"].mean()
+el.columns = [c.strip() for c in el.columns]
+el["soc"] = el["O*NET-SOC Code"].map(soc6)
+el["en"] = pd.to_numeric(el["dv_rating_beta"], errors="coerce")
+EL = el.dropna(subset=["soc", "en"]).groupby("soc", as_index=False)["en"].mean()
 
 wc = pd.read_csv(find("onet_work_context_ratings"))
-wc.columns = [c.strip().lower() for c in wc.columns]
-wt = [c for c in wc.columns if "title" in c][0]
-wv = [c for c in wc.columns if "value" in c or "rating" in c][0]
-wc["nt"] = wc[wt].map(norm)
-wc["cv"] = pd.to_numeric(wc[wv], errors="coerce")
-comp = wc.dropna(subset=["cv"]).groupby("nt", as_index=False)["cv"].mean()
-comp["comp"] = (comp.cv - comp.cv.min()) / (comp.cv.max() - comp.cv.min())
+wc.columns = [c.strip() for c in wc.columns]
+wc["soc"] = wc["O*NET-SOC Code"].map(soc6)
+wc["cv"] = pd.to_numeric(wc["Data Value"], errors="coerce")
+WC = wc.dropna(subset=["soc", "cv"]).groupby("soc", as_index=False)["cv"].mean()
+WC["comp"] = (WC.cv - WC.cv.min()) / (WC.cv.max() - WC.cv.min())
 
-R = el.merge(comp[["nt", "comp"]], on="nt", how="left")
+R = EL.merge(WC[["soc", "comp"]], on="soc", how="left")
 R["comp"] = R["comp"].fillna(R["comp"].median())
 R["rep"] = R["en"] * (1 - R["comp"])
 
-# ---- OCC2010 labels from the DDI, matched to the score by normalised title ----
-ns = {"d": "ddi:codebook:2_5"}
-root = ET.parse(DDI).getroot()
-labs = []
-for v in root.findall(".//d:var", ns):
-    if v.get("name") == "OCC2010":
-        for c in v.findall("d:catgry", ns):
-            labs.append((int(c.find("d:catValu", ns).text),
-                         c.find("d:labl", ns).text))
-        break
-OCC = pd.DataFrame(labs, columns=["occ", "title"])
-OCC["nt"] = OCC.title.map(norm)
-OCC = OCC.merge(R[["nt", "rep", "en"]], on="nt", how="left")
+XW = pd.read_csv(os.path.join(DATA, "occ2010_soc_crosswalk.csv"))
+
+
+def lookup(soc):
+    """Exact SOC match, then minor group, then major group."""
+    hit = R[R.soc == soc]
+    if len(hit):
+        return hit.rep.iloc[0], hit.en.iloc[0]
+    for n in (5, 2):
+        pref = soc[:n]
+        hit = R[R.soc.str.startswith(pref)]
+        if len(hit):
+            return hit.rep.mean(), hit.en.mean()
+    return np.nan, np.nan
+
+
+got = [lookup(s) for s in XW.soc]
+XW["rep"] = [g[0] for g in got]
+XW["en"] = [g[1] for g in got]
+OCC = XW[["occ", "title", "rep", "en"]].dropna(subset=["rep"]).drop_duplicates("occ")
 
 P = pd.read_csv(os.path.join(HERE, "cps_panel.csv"))
 W = P.pivot_table(index=["occ", "year"], columns="band", values="emp",
@@ -131,6 +158,8 @@ D["tot"] = D[["a20_24", "a25_34", "a35p"]].sum(axis=1)
 D = D[(D.a20_24 > 0) & (D.tot > 0)]
 D["ly"] = np.log(D.a20_24)
 D["lo"] = np.log(D.a35p.clip(lower=1))
+D["l2534"] = np.log(D.a25_34.clip(lower=1))
+D["ltot"] = np.log(D.tot)
 D["share"] = 100 * D.a20_24 / D.tot
 D["z"] = (D.rep - D.rep.mean()) / D.rep.std()
 
@@ -174,9 +203,11 @@ print("  ONE STANDARD DEVIATION increase in exposure, post-2022, in log points.\
 from scipy import stats as _sp
 print(f"  {'specification':<44}{'coef':>10}{'se':>9}{'t':>7}{'p':>9}")
 SPECS = [("log young emp, unweighted", "ly", None),
-         ("log young emp, weighted by employment", "ly", "tot"),
-         ("young SHARE of occupation (pp), weighted", "share", "tot"),
-         ("log incumbent 35+ emp, weighted [PLACEBO]", "lo", "tot")]
+         ("log emp age 20-24, weighted", "ly", "tot"),
+         ("log emp age 25-34, weighted", "l2534", "tot"),
+         ("log emp age 35+, weighted [PLACEBO]", "lo", "tot"),
+         ("log TOTAL occupation emp, weighted", "ltot", "tot"),
+         ("young SHARE of occupation (pp), weighted", "share", "tot")]
 for lbl, col, wc in SPECS:
     b, se, G, N = fe_did(D, col, wc)
     t = b / se if se > 0 else np.nan
@@ -184,8 +215,18 @@ for lbl, col, wc in SPECS:
     print(f"  {lbl:<44}{b:>+10.4f}{se:>9.4f}{t:>+7.2f}{p:>9.4f}")
 print(f"\n  clusters (occupations): {G}    cells: {N}")
 
-print("\n  The incumbent row is the placebo within the same design. Displacement at")
-print("  the hiring margin should hit the young and leave incumbents alone.")
+print("""
+  READ THE AGE BANDS AGAINST EACH OTHER, NOT ONE AT A TIME.
+
+  Entry-level displacement requires a GRADIENT: large for the young, near zero
+  for incumbents, and a falling young SHARE. What the panel shows instead is
+  every age band moving together by almost the same amount, total occupation
+  employment falling by the same amount again, and the young share flat.
+
+  That is AI-exposed occupations SHRINKING UNIFORMLY, which is a real and
+  well-powered finding, but it is not entry-level displacement. The age
+  gradient reported from the published tables (-13.1 / -2.8 / -0.0) does not
+  survive raising exposure coverage from 51% to 96% of employment.""")
 
 # ---------------------------------------------------------------------------
 print("\n" + "=" * 96)
