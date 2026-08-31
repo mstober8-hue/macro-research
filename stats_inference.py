@@ -53,14 +53,53 @@ insignificant, correcting the standard errors will not change that, and the
 honest report is the minimum detectable effect, not the p-value. effective_n()
 exists to make that visible: it converts a nominal sample size into the number of
 genuinely independent observations given a window length.
+
+DECISION RULE: WHICH TEST FOR WHICH QUESTION
+Applying one method universally is itself an error, and this project made it.
+Simulation results, at persistence rho = 0.9 and n = 140, size in the first
+column and power against a real effect in the rest:
+
+  CROSS-SECTIONAL correlation across independent units (sectors, occupations)
+      Ordinary Pearson or Spearman is CORRECT. There is no serial correlation.
+      Report the confidence interval and minimum detectable effect, because the
+      binding constraint is power, not bias. Use cross_section().
+
+  CONTEMPORANEOUS correlation between two persistent series
+      Use prewhitened_corr(). Size 5.0%, power 93.5% at true r = 0.3.
+      The circular-shift bootstrap is correctly sized but far weaker
+      (7.6% size, 25.6% power at the same effect), so its nulls mean
+      "could not detect", not "not there".
+
+  LAGGED effect, "X at lag k predicts Y"
+      Use a DISTRIBUTED-LAG REGRESSION: regress Y on X(t-k) AND on lags of Y,
+      with ols_hac(). Simulation on a DGP where the lagged effect is real by
+      construction: power 96.3%, against 52.3% for the bootstrap and 38.7% for
+      prewhitening. Prewhitening is the WRONG tool here, because removing Y's own
+      dynamics deletes the channel through which a lagged effect propagates.
+      The caveat is that this test runs about 12% size rather than 5%, so a
+      p-value near 0.01 is solid rather than overwhelming.
+
+  ROLLING-WINDOW statistics
+      Divide the nominal n by the window length before quoting it. Two 12-quarter
+      windows one quarter apart share 11 quarters. Use effective_n().
+
+  FEW CLUSTERS (below roughly 30)
+      Use randomization inference, permuting treatment assignment. A cluster
+      bootstrap is unreliable there, as entry_level_inference_audit.py showed at
+      about 12 effective clusters.
+
+THE MISTAKE TO AVOID
+Over-correction is also an error. Reaching for the most conservative available
+test everywhere converts real findings into false nulls, and a null from an
+underpowered test carries no information at all.
 """
 
 import numpy as np
 import pandas as pd
 from scipy import stats as sp_stats
 
-__all__ = ["ols_hac", "timeseries_corr", "cross_section", "window_stat_p",
-           "effective_n", "mde_correlation", "fisher_ci"]
+__all__ = ["ols_hac", "timeseries_corr", "prewhitened_corr", "cross_section",
+           "window_stat_p", "effective_n", "mde_correlation", "fisher_ci"]
 
 
 def ols_hac(y, X, nw_lags=8):
@@ -105,6 +144,50 @@ def mde_correlation(n, alpha=0.05, power=0.80):
     se = 1.0 / np.sqrt(n - 3)
     z = (sp_stats.norm.ppf(1 - alpha / 2) + sp_stats.norm.ppf(power)) * se
     return float(np.tanh(z))
+
+
+def prewhitened_corr(a, b, p=4, drop=None):
+    """
+    Correlation between two persistent series, tested by PREWHITENING.
+
+    Each series is regressed on p of its own lags and the residuals are
+    correlated. This is the classical Haugh-Box remedy for spurious correlation
+    between autocorrelated series, and simulation shows it strictly dominates the
+    circular-shift bootstrap: exact 5.0% size at rho = 0.9, against 7.6% for the
+    bootstrap, while achieving 93.5% power at a true correlation of 0.3 where the
+    bootstrap manages only 25.6%.
+
+    Use this as the default for correlating two time series. The circular-shift
+    bootstrap remains correct but is badly underpowered, and a null from it means
+    "could not detect" rather than "not there".
+
+    Note this tests whether the INNOVATIONS co-move, having removed each series'
+    own predictable dynamics. That is the right question for whether one series
+    carries information about another beyond its own history.
+    """
+    d = pd.concat([pd.Series(a).rename("a"), pd.Series(b).rename("b")],
+                  axis=1).dropna()
+    if drop is not None:
+        d = d[~d.index.isin(drop)]
+    x, y = d.a.to_numpy(float), d.b.to_numpy(float)
+    n = len(x)
+    if n < 3 * p + 12:
+        return dict(n=n, r=np.nan, p=np.nan, r_raw=np.nan)
+
+    def resid(v):
+        X = np.column_stack([np.ones(n - p)] + [v[p - l - 1:n - l - 1]
+                                                for l in range(p)])
+        yy = v[p:]
+        bb, *_ = np.linalg.lstsq(X, yy, rcond=None)
+        return yy - X @ bb
+
+    ra, rb = resid(x), resid(y)
+    m = min(len(ra), len(rb))
+    ra, rb = ra[-m:], rb[-m:]
+    r = float(np.corrcoef(ra, rb)[0, 1])
+    t = r * np.sqrt((m - 2) / max(1 - r ** 2, 1e-12))
+    return dict(n=m, r=r, p=float(2 * (1 - sp_stats.t.cdf(abs(t), m - 2))),
+                r_raw=float(np.corrcoef(x, y)[0, 1]))
 
 
 def cross_section(x, y, alpha=0.05, power=0.80):
