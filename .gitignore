@@ -19,3 +19,9 @@ Macro-Research-Reference.png
 *.docx
 physical-sector-inversion/fred_cache/
 cps_panel.csv
+# IPUMS-derived aggregates: regenerate with build_cps_panel_bands.py from the
+# IPUMS CPS extract (not redistributable). Same reasoning as cps_panel.csv above.
+cps_panel_bands.csv
+# Derived from the BLS occupation-by-age HTML tables in FRED-Data/bls_occ_age/;
+# regenerate with bls_parse.py rather than versioning a 1MB intermediate.
+bls_occ_age_2011_2022.csv
