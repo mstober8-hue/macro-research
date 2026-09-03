@@ -25,3 +25,7 @@ cps_panel_bands.csv
 # Derived from the BLS occupation-by-age HTML tables in FRED-Data/bls_occ_age/;
 # regenerate with bls_parse.py rather than versioning a 1MB intermediate.
 bls_occ_age_2011_2022.csv
+# Same IPUMS extract, sliced by class of worker / industry / hours and by month;
+# regenerate with build_cps_panel_adp.py.
+cps_panel_adp.csv
+cps_panel_adp_monthly.csv
