@@ -15,6 +15,7 @@ For 60 years there has been a reliable rule in economics: when the economy grows
 | Did AI break it? | **No evidence that it did.** Every affirmative AI-displacement result this project produced was later overturned by its own tests |
 | Is there AI displacement anywhere in the labor data? | **Not that survives.** Sector totals, occupation totals, 28,000 within-industry cells, and a 6.0M-record CPS panel all fail, and the entry-level result failed last |
 | Does AI predict anything real? | **Yes, one thing.** Job replaceability robustly predicts real productivity growth (r = +0.90), but the relationship is **strongest in 2013-2019**, before generative AI existed |
+| Does the published entry-level displacement result replicate? | **The gap does; the mechanism does not.** In nationally representative data the exposed side grew **+1.9%**, not −11%, and 128% of the gap comes from *unexposed* occupations absorbing young workers (Part 6) |
 
 **The one finding that survives everything.** Every inferential result in this project was eventually overturned. One descriptive result was not, and it is the durable contribution: **young workers are increasingly sorted away from AI-exposed work.** In the 6.0M-record CPS panel, the 20-24 share of employment in high-exposure occupations fell while the share in low-exposure occupations rose, widening the gap by roughly 2.2 percentage points across the decade.
 
@@ -26,7 +27,9 @@ For 60 years there has been a reliable rule in economics: when the economy grows
 
 This is why it survives when nothing else did. It is a **statement about levels, not a regression**, so it does not depend on the difference-in-differences design that failed its placebo tests. And it is identical under the raw Eloundou score with **no O\*NET term at all**, which makes it immune to the mis-specified-complementarity problem that invalidated the occupation-level result. Both sides move, and the larger component is the *rise* in low-exposure work rather than the fall in exposed work.
 
-**What it does not establish.** It is a sorting fact, not a displacement fact. Young workers ending up in more manual and service work is consistent with AI closing exposed entry points, and equally consistent with where job growth happened, with education and major choices, and with the post-2021 boom in in-person work. This project cannot separate those, and the movement predates 2022 in the levels.
+**It has since been strengthened, and it now has a regression form (Part 6).** With occupation and year fixed effects across 451 occupations the coefficient is −0.4632 (p = 0.0001) for 20-24 and −0.4200 (p = 0.0001) on the 22-25 band used by Brynjolfsson, Chandar and Chen (2026). It **strengthens** under education and wage controls rather than attenuating (−0.5327 and −0.4627 with both), the pre-AI placebo on the controlled specification is clean (p = 0.50 and p = 0.73), and the 2022 break survives all eight BLS/CPS splice variants. The published version of this result concedes attenuation on education, pre-existing divergent trends, and weakness in national survey benchmarks. This one improves on all three.
+
+**What it does not establish, and Part 6 now shows why.** It is a sorting fact rather than a displacement fact, and the levels decomposition locates the mechanism: employment in the two most exposed quintiles **grew +1.9%** over 2022-2026 (95% CI −4.0 to +8.2), while the three least exposed grew +8.7% (p = 0.007). None of the gap comes from the exposed side falling; 128% of it comes from the unexposed side rising. Exposed occupations did underperform the aggregate by 3.9pp, so the shortfall is real, and they did not contract. Young workers ending up in more manual and service work is consistent with AI closing exposed entry points, and equally consistent with where job growth happened, with education and major choices, and with the post-2021 boom in in-person work. This project cannot separate those, and the movement predates 2022 in the levels.
 
 **What this project is actually a contribution to.** Not the AI-and-jobs question, which it answers negatively. It is a worked account of how an instrument can be blind, how a null can be uninformative, and how a positive result can survive several rounds of scrutiny and still be wrong. Nine separate self-corrections are documented, including a retraction of a retraction.
 
@@ -136,6 +139,14 @@ Finance originally had a fourth mismatch (employment included Real Estate); it i
 | [`cps_within_occupation_age.py`](cps_within_occupation_age.py) | Part 5: the closing test; within-occupation age composition, CPS 2016-2025 |
 | [`ai_intensity_ramp.py`](ai_intensity_ramp.py) | Part 5: replaces the Q4 2022 step dummy with diffusion; the ramp test that separates the two channels |
 | [`entry_level_measure_reaudit.py`](entry_level_measure_reaudit.py) | The retraction of a retraction: the exposure measure was broken, and the null it produced was not evidence of absence |
+| [`spec_checks_vs_canaries.py`](spec_checks_vs_canaries.py) | Part 6: the three specification checks against the published design (age band, quintiles, education) |
+| [`entry_level_decomposition.py`](entry_level_decomposition.py) | Part 6: decomposes the exposure gap into levels; the exposed side does not fall |
+| [`adp_cps_reconciliation.py`](adp_cps_reconciliation.py) | Part 6: walks the CPS to ADP's universe and window; neither explains the disagreement |
+| [`build_cps_panel_adp.py`](build_cps_panel_adp.py) | Part 6: re-cuts the IPUMS extract to ADP's universe and emits a monthly panel |
+| [`splice_diagnostics.py`](splice_diagnostics.py) | Eight BLS/CPS splice variants; the drift is a denominator artifact and the 2022 break survives 8 of 8 |
+| [`exposure_confound_test_wage_education.py`](exposure_confound_test_wage_education.py) | Tests whether exposure is proxying for wage or education; it is not, and the coefficient strengthens |
+| [`datapaths.py`](datapaths.py) | Resolves data filenames to their current location under `FRED-Data/`, so the project runs from a clean checkout |
+| [`PAPER.md`](PAPER.md) | The paper draft; Section 5 written, remaining sections outlined |
 | [`physical-sector-inversion/does_okun_break_in_recessions.py`](physical-sector-inversion/does_okun_break_in_recessions.py) | Tests whether goods-sector Okun always breaks in downturns. It does not: it works best in them |
 | [`finance/`](finance/README.md) | Finance deep dive (all content also summarized in Part 3 below) |
 | [`physical-sector-inversion/`](physical-sector-inversion/README.md) | Goods-sector deep dive, including the fiscal test (`fiscal_control.py`, USAspending) |
@@ -1011,6 +1022,107 @@ One ramps and does not stop. The other rises, peaks, and reverses. That is the s
 
 ---
 
+# Part 6: Replicating the published entry-level result, and where it disagrees
+
+Brynjolfsson, Chandar and Chen (2026) report that between November 2022 and June 2026, employment of 22-25 year olds fell about **11%** in the two most AI-exposed occupational quintiles while rising about **10%** in the three least exposed, and read the divergence as AI displacing the entry tier of exposed work. Their primary exposure measure is the Eloundou et al. GPT-4 β rating, which is the same measure family this project has been using, and their window sits entirely inside this project's CPS microdata panel. That makes it directly testable here rather than merely comparable.
+
+This part does three things: checks whether this project's version of the result is an artifact of specification choices, decomposes the gap into the two sides that could be producing it, and rules out the two mundane explanations for the disagreement that follows.
+
+## The three specification checks (`spec_checks_vs_canaries.py`)
+
+Three ways the sorting finding could have been a specification artifact, all tested against the published design.
+
+**Age band.** This project uses 20-24; they use 22-25. The result is not band-sensitive, and it holds on the raw Eloundou score with no O\*NET term:
+
+| specification | coef | p |
+|---|---:|---:|
+| 20-24 share, composite exposure | −0.4632 | 0.0001 |
+| **22-25 share (their band), composite** | **−0.4200** | **0.0001** |
+| 20-24 share, raw GPT-4 β | −0.4403 | 0.0005 |
+| 22-25 share, raw GPT-4 β | −0.3968 | 0.0002 |
+
+**Education.** Their abstract concedes that their patterns "attenuate when controlling for education." These do not attenuate; they strengthen. Adding Job Zone × post and log median wage × post, on 451 occupations with occupation and year fixed effects:
+
+| band | no controls | + education | + wage | + both |
+|---|---:|---:|---:|---:|
+| 20-24 | −0.4632 | −0.5192 | −0.5344 | **−0.5327** |
+| 22-25 | −0.4200 | −0.4400 | −0.4846 | **−0.4627** |
+
+The pre-AI placebo on the same controlled specification (2016-2019, fake post = 2018) is clean in both bands: exposure +0.0683 (p = 0.50) and +0.0333 (p = 0.73), with the controls themselves insignificant. This is the strongest position this project holds relative to the published literature.
+
+**Quintiles.** In regression form the quintile cut agrees: a binary top-2-quintile indicator × post gives −0.2507 (p = 0.032) for 20-24 and −0.1991 (p = 0.051) for 22-25. **In levels it does not agree**, and that disagreement is the rest of this part.
+
+## Which side opens the gap (`entry_level_decomposition.py`)
+
+A gap of the published shape has two possible sources with different meanings. Under **displacement**, exposed occupations lose young workers in levels. Under **reallocation**, exposed occupations hold roughly flat while unexposed occupations absorb a growing share of the young cohort. Both widen the gap, and the share regression cannot tell them apart, because a share moves when either side moves.
+
+Quintiles on the Eloundou GPT-4 β, employment weighted at the 2022 base. CPS microdata only, no BLS splice, since the window sits inside the panel. Bootstrap over occupations, 2,000 reps.
+
+| age band | group | growth | 95% CI | p vs 0 |
+|---|---|---:|---:|---:|
+| **22-25** (427 occ) | top 2 exposed quintiles | **+1.9%** | [−4.0, +8.2] | 0.507 |
+| | bottom 3 quintiles | **+8.7%** | [+2.3, +15.0] | **0.007** |
+| | gap | −6.8pp | [−15.5, +2.2] | 0.141 |
+| **20-24** (421 occ) | top 2 exposed quintiles | +2.2% | [−3.8, +8.8] | 0.526 |
+| | bottom 3 quintiles | +8.2% | [+1.8, +15.0] | 0.011 |
+| | gap | −6.1pp | [−15.1, +3.3] | 0.205 |
+| *published (ADP)* | *top2 / bot3 / gap* | *−11% / +10% / −21pp* | | |
+
+![Entry-level decomposition](entry_level_decomposition.png)
+
+**The exposed side does not fall.** Its confidence interval excludes −11% decisively (p < 0.001 against that value). What is significant is the *unexposed* side rising, at p = 0.007. Decomposed against a zero-growth benchmark, **128%** of the −6.8pp gap comes from the unexposed side rising and none of it from the exposed side falling, because the exposed side did not fall. The 20-24 band gives 136%.
+
+**The two-sided statement, which the paper carries as written.** Young employment across all occupations grew +5.8% over the same window. The exposed group grew +1.9%, a **3.9pp shortfall** against the aggregate. Underperformance relative to a growing aggregate is real. Contraction in levels is not. Those are different claims and only the first survives.
+
+The full path, indexed to 2022 = 100, adds two things:
+
+| year | top2 | bot3 | gap |
+|---|---:|---:|---:|
+| 2016 | 102.7 | 105.3 | −2.6 |
+| 2017 | 103.5 | 103.4 | +0.1 |
+| 2018 | 104.6 | 103.1 | +1.5 |
+| 2019 | 101.2 | 103.0 | −1.8 |
+| 2020 | 97.2 | 89.2 | **+8.0** |
+| 2021 | 97.5 | 95.8 | +1.7 |
+| 2022 | 100.0 | 100.0 | 0.0 |
+| 2023 | 104.7 | 108.8 | −4.0 |
+| 2024 | 103.2 | 104.3 | −1.0 |
+| 2025 | 102.2 | 106.5 | −4.3 |
+| 2026 | 101.9 | 108.7 | **−6.8** |
+
+The pre-2022 gap oscillates around zero with no trend, which is the placebo result in level form. And the 2020 row is a scale check worth keeping honest about: the pandemic gap ran **+8.0pp**, larger in absolute value than the −6.8pp reached by 2026 and in the opposite direction, when in-person work absorbed the shock while exposed office work continued remotely. A gap of the 2026 magnitude is inside the range this pair of series produces under a large sectoral shock. The post-2022 movement differs in sign, timing and monotonicity, so this does not make it uninformative, but the effect is not large relative to the series' own recent history.
+
+## Ruling out the boring explanations (`adp_cps_reconciliation.py`, `build_cps_panel_adp.py`)
+
+A 12.9pp disagreement on the exposed side has two mundane candidate explanations before it can be called substantive: the two studies count different people, and they date from different points. `build_cps_panel_adp.py` re-cuts the same IPUMS extract by class of worker, industry and usual hours and emits a monthly panel; the reconciliation then walks the CPS to ADP's universe one restriction at a time and re-dates to their endpoints.
+
+**Neither works.** The universe ladder (dropping unpaid family workers, the self-employed, government and agriculture, retaining 85% of the base) moves the exposed side by **−0.6pp**, from +1.9% to +1.3%. Re-dating to twelve-month windows ending November 2022 and July 2026 moves it back **+0.6pp**. Both at once:
+
+| specification | top2 | 95% CI | p vs 0 | p vs −11% |
+|---|---:|---:|---:|---:|
+| as published above (all CPS, annual) | +1.9% | [−3.5, +8.4] | 0.534 | **0.000** |
+| ADP universe, annual window | +1.3% | [−4.4, +7.9] | 0.673 | **0.000** |
+| **ADP universe, their window** | **+1.9%** | [−3.8, +8.9] | 0.522 | **0.000** |
+
+![ADP/CPS reconciliation](adp_cps_reconciliation.png)
+
+Two channels do move the number and neither moves it far alone. Dropping any single industry spans −0.8% to +3.5%. Keeping only white-collar-heavy sectors, the most generous available proxy for ADP's skew toward firms large enough to outsource payroll, reaches −2.8%. Full-time only reaches −1.3%. **Stacked adversarially** (ADP universe + full-time + white-collar sectors + top quintile only), the CPS reaches **−4.7%**, still 6.3pp short, and by then only **33%** of the sample survives and the interval [−17.8, +8.8] rejects nothing in either direction, including zero (p = 0.55) and −11% (p = 0.33). The CPS runs out of power before it runs into agreement.
+
+What is left is not something a household survey can adjudicate: ADP's firm-size skew, its client selection, and the gap between a payroll job title and a self-reported occupation.
+
+**One bug worth recording.** The October 2025 CPS was never collected, so a twelve-month window spanning it holds eleven months. Dividing by twelve anyway understated the endpoint by roughly 8% and produced a spurious −6.9% that would have been very hard to catch inside a draft. Windows now average over the calendar months observed at both ends, which also makes them month-matched.
+
+## What this part settles
+
+The sorting finding is not a specification artifact: it holds in both age bands, on the raw Eloundou score with no O\*NET term, and it strengthens rather than attenuates under education and wage controls, with a clean pre-AI placebo. That is a genuine improvement on the published version of the same result, which concedes attenuation on all three counts.
+
+The displacement *reading* of that finding does not survive in nationally representative data. The exposed side did not contract, the gap is generated almost entirely by the unexposed side rising, and neither sample universe nor window explains the discrepancy with the published ADP figure.
+
+**The estimands have different power and the paper is explicit about it.** The share regression uses variation across 451 occupations and is significant at p = 0.0001. The levels gap compares two aggregates dominated by a handful of large occupations, and at p = 0.141 it is not significant. That is an estimand difference, not a conflict in the data. The share result establishes *that* young workers are sorted away from exposed work; the levels result establishes *where in the distribution* that happens and rejects a specific published magnitude. It does not establish a significant reallocation gap on its own, and nothing here claims one.
+
+Drafted as Section 5 of [`PAPER.md`](PAPER.md).
+
+---
 # Where the whole thing stands
 
 The project split one question into pieces with different answers.
@@ -1154,6 +1266,14 @@ Essentially zero in both. Occupations that actually lost young workers show no m
 **3. What the contrast does suggest.** In the matched subsample the exposed-minus-unexposed difference in young-share change is −0.99pp (p = 0.148, so directionally right but not significant here, since 211 matched occupations and a simple difference is far weaker than the full-sample triple difference), while the wage-compression difference is +0.0014 (p = 0.893), essentially exactly zero. **Quantity moves while price does not**, which is the signature of a hiring freeze rather than wage-competition displacement.
 
 **Resolution.** The two results do not conflict. The wage-distribution test was blind to the effect by construction, on two counts, and should no longer be cited as one of the designs that returned a null against the entry-level hypothesis. The relevant caveat on the age finding is the one already stated in its own section: published CPS tables cannot separate "AI took the tasks" from "employers froze entry hiring for AI-adjacent reasons." This section makes the freeze reading somewhat more likely, because a pure task-substitution story with wage competition should have moved prices at least a little, and it moved them not at all.
+
+### Young workers are sorted away from AI-exposed work → **ESTABLISHED, AND THE MECHANISM IS REALLOCATION**
+
+The one result that survived every round of scrutiny, now with a regression form and an external comparison (Part 6). With occupation and year fixed effects across 451 occupations, the young-share coefficient on exposure is −0.4632 (p = 0.0001) for 20-24 and −0.4200 (p = 0.0001) on the 22-25 band, holds on the raw Eloundou score with no O\*NET term, **strengthens** under education and wage controls, has a clean pre-AI placebo, and survives all eight BLS/CPS splice variants.
+
+The displacement reading of that sorting does **not** survive. Decomposed into levels, employment in the two most exposed quintiles grew +1.9% over 2022-2026 (95% CI −4.0 to +8.2), against −11% reported in ADP payroll data; 128% of the gap comes from unexposed occupations absorbing young workers, and none from the exposed side falling. Neither sample universe (−0.6pp) nor window (+0.6pp) explains the discrepancy, and an adversarially stacked specification reaches only −4.7% on a third of the sample. Exposed occupations underperformed the aggregate by 3.9pp, which is real, and did not contract, which is what displacement requires.
+
+Note the estimands differ in power: the share regression is significant at p = 0.0001 across 451 occupations, the levels gap is not (−6.8pp, p = 0.141), because group aggregates are dominated by a few large occupations. The share result establishes *that* the sorting happens; the levels result establishes *where in the distribution* and rejects a published magnitude. Neither this project nor the paper claims a significant reallocation gap in levels.
 
 ### Tech's break survived everything thrown at it → **BEST-STRESS-TESTED SINGLE RESULT**
 Information's post-2022 slope stays inside +0.150 to +0.223 across eight specifications (baseline, five rate controls, two overhang controls), and its real productivity (+7.2%/yr, with genuine falling deflators, no FISIM issue) is the highest in the sample while its 2024-2025 employment is shrinking.
