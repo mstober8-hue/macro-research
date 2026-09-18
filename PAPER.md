@@ -1,4 +1,4 @@
-# Reallocation, Not Displacement
+# Underperformance Without Contraction
 
 **Entry-level employment and AI exposure in nationally representative data**
 
@@ -96,13 +96,23 @@ percentage points with an interval of [−15.5, +2.2], the levels comparison can
 reject the absence of a gap. This is a power result rather than a contradiction,
 and Section 5.6 treats it directly.
 
-Decomposing the gap against a zero-growth benchmark makes the arithmetic explicit.
-For the 22 to 25 band, none of the −6.8 point gap comes from the exposed side
-falling below zero, because it did not fall below zero, and 128 percent of it
-comes from the unexposed side rising above zero. The 20 to 24 band gives 136
-percent. The gap is an artifact of one side rising.
+Decomposing the gap requires a benchmark, and the choice is consequential enough
+to state explicitly. Zero growth is the right benchmark for asking whether the
+exposed side contracted, and the answer is that it did not. It is the wrong
+benchmark for asking which side opens the gap, because young employment overall
+grew 5.8 percent over this window, so the no-gap counterfactual is both groups
+growing at that common rate rather than at zero. Measured against the aggregate,
+the exposed side underperforms by 3.9 percentage points and the unexposed side
+outperforms by 2.9, splitting the gap 57.5 to 42.5 with a modest tilt toward the
+exposed side. The 20 to 24 band splits 58.8 to 41.2. Both sides move and neither
+dominates.
 
-## 5.4 Underperformance is real, contraction is not
+Against a zero benchmark the same arithmetic assigns the unexposed side 128
+percent of the gap and the exposed side −28 percent. Shares outside the unit
+interval are the diagnostic that the benchmark is wrong, and this paper does not
+report that decomposition.
+
+## 5.4 Underperformance is imprecise, contraction is ruled out
 
 The finding above should not be read as an absence of any exposure-related
 pattern. Young employment across all occupations grew 5.8 percent over the same
@@ -110,12 +120,21 @@ window for the 22 to 25 band. The exposed group grew 1.9 percent, a shortfall of
 3.9 percentage points against the aggregate. The 20 to 24 band gives 5.7 percent
 against 2.2 percent, a shortfall of 3.6 points.
 
-This is the honest two-sided statement, and the paper carries it in both
-directions. Young employment in AI-exposed occupations grew more slowly than
-young employment overall, which is consistent with exposure suppressing entry
-into those occupations at the margin. It did not decline, which is what a
-displacement account requires. Underperformance relative to a growing aggregate
-and contraction in levels are different claims, and only the first survives.
+That shortfall is a point estimate and it is not statistically significant. The
+bootstrap interval runs [−8.9, +1.3] with p = 0.141, and it carries the same
+p-value as the gap itself. That is necessary rather than coincidental: the
+aggregate is a weighted average of the two groups, so the shortfall is a fixed
+positive multiple of the gap, and the two are one test reported twice.
+
+This is the honest two-sided statement and the paper carries it in both
+directions. Young employment in AI-exposed occupations grew more slowly than young
+employment overall, by a margin this data cannot distinguish from zero, which is
+consistent with exposure suppressing entry at the margin and equally consistent
+with no effect at all. It did not decline, which is what a displacement account
+requires, and that part the data do resolve, because the interval excludes the
+published magnitude decisively. Underperformance against a growing aggregate and
+contraction in levels are different claims, and only the second is settled here,
+in the negative.
 
 Table 5.2 gives the full path and supports two further points.
 
@@ -198,7 +217,9 @@ so the effective sample is large.
 The levels decomposition estimates a gap of −6.8 points with p = 0.141. It
 compares two aggregates, and aggregates of this kind are dominated by a handful of
 large occupations, so the bootstrap distribution is correspondingly wide. The loss
-of significance reflects the estimand and not a conflict in the underlying data.
+of significance reflects the estimand rather than a conflict in the underlying
+data. The 3.9 point shortfall against the aggregate is the same test carrying the
+same p-value, so it is not independent evidence and is not presented as such.
 
 Both belong in the paper and they support different sentences. The share result
 establishes that young workers are increasingly sorted away from AI-exposed
@@ -209,14 +230,20 @@ significant reallocation gap, and this paper does not claim one.
 
 ## 5.7 Summary
 
-Reproducing the exposure gap in nationally representative data and then
-decomposing it yields a different mechanism than the displacement reading of the
-same gap in payroll data. Employment of young workers in the most AI-exposed
-occupations grew slightly and insignificantly, underperformed the aggregate by
-about 4 percentage points, and did not contract. The divergence between exposure
-groups is generated almost entirely by less-exposed occupations absorbing a
-growing share of the young cohort. Neither sample universe nor window explains the
-discrepancy with the published ADP estimate, and an adversarial specification
-reaches only −4.7 percent on a third of the sample. The evidence supports
-reallocation of young workers across the exposure distribution, and does not
-support the destruction of entry-level positions in exposed occupations.
+Reproducing the exposure gap in nationally representative data and decomposing it
+does not support the displacement reading of the same gap in payroll data.
+Employment of young workers in the most AI-exposed occupations grew 1.9 percent
+over 2022 to 2026. It underperformed the aggregate by 3.9 points, a shortfall the
+data cannot distinguish from zero, and it did not contract, which the data do
+resolve: the interval excludes the published figure of −11 percent at p < 0.001.
+Neither sample universe nor window explains that discrepancy, and an adversarially
+stacked specification reaches only −4.7 percent on a third of the sample.
+
+What the levels establish is narrower than this section's original framing. The
+only movement identified with confidence is the less-exposed group growing 8.7
+percent, and the gap splits roughly evenly between the two sides. The claim this
+paper makes is that entry-level employment in AI-exposed occupations underperformed
+a growing aggregate without contracting, and that the published magnitude does not
+replicate outside payroll data. It does not claim a statistically significant
+reallocation of young workers across the exposure distribution, which these levels
+are too coarse to establish.

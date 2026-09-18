@@ -90,6 +90,11 @@ def growth(d, grp, a=BASE, b=END, occ_subset=None):
     e0 = dd[dd.year == a].emp.sum(); e1 = dd[dd.year == b].emp.sum()
     return 100 * (e1 / e0 - 1) if e0 > 0 else np.nan
 
+def growth_all(d, a=BASE, b=END):
+    """Growth of the whole young cohort, the benchmark the gap decomposes against."""
+    e0 = d[d.year == a].emp.sum(); e1 = d[d.year == b].emp.sum()
+    return 100 * (e1 / e0 - 1) if e0 > 0 else np.nan
+
 def boot(d):
     occs = d.occ.unique()
     out = []
@@ -99,8 +104,10 @@ def boot(d):
         dd = d[d.occ.isin(cnt.index)].copy()
         dd["rep"] = dd.occ.map(cnt).astype(float)
         dd["emp"] = dd.emp * dd.rep
-        t = growth(dd, "top2"); b = growth(dd, "bot3")
-        if np.isfinite(t) and np.isfinite(b): out.append((t, b, t - b))
+        t = growth(dd, "top2"); b = growth(dd, "bot3"); g = growth_all(dd)
+        if np.isfinite(t) and np.isfinite(b) and np.isfinite(g):
+            # cols: 0 top2, 1 bot3, 2 gap, 3 all, 4 top2 shortfall, 5 bot3 excess
+            out.append((t, b, t - b, g, t - g, b - g))
     return np.array(out)
 
 print("=" * 100)
@@ -116,7 +123,7 @@ for band, lab in [("a22_25", "22-25  (Canaries band)"), ("a20_24", "20-24  (this
     B = boot(d)
     ci = lambda col: np.percentile(B[:, col], [2.5, 97.5])
     pval = lambda col: 2 * min((B[:, col] <= 0).mean(), (B[:, col] >= 0).mean())
-    RES[band] = dict(d=d, top=t, bot=b, B=B)
+    RES[band] = dict(d=d, top=t, bot=b, B=B, all=growth_all(d))
     print(f"\n  {lab}     ({d.occ.nunique()} occupations)")
     print(f"    {'group':<34}{'growth':>10}{'95% CI':>22}{'p vs 0':>10}")
     print(f"    {'top 2 exposed quintiles':<34}{t:>+9.1f}%   [{ci(0)[0]:+6.1f}, {ci(0)[1]:+6.1f}]{pval(0):>10.3f}")
@@ -126,19 +133,43 @@ for band, lab in [("a22_25", "22-25  (Canaries band)"), ("a20_24", "20-24  (this
     print(f"    Difference on the exposed side:    {t - (-11):+.1f}pp")
 
 print("\n" + "=" * 100)
-print("WHICH SIDE OPENS THE GAP?")
+print("TWO QUESTIONS, TWO BENCHMARKS")
 print("=" * 100)
 print("""
-  A displacement account requires the exposed side to fall. Decomposing the gap into
-  the deviation of each group from zero growth:""")
+  These are separate questions and they take different benchmarks. An earlier version
+  of this script ran them together against zero and reported that none of the gap came
+  from the exposed side. That was an artifact: it truncated a positive growth rate at
+  zero, so it could not have reported anything else. Both are shown here.
+
+  Q1  DID THE EXPOSED SIDE CONTRACT?  Benchmark zero. A displacement account needs
+      employment in exposed occupations to fall in levels.
+
+  Q2  WHICH SIDE OPENS THE GAP?  Benchmark the aggregate growth of the young cohort,
+      because "no gap" means both groups growing at the common rate, not at zero.
+      Against zero the shares are uninterpretable and can exceed 100%.""")
+
 for band, lab in [("a22_25", "22-25"), ("a20_24", "20-24")]:
-    t, b = RES[band]["top"], RES[band]["bot"]
+    B = RES[band]["B"]
+    t, b, allg = RES[band]["top"], RES[band]["bot"], RES[band]["all"]
     gap = t - b
-    print(f"\n  {lab}:  gap = {gap:+.1f}pp")
-    print(f"    from the exposed side falling below zero : {min(t,0):+.1f}pp  "
-          f"({100*min(t,0)/gap if gap else 0:.0f}% of the gap)")
-    print(f"    from the unexposed side rising above zero: {-max(b,0):+.1f}pp  "
-          f"({100*max(b,0)/abs(gap) if gap else 0:.0f}% of the gap)")
+    ci = lambda c: np.percentile(B[:, c], [2.5, 97.5])
+    pv = lambda c: 2 * min((B[:, c] <= 0).mean(), (B[:, c] >= 0).mean())
+    print(f"\n  {lab}:  top2 {t:+.2f}%   bot3 {b:+.2f}%   all occupations {allg:+.2f}%   gap {gap:+.2f}pp")
+    print(f"    Q1  exposed-side growth vs zero        {t:+.2f}%   "
+          f"[{ci(0)[0]:+.1f}, {ci(0)[1]:+.1f}]  p = {pv(0):.3f}   -> did NOT contract")
+    print(f"    Q2  benchmark = aggregate ({allg:+.2f}%)")
+    print(f"          exposed side underperforms   {t-allg:+.2f}pp  "
+          f"[{ci(4)[0]:+.1f}, {ci(4)[1]:+.1f}]  p = {pv(4):.3f}   ({100*(t-allg)/gap:.1f}% of the gap)")
+    print(f"          unexposed side outperforms   {b-allg:+.2f}pp  "
+          f"[{ci(5)[0]:+.1f}, {ci(5)[1]:+.1f}]  p = {pv(5):.3f}   ({-100*(b-allg)/gap:.1f}% of the gap)")
+    print(f"    For contrast, the same split against zero: "
+          f"exposed {100*t/gap:.1f}%, unexposed {-100*b/gap:.1f}% (uninterpretable)")
+
+print("""
+  The gap is split roughly evenly with a tilt toward the exposed side. Both sides move.
+  The exposed side underperforms the aggregate without contracting, which rejects the
+  displacement magnitude without supporting a claim that the gap is generated entirely
+  by the unexposed side.""")
 
 print("\n" + "=" * 100)
 print("THE FULL PATH, indexed to 2022 = 100")
@@ -201,7 +232,7 @@ ax[2].set_ylabel("frequency", fontsize=10)
 ax[2].set_title("3. Bootstrap distribution\nCanaries' estimate is far outside", fontsize=11.5, fontweight="bold")
 ax[2].legend(fontsize=8.5); ax[2].grid(True, ls="--", alpha=.35)
 
-fig.suptitle("Reallocation, not displacement: the gap opens from the unexposed side",
+fig.suptitle("Underperformance without contraction: the exposed side grew, and grew slower than the aggregate",
              fontsize=13, fontweight="bold", y=1.02)
 plt.tight_layout(); plt.savefig("entry_level_decomposition.png", dpi=150, bbox_inches="tight")
 print("\nChart saved: entry_level_decomposition.png")
