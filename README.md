@@ -27,7 +27,7 @@ For 60 years there has been a reliable rule in economics: when the economy grows
 
 This is why it survives when nothing else did. It is a **statement about levels, not a regression**, so it does not depend on the difference-in-differences design that failed its placebo tests. And it is identical under the raw Eloundou score with **no O\*NET term at all**, which makes it immune to the mis-specified-complementarity problem that invalidated the occupation-level result. Both sides move, and the larger component is the *rise* in low-exposure work rather than the fall in exposed work.
 
-**It has since been strengthened, and it now has a regression form (Part 6).** With occupation and year fixed effects across 451 occupations the coefficient is −0.4632 (p = 0.0001) for 20-24 and −0.4200 (p = 0.0001) on the 22-25 band used by Brynjolfsson, Chandar and Chen (2026). It **strengthens** under education and wage controls rather than attenuating (−0.5327 and −0.4627 with both), the pre-AI placebo on the controlled specification is clean (p = 0.50 and p = 0.73), and the 2022 break survives all eight BLS/CPS splice variants. The published version of this result concedes attenuation on education, pre-existing divergent trends, and weakness in national survey benchmarks. This one improves on all three.
+**It has since been strengthened, and it now has a regression form (Part 6).** With occupation and year fixed effects the coefficient is −0.4034 (p = 0.0001) on the 22-25 band used by Brynjolfsson, Chandar and Chen (2026), and −0.4446 (p = 0.0001) for 20-24. It **strengthens** under education and wage controls rather than attenuating (−0.4424 and −0.5095 with both), the pre-AI placebo on the controlled specification is clean (p = 0.50 and p = 0.73), and the 2022 break survives all eight BLS/CPS splice variants. The published version of this result concedes attenuation on education, pre-existing divergent trends, and weakness in national survey benchmarks. This one improves on all three.
 
 **What it does not establish, and Part 6 now shows why.** It is a sorting fact rather than a displacement fact, and the levels decomposition locates the mechanism: employment in the two most exposed quintiles **grew +1.9%** over 2022-2026 (95% CI −4.0 to +8.2), while the three least exposed grew +8.7% (p = 0.007). Benchmarked against what young employment actually did (+5.8%), the gap splits 57.5% from the exposed side underperforming and 42.5% from the unexposed side outperforming, so both sides move and neither dominates. The exposed group's 3.9pp shortfall is not significant (p = 0.141); what the levels settle is that it did not contract. Young workers ending up in more manual and service work is consistent with AI closing exposed entry points, and equally consistent with where job growth happened, with education and major choices, and with the post-2021 boom in in-person work. This project cannot separate those, and the movement predates 2022 in the levels.
 
@@ -139,6 +139,7 @@ Finance originally had a fourth mismatch (employment included Real Estate); it i
 | [`cps_within_occupation_age.py`](cps_within_occupation_age.py) | Part 5: the closing test; within-occupation age composition, CPS 2016-2025 |
 | [`ai_intensity_ramp.py`](ai_intensity_ramp.py) | Part 5: replaces the Q4 2022 step dummy with diffusion; the ramp test that separates the two channels |
 | [`entry_level_measure_reaudit.py`](entry_level_measure_reaudit.py) | The retraction of a retraction: the exposure measure was broken, and the null it produced was not evidence of absence |
+| [`section3_core.py`](section3_core.py) | Section 3: the core young-share specification, event study, and the cut-off / weighting / influence checks |
 | [`spec_checks_vs_canaries.py`](spec_checks_vs_canaries.py) | Part 6: the three specification checks against the published design (age band, quintiles, education) |
 | [`entry_level_decomposition.py`](entry_level_decomposition.py) | Part 6: decomposes the exposure gap into levels; the exposed side does not fall |
 | [`adp_cps_reconciliation.py`](adp_cps_reconciliation.py) | Part 6: walks the CPS to ADP's universe and window; neither explains the disagreement |
@@ -1036,19 +1037,21 @@ Three ways the sorting finding could have been a specification artifact, all tes
 
 | specification | coef | p |
 |---|---:|---:|
-| 20-24 share, composite exposure | −0.4632 | 0.0001 |
-| **22-25 share (their band), composite** | **−0.4200** | **0.0001** |
-| 20-24 share, raw GPT-4 β | −0.4403 | 0.0005 |
-| 22-25 share, raw GPT-4 β | −0.3968 | 0.0002 |
+| **22-25 share (their band, now primary), composite** | **−0.4034** | **0.0001** |
+| 20-24 share, composite exposure | −0.4446 | 0.0001 |
+| 22-25 share, raw GPT-4 β | −0.3816 | 0.0002 |
+| 20-24 share, raw GPT-4 β | −0.4229 | 0.0005 |
+
+These are the corrected figures. An age-25 hole in the non-overlapping bands had been dropping every 25-year-old from the denominator, which also made the 22-25 share a ratio whose numerator was not inside it; fixing it moved the coefficients about 4% and changed no inference. **22-25 is now the primary band on evidence rather than for comparability** — see the event study in Section 3 of [`PAPER.md`](PAPER.md), where 20-24 shows four of six pre-2022 coefficients significant and fails an unweighted specification, and 22-25 does neither.
 
 **Education.** Their abstract concedes that their patterns "attenuate when controlling for education." These do not attenuate; they strengthen. Adding Job Zone × post and log median wage × post, on 451 occupations with occupation and year fixed effects:
 
 | band | no controls | + education | + wage | + both |
 |---|---:|---:|---:|---:|
-| 20-24 | −0.4632 | −0.5192 | −0.5344 | **−0.5327** |
-| 22-25 | −0.4200 | −0.4400 | −0.4846 | **−0.4627** |
+| 22-25 (primary) | −0.4034 | −0.4208 | −0.4636 | **−0.4424** |
+| 20-24 | −0.4446 | −0.4967 | −0.5112 | **−0.5095** |
 
-The pre-AI placebo on the same controlled specification (2016-2019, fake post = 2018) is clean in both bands: exposure +0.0683 (p = 0.50) and +0.0333 (p = 0.73), with the controls themselves insignificant. This is the strongest position this project holds relative to the published literature.
+The pre-AI placebo on the same controlled specification (2016-2019, fake post = 2018) is clean in both bands: exposure +0.0401 (p = 0.66) for 22-25 and +0.0744 (p = 0.45) for 20-24, with the controls themselves insignificant. This is the strongest position this project holds relative to the published literature.
 
 **Quintiles.** In regression form the quintile cut agrees: a binary top-2-quintile indicator × post gives −0.2507 (p = 0.032) for 20-24 and −0.1991 (p = 0.051) for 22-25. **In levels it does not agree**, and that disagreement is the rest of this part.
 
@@ -1127,7 +1130,7 @@ The sorting finding is not a specification artifact: it holds in both age bands,
 
 The displacement *reading* of that finding does not survive in nationally representative data. The exposed side did not contract, the gap is generated almost entirely by the unexposed side rising, and neither sample universe nor window explains the discrepancy with the published ADP figure.
 
-**The estimands have different power and the paper is explicit about it.** The share regression uses variation across 451 occupations and is significant at p = 0.0001. The levels gap compares two aggregates dominated by a handful of large occupations, and at p = 0.141 it is not significant. That is an estimand difference, not a conflict in the data. The share result establishes *that* young workers are sorted away from exposed work; the levels result establishes *where in the distribution* that happens and rejects a specific published magnitude. It does not establish a significant reallocation gap on its own, and nothing here claims one.
+**The estimands have different power and the paper is explicit about it.** The share regression uses variation across 457 occupations and is significant at p = 0.0001. The levels gap compares two aggregates dominated by a handful of large occupations, and at p = 0.141 it is not significant. That is an estimand difference, not a conflict in the data. The share result establishes *that* young workers are sorted away from exposed work; the levels result establishes *where in the distribution* that happens and rejects a specific published magnitude. It does not establish a significant reallocation gap on its own, and nothing here claims one.
 
 Drafted as Section 5 of [`PAPER.md`](PAPER.md).
 

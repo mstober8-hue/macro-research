@@ -41,10 +41,15 @@ with gzip.open(SRC, "rt") as fh:
         wt = col("WTFINL", float)[keep] / 10000.0
         a = age[keep]; mo = col("MONTH", int)[keep]; n_kept += keep.sum()
 
-        # Emit each record into every band it belongs to. a20_24 and a22_25 overlap.
+        # Emit each record into every band it belongs to. a20_24 and a22_25 overlap,
+        # and a25 is a singleton band that exists so the non-overlapping set
+        # (u20, a20_24, a25, a26_30, a31_34, a35p) tiles 16-64 with no hole. Without
+        # it the reconstructed denominator silently dropped every 25-year-old, which
+        # also made the 22-25 share a ratio whose numerator was not inside it.
         for band, mask in [("u20",    a < 20),
                            ("a20_24", (a >= 20) & (a <= 24)),
                            ("a22_25", (a >= 22) & (a <= 25)),
+                           ("a25",    a == 25),
                            ("a26_30", (a >= 26) & (a <= 30)),
                            ("a31_34", (a >= 31) & (a <= 34)),
                            ("a35p",   a >= 35)]:

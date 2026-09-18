@@ -8,14 +8,177 @@ Draft. Section 5 is written; the rest is the agreed skeleton.
 |---|---|---|
 | 1 | Introduction | outline |
 | 2 | Data and measures | outline |
-| 3 | Replication: the young-share result | outline |
+| **3** | **The young-employment share in AI-exposed occupations** | **drafted** |
 | 4 | Strengthening: controls, placebo, break date | outline |
 | **5** | **Where the gap comes from** | **drafted** |
 | 6 | Measure divergence: task-based against revealed usage | outline |
 | 7 | Limits | outline |
 
-Reproduce Section 5 with `python3 entry_level_decomposition.py` and
-`python3 adp_cps_reconciliation.py`.
+Reproduce Section 3 with `python3 section3_core.py`, and Section 5 with
+`python3 entry_level_decomposition.py` and `python3 adp_cps_reconciliation.py`.
+
+---
+
+# 3. The young-employment share in AI-exposed occupations
+
+## 3.1 Specification
+
+The estimating equation is a two-way fixed-effects difference-in-differences on an
+occupation-by-year panel:
+
+    share_it = a_i + d_t + B * ( z(exposure_i) x post_t ) + e_it
+
+where `share_it` is employment in the age band as a percent of occupation i's total
+16 to 64 employment in year t, `a_i` and `d_t` are occupation and year fixed
+effects, exposure is z-scored across occupations, and `post_t` is an indicator for
+years from 2023. Cells are weighted by occupation employment and standard errors
+cluster on occupation, which is the level at which exposure varies and therefore
+the level at which residuals are correlated.
+
+B is the change in the young share, in percentage points, associated with a one
+standard deviation increase in AI exposure after 2022, holding the occupation's own
+level and the common year effect fixed. The sample is 457 occupations and 4,625
+occupation-years covering 2016 to 2026, built from 6.0 million IPUMS CPS person
+records.
+
+Two exposure measures are used throughout. The raw Eloundou et al. GPT-4 beta
+rating is the primary measure in the study this paper replicates. The composite
+additionally discounts exposure by an O*NET-derived complementarity index, on the
+reasoning that an exposed task performed face to face under high consequence of
+error is less substitutable than the rating alone implies. Results are reported
+under both, and no claim in this paper depends on the composite.
+
+**A defect corrected in the panel.** The non-overlapping age bands originally used
+to reconstruct the denominator were under 20, 20 to 24, 26 to 30, 31 to 34, and 35
+plus, which leave a hole at exactly age 25. Every 25 year old was therefore missing
+from total employment, understating the denominator by about 2 percent, and the 22
+to 25 share was a ratio whose numerator included people its denominator did not.
+The panel now carries a singleton band at 25 so the non-overlapping set tiles 16 to
+64. Correcting it moved the coefficients by roughly 4 percent and changed no
+inference, and it is recorded here because the uncorrected figures appear in
+earlier versions of this project.
+
+## 3.2 The core result
+
+**Table 3.1.** Young-employment share on AI exposure, two-way fixed effects,
+occupation-clustered standard errors. 457 occupations, 4,625 cells, 2016 to 2026.
+
+| age band | exposure measure | B | SE | p |
+|---|---|---:|---:|---:|
+| **22-25 (primary)** | **composite** | **−0.4004** | 0.1042 | **0.0001** |
+| 22-25 (primary) | raw GPT-4 beta | −0.3790 | 0.1018 | 0.0002 |
+| 20-24 (robustness) | composite | −0.4421 | 0.1115 | 0.0001 |
+| 20-24 (robustness) | raw GPT-4 beta | −0.4200 | 0.1213 | 0.0005 |
+
+All four specifications give the same answer at the same order of magnitude. A one
+standard deviation increase in exposure is associated with a 0.40 percentage point
+fall in the 22 to 25 share of an occupation's employment after 2022. Against a mean
+22 to 25 share of 8.47 percent, that is a relative decline of about 4.7 percent per
+standard deviation. The result does not depend on the complementarity adjustment,
+since the raw rating gives −0.3790 on its own.
+
+## 3.3 Timing
+
+A fixed post indicator imposes a single step and reveals nothing about when the
+change arrives. Replacing it with a full set of exposure-by-year interactions, with
+2022 omitted as the base year, gives the path directly.
+
+**Table 3.2.** Event study, 22 to 25 share, composite exposure. 2022 omitted.
+
+| year | B | SE | 95% CI |
+|---|---:|---:|---:|
+| 2016 | +0.0240 | 0.1575 | [−0.285, +0.333] |
+| 2017 | +0.1250 | 0.1553 | [−0.179, +0.429] |
+| 2018 | +0.2440 | 0.1867 | [−0.122, +0.610] |
+| 2019 | +0.1602 | 0.1376 | [−0.110, +0.430] |
+| 2020 | +0.2560 | 0.1098 | [+0.041, +0.471] |
+| 2021 | +0.1195 | 0.1258 | [−0.127, +0.366] |
+| 2023 | −0.2776 | 0.1271 | [−0.527, −0.028] |
+| 2024 | −0.0684 | 0.1254 | [−0.314, +0.177] |
+| 2025 | −0.2721 | 0.1245 | [−0.516, −0.028] |
+| 2026 | **−0.4643** | 0.1614 | [−0.781, −0.148] |
+
+One of six pre-2022 coefficients is individually significant, and it is 2020, the
+pandemic year, where exposed office occupations retained young workers while
+in-person work shed them. The remaining five are indistinguishable from zero. Every
+post-2022 coefficient is negative, three of four significantly so, and the series
+reaches its most negative value in the most recent year rather than immediately
+after the cutoff.
+
+That shape matters for interpretation. A one-off reclassification or a
+level shift would jump and then flatten. A diffusion process ramps. The 2024
+attenuation to −0.0684 interrupts the monotonicity and is not explained here,
+though the point estimate stays negative and the trajectory resumes afterward.
+
+## 3.4 What could be doing the work
+
+Three discretionary choices enter the baseline. Each is varied rather than
+asserted.
+
+**Table 3.3.** Sensitivity of the composite-exposure coefficient, p-values in
+parentheses.
+
+| | 22-25 | 20-24 |
+|---|---:|---:|
+| **post from 2022** | −0.3696 (0.0007) | −0.4587 (0.0000) |
+| **post from 2023 (baseline)** | −0.4004 (0.0001) | −0.4421 (0.0001) |
+| **post from 2024** | −0.3432 (0.0005) | −0.4059 (0.0005) |
+| employment weighted (baseline) | −0.4004 (0.0001) | −0.4421 (0.0001) |
+| **unweighted** | −0.4325 (0.0124) | **−0.2527 (0.1899)** |
+| full sample, 457 occupations | −0.4004 (0.0001) | −0.4421 (0.0001) |
+| drop 10 largest occupations | −0.3708 (0.0006) | −0.4756 (0.0001) |
+| drop 25 largest occupations | −0.4858 (0.0000) | −0.5789 (0.0000) |
+
+The cutoff year does not carry the result: the coefficient moves within a narrow
+band across all three choices and stays significant at better than 1 percent
+throughout. Influence does not carry it either, and dropping the 25 largest
+occupations strengthens rather than weakens it, which rules out the possibility
+that a handful of large occupations are generating the effect.
+
+Weighting does matter, and it matters asymmetrically. The 22 to 25 result survives
+unweighted at p = 0.0124. The 20 to 24 result does not, falling to −0.2527 with
+p = 0.1899. Employment weighting is defensible here, since the quantity of interest
+is what happened to young workers rather than what happened to the average
+occupational category, and an unweighted specification gives a 400-person
+occupation the same influence as a 2-million-person one. It remains the case that
+one of the two bands depends on that choice and the other does not.
+
+## 3.5 Why 22 to 25 is the primary band
+
+This project originally used 20 to 24, and the comparison study uses 22 to 25. The
+obvious reason to prefer 22 to 25 is comparability. The better reason is that it is
+the more defensible band on this data, and the diagnostics in this section are what
+establish that.
+
+Running the event study on 20 to 24 gives four of six pre-2022 coefficients
+individually significant at 5 percent, all positive, rising to +0.5148 in 2018. The
+20 to 24 share was climbing in exposed occupations for years before generative AI
+existed, and the post-2022 fall is measured against that rising path. A
+conventional placebo does not catch this, because differencing two halves of the
+pre-period removes a smooth trend; the event study catches it because it holds
+every year against a single base.
+
+The 22 to 25 band has no such problem, with one pre-period coefficient significant
+and that one attributable to the pandemic. It also survives the unweighted
+specification that 20 to 24 fails. Both considerations point the same way, so 22 to
+25 is primary throughout this paper and 20 to 24 is reported as robustness with the
+pre-trend caveat attached wherever it appears.
+
+The 20 to 21 year olds are the likely source. They are disproportionately students
+and part-time workers, so their occupational distribution tracks enrollment,
+schedule, and the post-2021 in-person recovery more than it tracks AI. Removing
+them removes the pre-trend.
+
+## 3.6 Summary
+
+The young-employment share falls in AI-exposed occupations after 2022, within
+occupation and relative to less-exposed occupations. The estimate is
+−0.40 percentage points per standard deviation of exposure for the 22 to 25 band,
+significant at p = 0.0001, robust to the exposure measure, the cutoff year,
+employment weighting, and the exclusion of the largest occupations. The event study
+shows a flat pre-period and a post-2022 path that reaches its most negative value
+in 2026. Section 4 asks whether the estimate is exposure proxying for education or
+pay.
 
 ---
 
@@ -58,8 +221,8 @@ elsewhere in this paper is not needed here and is not used. Standard errors come
 from a nonparametric bootstrap resampling occupations with replacement, 2,000
 replications. Occupations are the sampling unit and the level at which exposure
 varies, so they are the level at which resampling has to happen. Both age bands
-are reported: 22 to 25 to match Brynjolfsson et al., and 20 to 24 as this
-paper's primary band.
+are reported, with 22 to 25 primary for the reasons given in Section 3.5 and 20 to
+24 as robustness.
 
 ## 5.3 The exposed side does not fall
 

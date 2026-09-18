@@ -83,11 +83,16 @@ OCC = XW[["occ"] + CS].dropna(subset=["rep_good"]).drop_duplicates("occ")
 P = pd.read_csv("cps_panel_bands.csv")
 W = P.pivot_table(index=["occ", "year"], columns="band", values="emp", aggfunc="sum").fillna(0.0).reset_index()
 W = W.merge(OCC, on="occ", how="inner")
-W["tot"] = W[["a20_24", "a25_34" if "a25_34" in W else "a26_30", "a35p"]].sum(axis=1) if False else \
-           W[["u20", "a20_24", "a26_30", "a31_34", "a35p"]].sum(axis=1)
-# total employment 16-64 reconstructed from non-overlapping bands
-W["tot"] = W[["u20", "a20_24", "a26_30", "a31_34", "a35p"]].sum(axis=1) + \
-           (W["a22_25"] - W["a22_25"])  # a22_25 overlaps a20_24; excluded from tot
+# Total employment 16-64, reconstructed from the NON-OVERLAPPING bands only.
+# a25 is a singleton band and it has to be here: u20, a20_24, a26_30, a31_34 and
+# a35p leave a hole at exactly age 25, and an earlier version of this line dropped
+# every 25-year-old from the denominator. That understated tot by ~2% and, worse,
+# made share_2225 a ratio whose numerator (22-25) included people its denominator
+# did not. a22_25 itself is excluded because it overlaps a20_24 by construction.
+NONOVERLAP = ["u20", "a20_24", "a25", "a26_30", "a31_34", "a35p"]
+missing = [c for c in NONOVERLAP if c not in W.columns]
+assert not missing, f"rebuild cps_panel_bands.csv: missing {missing}"
+W["tot"] = W[NONOVERLAP].sum(axis=1)
 D = W[(W.year >= 2016)].copy()
 D = D[(D.tot > 0) & (D.a20_24 > 0) & (D.a22_25 > 0)].copy()
 D["share_2024"] = 100 * D.a20_24 / D.tot
