@@ -29,3 +29,6 @@ bls_occ_age_2011_2022.csv
 # regenerate with build_cps_panel_adp.py.
 cps_panel_adp.csv
 cps_panel_adp_monthly.csv
+
+# built artifact; regenerate with ./make_docx.sh
+PAPER.docx
