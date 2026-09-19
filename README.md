@@ -139,7 +139,9 @@ Finance originally had a fourth mismatch (employment included Real Estate); it i
 | [`cps_within_occupation_age.py`](cps_within_occupation_age.py) | Part 5: the closing test; within-occupation age composition, CPS 2016-2025 |
 | [`ai_intensity_ramp.py`](ai_intensity_ramp.py) | Part 5: replaces the Q4 2022 step dummy with diffusion; the ramp test that separates the two channels |
 | [`entry_level_measure_reaudit.py`](entry_level_measure_reaudit.py) | The retraction of a retraction: the exposure measure was broken, and the null it produced was not evidence of absence |
+| [`entry_panel.py`](entry_panel.py) | One construction of the entry-level panel, shared by every script that estimates on it; asserts the age bands tile 16-64 |
 | [`section3_core.py`](section3_core.py) | Section 3: the core young-share specification, event study, and the cut-off / weighting / influence checks |
+| [`section4_controls.py`](section4_controls.py) | Section 4: education and wage controls, occupation trends, placebo, and the 2020-vs-2022 break race |
 | [`spec_checks_vs_canaries.py`](spec_checks_vs_canaries.py) | Part 6: the three specification checks against the published design (age band, quintiles, education) |
 | [`entry_level_decomposition.py`](entry_level_decomposition.py) | Part 6: decomposes the exposure gap into levels; the exposed side does not fall |
 | [`adp_cps_reconciliation.py`](adp_cps_reconciliation.py) | Part 6: walks the CPS to ADP's universe and window; neither explains the disagreement |
@@ -1053,6 +1055,19 @@ These are the corrected figures. An age-25 hole in the non-overlapping bands had
 
 The pre-AI placebo on the same controlled specification (2016-2019, fake post = 2018) is clean in both bands: exposure +0.0401 (p = 0.66) for 22-25 and +0.0744 (p = 0.45) for 20-24, with the controls themselves insignificant. This is the strongest position this project holds relative to the published literature.
 
+The controls are informative rather than collinear: exposure correlates +0.511 with Job Zone and +0.372 with log wage, and regressing exposure on both gives R² = 0.263, so **74% of the variation in exposure is orthogonal to both**.
+
+**The pre-trend objection, tested two ways (`section4_controls.py`).** Absorbing an occupation-specific linear trend over the *full* 2016-2026 window leaves −0.1623 (p = 0.54) for 22-25. That is uninformative rather than adverse: the standard error is 2.5× the baseline's and the interval [−0.68, +0.36] contains both zero *and* the baseline −0.4004. A trend fitted through the treatment window absorbs a treatment that ramps, and the event study shows this one ramps. Fitting each occupation's trend on the **pre-period only** and extrapolating is the version a ramping effect can pass:
+
+| | 22-25 (primary) | 20-24 |
+|---|---:|---:|
+| trend fitted 2016-2022 | **−0.3840 (0.0018)** | −0.2506 (0.0663) |
+| ex-COVID (2020-21 dropped from the fit) | **−0.3570 (0.0073)** | −0.1966 (0.1681) |
+
+22-25 survives near its baseline magnitude. 20-24 does not, which is the third independent diagnostic behind the band choice.
+
+**Break date.** Entering 2020 and 2022 steps together, the 2022 term takes the whole effect (−0.3927, p < 0.001) and the 2020 term is nothing (−0.0187, p = 0.861). The timing is generative AI, not a delayed COVID reallocation.
+
 **Quintiles.** In regression form the quintile cut agrees: a binary top-2-quintile indicator × post gives −0.2507 (p = 0.032) for 20-24 and −0.1991 (p = 0.051) for 22-25. **In levels it does not agree**, and that disagreement is the rest of this part.
 
 ## Which side opens the gap (`entry_level_decomposition.py`)
@@ -1287,7 +1302,7 @@ The displacement reading of that sorting does **not** survive. Decomposed into l
 
 **What the levels do not settle is which side opens the gap.** Benchmarked against aggregate young employment growth (+5.8%), the split is 57.5% exposed / 42.5% unexposed, and neither deviation is significant (p = 0.141 for both, necessarily, since they are one test). An earlier version of this section reported that 128% of the gap came from the unexposed side; that figure used zero growth as the benchmark and truncated a positive growth rate at zero, so it could not have reported anything else. It is withdrawn.
 
-Note the estimands differ in power: the share regression is significant at p = 0.0001 across 451 occupations, the levels gap is not (−6.8pp, p = 0.141), because group aggregates are dominated by a few large occupations. The share result establishes *that* the sorting happens; the levels result establishes *where in the distribution* and rejects a published magnitude. Neither this project nor the paper claims a significant reallocation gap in levels.
+Note the estimands differ in power: the share regression is significant at p = 0.0001 across 457 occupations, the levels gap is not (−6.8pp, p = 0.141), because group aggregates are dominated by a few large occupations. One qualification belongs on the record: the most demanding trend specification, with occupation trends fitted over the full window, is uninformative rather than supportive, and a reader who holds that specification to be the right one should treat the share result as unproven rather than established. The share result establishes *that* the sorting happens; the levels result establishes *where in the distribution* and rejects a published magnitude. Neither this project nor the paper claims a significant reallocation gap in levels.
 
 ### Tech's break survived everything thrown at it → **BEST-STRESS-TESTED SINGLE RESULT**
 Information's post-2022 slope stays inside +0.150 to +0.223 across eight specifications (baseline, five rate controls, two overhang controls), and its real productivity (+7.2%/yr, with genuine falling deflators, no FISIM issue) is the highest in the sample while its 2024-2025 employment is shrinking.
