@@ -1174,7 +1174,13 @@ In a horse race the task-based measure takes everything (−0.4141, p = 0.002) a
 
 This does **not** establish an anticipation channel, tempting as the reading is. A measure this concentrated cannot distinguish "deployment doesn't drive entry-level hiring" from "this doesn't measure deployment."
 
-Drafted as Sections 3, 4, 5 and 6 of [`PAPER.md`](PAPER.md).
+## The paper
+
+[`PAPER.md`](PAPER.md) is a full draft, all seven sections, ~9,000 words: *Underperformance Without Contraction: entry-level employment and AI exposure in nationally representative data*. It runs on CPS microdata 2016-2026 only, and reproduces from four scripts sharing one panel construction in [`entry_panel.py`](entry_panel.py).
+
+Its three claims: the entry-level exposure gap **replicates and strengthens** where the published version concedes weakness; the published **−11% magnitude does not replicate** (+1.9%, rejected at p < 0.001, and neither universe nor window explains it); and **capability predicts the gap while observed deployment does not**. Its central limit is that the outcome is a composition, so the age mix of exposed occupations demonstrably shifted while displacement of young workers from them is not established.
+
+Outstanding: bibliographic verification, figure callouts, and a data appendix.
 
 ---
 # Where the whole thing stands

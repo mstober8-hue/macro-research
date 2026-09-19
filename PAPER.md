@@ -2,11 +2,12 @@
 
 **Entry-level employment and AI exposure in nationally representative data**
 
-Draft. Section 5 is written; the rest is the agreed skeleton.
+Full draft. All seven sections written. Remaining: bibliographic verification,
+figure callouts, and a data appendix.
 
 | # | Section | Status |
 |---|---|---|
-| 1 | Introduction | outline |
+| **1** | **Introduction** | **drafted** |
 | **2** | **Data and measures** | **drafted** |
 | **3** | **The young-employment share in AI-exposed occupations** | **drafted** |
 | **4** | **Is it exposure, or is exposure a proxy?** | **drafted** |
@@ -18,6 +19,91 @@ Reproduce Section 3 with `python3 section3_core.py`, Section 4 with
 `python3 section4_controls.py`, Section 6 with `python3 section6_measures.py`,
 and Section 5 with
 `python3 entry_level_decomposition.py` and `python3 adp_cps_reconciliation.py`.
+
+---
+
+# 1. Introduction
+
+If generative AI substitutes for labor, the effect should appear first at the entry
+level. Entry-level work in exposed occupations is disproportionately the drafting,
+summarizing, and routine-analysis work that large language models do well, and
+hiring is the margin firms adjust first, because declining to hire is cheaper and
+faster than separating an incumbent. A labor-substitution effect too small to show
+up in aggregate employment could still be visible in who gets hired into exposed
+occupations.
+
+Brynjolfsson, Chandar and Chen (2026) report exactly that pattern. In ADP payroll
+microdata covering November 2022 to June 2026, employment of 22 to 25 year olds
+fell about 11 percent in the two most AI-exposed occupational quintiles while
+rising about 10 percent in the three least exposed, and they read the divergence as
+AI displacing the entry tier of exposed work.
+
+That finding deserves an independent test, for three reasons the authors themselves
+identify. Their abstract concedes that their patterns "attenuate when controlling
+for education, show some divergent trends predating generative AI, and are more
+pronounced in the ADP analysis sample than in national survey benchmarks." Each is
+a live objection, and the third is structural: ADP observes the payroll clients of
+one firm, skewed toward employers large enough to outsource payroll.
+
+This paper runs the test on nationally representative household data. The panel is
+6.0 million IPUMS CPS person records, 2016 to 2026, aggregated to 457 occupations,
+using the same primary exposure measure the original uses.
+
+**The pattern replicates and strengthens.** The young share of employment falls in
+AI-exposed occupations after 2022, by 0.40 percentage points per standard deviation
+of exposure on the 22 to 25 band, significant at p = 0.0001. It holds on the raw
+task-exposure rating with no adjustment, across cutoff years, weighted and
+unweighted, and when the largest occupations are dropped. Where the original
+attenuates under education controls, this estimate **strengthens**, to −0.4424
+with education and pay held constant. Its pre-AI placebo is clean, it survives
+occupation-specific trends fitted on the pre-period and extrapolated forward, and
+in a horse race between a 2020 step and a 2022 step the 2022 term takes the entire
+effect while the 2020 term is indistinguishable from zero. The timing is generative
+AI rather than a delayed pandemic reallocation.
+
+**The magnitude does not replicate, and the mechanism is different.** Decomposing
+the same gap into levels, employment of 22 to 25 year olds in the two most exposed
+quintiles **grew 1.9 percent** over 2022 to 2026, with a confidence interval of
+[−4.0, +8.2] that rejects the reported −11 percent at p < 0.001. Restricting the
+CPS to exactly ADP's universe and dating it to exactly ADP's window leaves the
+estimate unchanged at +1.9 percent. Stacking every specification choice
+adversarially reaches −4.7 percent, at which point a third of the sample remains
+and the interval rejects nothing in either direction. Exposed occupations
+underperformed the growing aggregate by 3.9 percentage points, a shortfall this
+data cannot distinguish from zero, and they did not contract, which is what a
+displacement account requires.
+
+**Capability predicts the gap; observed deployment does not.** Replacing the
+task-based exposure rating with revealed Claude usage turns the result into a null,
+and in a horse race the task-based measure takes everything while revealed usage
+goes to zero and changes sign. That is a fact about the revealed measure as much as
+about AI: usage concentrates 29 percent of its mass on ten occupations holding 0.6
+percent of employment, and those ten are editors, writers, librarians and
+announcers. Results in this literature are measure-dependent to a degree that can
+flip a headline finding, and this paper's own estimate should be read in that
+light.
+
+**What this paper does not establish.** The outcome is a composition. Running the
+same specification on the numerator and the denominator separately gives
+−2.9 percent on young employment and +1.7 percent on total employment, neither
+significant, against a share effect of −4.5 percent that is. The age composition
+of exposed occupations shifted; whether young workers were displaced from them is
+not resolved here. There is no exogenous variation in exposure anywhere in the
+design, and exposure-correlated interest-rate sensitivity, in a window containing a
+large monetary tightening, is an untested confounder. Section 7 sets out these
+limits and several others.
+
+The contribution is therefore narrower than the original claim and, in one respect,
+more secure. The entry-level exposure gap is real, survives a battery the published
+version concedes it does not, and is visible in nationally representative data. The
+displacement reading of that gap is not supported: in the population as a whole,
+young employment in the most AI-exposed occupations did not fall.
+
+Section 2 describes the data. Section 3 gives the core estimate and the diagnostics
+that make 22 to 25 the primary band. Section 4 tests whether exposure is standing
+in for education, pay, or a pre-existing trend. Section 5 decomposes the gap and
+reconciles the disagreement with payroll data. Section 6 reports the divergence
+between capability-based and usage-based measures. Section 7 sets out the limits.
 
 ---
 
@@ -937,3 +1023,32 @@ recorded rather than explained: the automation share of AI usage correlates
 the ones using AI most augmentatively. A simple substitution mechanism does not
 predict that.
 
+---
+
+# References
+
+> **These entries need bibliographic verification before submission.** Author
+> lists, dates, venues and versions below are as carried in this project's source
+> files and have not been checked against the published records.
+
+Brynjolfsson, E., B. Chandar and R. Chen (2026). "Canaries in the Coal Mine?
+Six Facts about the Recent Employment Effects of Artificial Intelligence."
+Working paper, August 2026.
+
+Eloundou, T., S. Manning, P. Mishkin and D. Rock. "GPTs are GPTs: An Early Look at
+the Labor Market Impact Potential of Large Language Models." Occupational exposure
+scores, human and model GPT-4 beta ratings.
+
+Felten, E., M. Raj and R. Seamans (2023). AI Occupational Exposure (AIIE) index.
+Used elsewhere in this project; not used in this paper.
+
+Anthropic (2026). Anthropic Economic Index, SOC occupation release, 26 June 2026.
+
+Flood, S., et al. IPUMS CPS: Version [x]. Minneapolis, MN: IPUMS. Monthly Current
+Population Survey microdata, 2016 to 2026.
+
+U.S. Bureau of Labor Statistics. Occupational Employment and Wage Statistics
+(OEWS), May 2022 national estimates.
+
+U.S. Department of Labor. O*NET Database: Work Context ratings (CX scale) and Job
+Zones.
