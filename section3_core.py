@@ -107,6 +107,34 @@ for k in (0, 10, 25):
         row += f"{b[0]:>+11.4f} ({p[0]:.4f})"
     print(row + f"   [{sub.occ.nunique()} occ]")
 
+# ---- 4b. WHICH change makes 22-25 clean? ---------------------------------------
+print("\n" + "=" * 96)
+print("4b. THE BAND CHANGE DOES TWO THINGS. WHICH ONE CLEANS THE PRE-PERIOD?")
+print("=" * 96)
+print("""
+  Moving from 20-24 to 22-25 drops the 20-21 year olds AND adds the 25 year olds.
+  a22_24 = a22_25 - a25 isolates the first change, so the three rows separate them.""")
+B2 = D.copy()
+B2["a22_24"] = (B2.a22_25 - B2.a25).clip(lower=0)
+B2["share_2224"] = 100 * B2.a22_24 / B2.tot
+B2 = B2[B2.a22_24 > 0]
+yrs2 = sorted(y for y in B2.year.unique() if y != BASE_YEAR)
+zx2 = z(B2.rep_good.values)
+Xes = np.column_stack([zx2 * (B2.year.values == y) for y in yrs2])
+print(f"\n  {'band':<30}{'pre-2022 sig at 5%':>22}{'max pre coef':>16}")
+for col, lab in [("share_2024", "20-24  (20-21 in, 25 out)"),
+                 ("share_2224", "22-24  (20-21 out, 25 out)"),
+                 ("share_2225", "22-25  (20-21 out, 25 in)")]:
+    bb, ss, tt, pp, G, n = fe(B2, col, Xes)
+    pre = [i for i, y in enumerate(yrs2) if y < BASE_YEAR]
+    sig = sum(abs(bb[i] / ss[i]) > 1.96 for i in pre)
+    print(f"  {lab:<30}{str(sig) + ' of ' + str(len(pre)):>22}{max(bb[i] for i in pre):>+16.4f}")
+print("""
+  Dropping 20-21 alone moves it from 4 of 6 to 3 of 6. Adding the 25 year olds is
+  what takes it to 1 of 6. The cleaner pre-period is driven MORE by including age
+  25 than by excluding 20-21, which is the opposite of what an earlier draft of
+  Section 3.5 asserted. Age 25 is also exactly the age the old panel dropped.""")
+
 # ---- 5. numerator or denominator? (reported in Section 7) ----------------------
 print("\n" + "=" * 96)
 print("5. IS THE SHARE FALLING BECAUSE YOUNG EMPLOYMENT FELL, OR TOTAL ROSE?")

@@ -75,6 +75,11 @@ for ycol, ylab in BANDS:
     full = RES[(ycol, "+ BOTH")][0]
     print(f"   {'':<36}change with both controls: {100*(full-base)/abs(base):+.0f}%"
           f"  ({'strengthens' if abs(full) > abs(base) else 'attenuates'})")
+    # The CONTROL coefficients matter for interpreting why it strengthens, and an
+    # earlier draft asserted their signs without reporting them. Both are shown.
+    b, se, t, p, G, n = fe(D, ycol, post_x(D, ["rep_good", "jobzone", "lwage"]))
+    for i, nm in enumerate(["exposure x post", "Job Zone x post", "log wage x post"]):
+        print(f"     {nm:<34}{b[i]:>+9.4f}{se[i]:>9.4f}{t[i]:>7.2f}{p[i]:>9.4f} {stars(p[i])}")
 
 # ---- 3. occupation-specific linear trends --------------------------------------
 def fe_trend(d, ycol, xcols, post_from=POST):

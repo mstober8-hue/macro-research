@@ -2,8 +2,8 @@
 
 **Entry-level employment and AI exposure in nationally representative data**
 
-Full draft. All seven sections written. Remaining: bibliographic verification,
-figure callouts, and a data appendix.
+Full draft, seven sections, read through end to end. Remaining: bibliographic
+verification and a data appendix.
 
 | # | Section | Status |
 |---|---|---|
@@ -61,7 +61,7 @@ in a horse race between a 2020 step and a 2022 step the 2022 term takes the enti
 effect while the 2020 term is indistinguishable from zero. The timing is generative
 AI rather than a delayed pandemic reallocation.
 
-**The magnitude does not replicate, and the mechanism is different.** Decomposing
+**The magnitude does not replicate.** Decomposing
 the same gap into levels, employment of 22 to 25 year olds in the two most exposed
 quintiles **grew 1.9 percent** over 2022 to 2026, with a confidence interval of
 [−4.0, +8.2] that rejects the reported −11 percent at p < 0.001. Restricting the
@@ -71,7 +71,9 @@ adversarially reaches −4.7 percent, at which point a third of the sample remai
 and the interval rejects nothing in either direction. Exposed occupations
 underperformed the growing aggregate by 3.9 percentage points, a shortfall this
 data cannot distinguish from zero, and they did not contract, which is what a
-displacement account requires.
+displacement account requires. Which side opens the gap is not resolved: measured
+against aggregate young employment growth the split is 57.5 to 42.5 with a modest
+tilt toward the exposed side, and neither deviation is significant.
 
 **Capability predicts the gap; observed deployment does not.** Replacing the
 task-based exposure rating with revealed Claude usage turns the result into a null,
@@ -168,7 +170,10 @@ implies. Mean 0.159, standard deviation 0.132.
 
 The composite is a construct of this project and is not standard. Every result in
 this paper is reported under both measures and none depends on the composite; the
-raw rating gives −0.3801 against the composite's −0.4018 in the baseline.
+raw rating gives −0.3790 against the composite's −0.4004 in the Section 3
+baseline. The baseline moves by a few thousandths across the three samples in
+Section 2.5, so figures quoted in different sections are not always identical;
+each table states the sample it runs on.
 
 **Revealed usage.** The Anthropic Economic Index release of 26 June 2026 maps
 Claude conversations to SOC occupations, covering 522 occupations after
@@ -318,6 +323,10 @@ level shift would jump and then flatten. A diffusion process ramps. The 2024
 attenuation to −0.0684 interrupts the monotonicity and is not explained here,
 though the point estimate stays negative and the trajectory resumes afterward.
 
+![Section 3: event study by age band](section3_core.png)
+
+*Figure 1. Exposure-by-year coefficients, 2022 omitted. The 22-25 pre-period is flat; the 20-24 pre-period is not.*
+
 ## 3.4 What could be doing the work
 
 Three discretionary choices enter the baseline. Each is varied rather than
@@ -372,10 +381,27 @@ specification that 20 to 24 fails. Both considerations point the same way, so 22
 25 is primary throughout this paper and 20 to 24 is reported as robustness with the
 pre-trend caveat attached wherever it appears.
 
-The 20 to 21 year olds are the likely source. They are disproportionately students
-and part-time workers, so their occupational distribution tracks enrollment,
-schedule, and the post-2021 in-person recovery more than it tracks AI. Removing
-them removes the pre-trend.
+Which part of the band change is responsible is worth isolating, because moving
+from 20 to 24 to 22 to 25 does two things at once: it drops the 20 to 21 year olds
+and it adds the 25 year olds. Constructing a 22 to 24 band separates them.
+
+| band | pre-2022 coefficients significant at 5% | largest pre coefficient |
+|---|---:|---:|
+| 20-24, 20-21 in, 25 out | 4 of 6 | +0.5249 |
+| 22-24, 20-21 out, 25 out | 3 of 6 | +0.3300 |
+| 22-25, 20-21 out, 25 in | **1 of 6** | +0.2628 |
+
+Dropping the 20 to 21 year olds accounts for less of the improvement than adding
+the 25 year olds does. The intuition that students and part-time workers at the
+bottom of the band drive the pre-trend is therefore only part of the story, and the
+smaller part. Including age 25, which is also precisely the age the uncorrected
+panel discarded, is what makes the pre-period clean.
+
+This is worth stating plainly: the 22 to 25 band's clean pre-period is in part a
+property of which ages it contains rather than a deep fact about young workers.
+It remains the right primary band, being the published comparison band and the one
+that passes every diagnostic in Sections 3 and 4, and the reason it passes is more
+compositional than the earlier explanation implied.
 
 ## 3.6 Summary
 
@@ -426,7 +452,8 @@ for the controlled specification to use.
 ## 4.2 The estimate strengthens under controls
 
 **Table 4.1.** Young-share coefficient with education and wage controls, each
-interacted with post. Two-way fixed effects, occupation-clustered SEs.
+interacted with post. Two-way fixed effects, occupation-clustered SEs. 451
+occupations, 4,563 cells (the sample with both controls available).
 
 | specification | 22-25 (primary) | 20-24 (robustness) |
 |---|---:|---:|
@@ -443,11 +470,24 @@ is the single strongest claim this paper makes relative to the existing literatu
 
 The interpretation is that AI exposure is not a restatement of "high-skill
 occupation." If it were, adding a preparation measure and a pay measure would
-absorb it. Instead the exposure coefficient gets larger, which is what happens when
-the controls strip out variation that was working against the effect: high-wage,
-high-preparation occupations were absorbing young workers over this period for
-reasons unrelated to AI, and holding that constant sharpens rather than dissolves
-the exposure gradient.
+absorb it.
+
+The two controls do not behave alike, and the fully controlled specification shows
+why the aggregate description is too simple:
+
+| term | B | SE | p |
+|---|---:|---:|---:|
+| exposure x post | −0.4424 | 0.1139 | 0.0001 |
+| Job Zone x post | −0.1849 | 0.1977 | 0.350 |
+| log wage x post | +0.2501 | 0.1432 | 0.081 |
+
+Only pay behaves the way the strengthening story suggests. Higher-paying
+occupations took on a larger young share after 2022, and because pay is positively
+correlated with exposure, holding it constant sharpens the exposure gradient.
+Preparation runs the other way and is insignificant, so it contributes little
+either direction. The honest statement is that the wage channel does the work and
+the education channel does almost nothing, rather than that both strip out
+countervailing variation.
 
 ## 4.3 Trends that predate generative AI
 
@@ -461,8 +501,8 @@ occupation-specific linear trend fitted over the full 2016 to 2026 window leaves
 
 That result should not be read as a refutation, for a reason visible in the
 numbers. The standard error is two and a half times the baseline's, and the
-resulting interval, [−0.679, +0.355], contains zero and also contains the
-baseline estimate of −0.4004. The specification cannot distinguish the two
+resulting interval, [−0.679, +0.355], contains zero and also contains this
+section's uncontrolled baseline of −0.4034. The specification cannot distinguish the two
 hypotheses. That is what happens when a linear trend is fitted through a window
 that includes the treatment period and the treatment effect ramps: the trend
 absorbs the effect by construction. Section 3.3 showed this effect ramps, reaching
@@ -493,6 +533,10 @@ The 20 to 24 band does not survive, falling to p = 0.066 and then to p = 0.168
 without the pandemic years. This is the third independent diagnostic pointing the
 same way, after the event study and the unweighted specification in Section 3, and
 it is why 22 to 25 is primary.
+
+![Section 4: controls and trends](section4_controls.png)
+
+*Figure 2. The estimate under each control set, and under occupation-specific trends (red).*
 
 ## 4.4 Placebo
 
@@ -543,9 +587,9 @@ result as unproven rather than refuted. Section 7 returns to this.
 ## 5.1 A share moves when either side moves
 
 Section 3 established that the young-worker share of employment falls in
-AI-exposed occupations after 2022, and Section 4 showed that the estimate
-survives education and wage controls, a clean pre-AI placebo, and both age
-bands. Brynjolfsson, Chandar and Chen (2026) report a closely related fact in
+AI-exposed occupations after 2022, and Section 4 showed that the estimate survives
+education and wage controls, a clean pre-AI placebo, and extrapolated pre-period
+trends on the primary band. Brynjolfsson, Chandar and Chen (2026) report a closely related fact in
 ADP payroll microdata: between November 2022 and June 2026, employment of
 22 to 25 year olds fell roughly 11 percent in the two most AI-exposed
 occupational quintiles while rising roughly 10 percent in the three least
@@ -557,23 +601,25 @@ Under displacement, exposed occupations lose young workers in levels. Under
 reallocation, exposed occupations hold roughly flat while unexposed occupations
 absorb a growing share of the young cohort. Both produce a widening gap, and the
 regression in Section 3 cannot separate them, because the dependent variable is
-a ratio and a ratio moves when either side moves. Distinguishing them requires
-looking at the levels directly. That is what this section does.
+a ratio and a ratio moves when either side moves. Separating them requires the
+levels. This section reports them, and the result is partial: the levels reject
+the published magnitude decisively and do not resolve which side opens the gap.
 
 The distinction is not semantic. Displacement implies that AI adoption destroys
 entry-level positions in the occupations it touches, which is an argument for
 policy aimed at the exposed occupations themselves. Reallocation implies that
 those positions persist while the young cohort's growth accrues elsewhere, which
 is an argument about labor market entry and occupational choice, with a
-different set of instruments and a different urgency.
+different set of instruments and a different urgency. Section 5.6 explains why
+these data settle the first question and not the second.
 
 ## 5.2 Design
 
 Occupations are sorted into quintiles on the Eloundou et al. GPT-4 beta rating,
 the primary exposure measure in Brynjolfsson et al., weighted by 2022 employment
 so that the two groups are comparable in size. The comparison window runs 2022 to
-2026 and sits entirely inside the CPS microdata panel, so the BLS splice used
-elsewhere in this paper is not needed here and is not used. Standard errors come
+2026 and sits entirely inside the CPS microdata panel, so no BLS splice is needed
+here, consistent with the rest of the paper as described in Section 2.1. Standard errors come
 from a nonparametric bootstrap resampling occupations with replacement, 2,000
 replications. Occupations are the sampling unit and the level at which exposure
 varies, so they are the level at which resampling has to happen. Both age bands
@@ -630,6 +676,10 @@ Against a zero benchmark the same arithmetic assigns the unexposed side 128
 percent of the gap and the exposed side −28 percent. Shares outside the unit
 interval are the diagnostic that the benchmark is wrong, and this paper does not
 report that decomposition.
+
+![Section 5: the levels decomposition](entry_level_decomposition.png)
+
+*Figure 3. Employment paths by exposure group, the two studies side by side, and the bootstrap distribution against the published −11%.*
 
 ## 5.4 Underperformance is imprecise, contraction is ruled out
 
@@ -722,6 +772,10 @@ observable in a household survey. The finding this paper claims is the negative
 one and it is robust to everything testable: in a nationally representative frame,
 restricted to ADP's universe and dated to ADP's window, young employment in the
 most AI-exposed occupations did not contract.
+
+![Section 5: the ADP/CPS reconciliation](adp_cps_reconciliation.png)
+
+*Figure 4. Walking the CPS to ADP's universe and window, one restriction at a time.*
 
 ## 5.6 What each estimand can support
 
@@ -820,9 +874,14 @@ The occupations with the highest task-based exposure have usage tilted toward
 augmentation rather than automation. Capability and substitutive deployment are
 pointing in opposite directions across occupations.
 
+![Section 6: measure comparison](section6_measures.png)
+
+*Figure 5. The same specification under task-based (blue) and revealed-usage (red) measures.*
+
 ## 6.2 The same specification under each measure
 
-**Table 6.1.** The Section 3 specification, 22 to 25 share, one measure at a time.
+**Table 6.1.** The Section 3 specification, 22 to 25 share, one measure at a
+time. 456 occupations, 4,614 cells (the sample with AEI available).
 
 | measure | B | SE | p |
 |---|---:|---:|---:|
