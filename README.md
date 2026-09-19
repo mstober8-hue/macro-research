@@ -1329,7 +1329,17 @@ The displacement reading of that sorting does **not** survive. Decomposed into l
 
 **What the levels do not settle is which side opens the gap.** Benchmarked against aggregate young employment growth (+5.8%), the split is 57.5% exposed / 42.5% unexposed, and neither deviation is significant (p = 0.141 for both, necessarily, since they are one test). An earlier version of this section reported that 128% of the gap came from the unexposed side; that figure used zero growth as the benchmark and truncated a positive growth rate at zero, so it could not have reported anything else. It is withdrawn.
 
-Note the estimands differ in power: the share regression is significant at p = 0.0001 across 457 occupations, the levels gap is not (−6.8pp, p = 0.141), because group aggregates are dominated by a few large occupations. One qualification belongs on the record: the most demanding trend specification, with occupation trends fitted over the full window, is uninformative rather than supportive, and a reader who holds that specification to be the right one should treat the share result as unproven rather than established. The share result establishes *that* the sorting happens; the levels result establishes *where in the distribution* and rejects a published magnitude. Neither this project nor the paper claims a significant reallocation gap in levels.
+Note the estimands differ in power: the share regression is significant at p = 0.0001 across 457 occupations, the levels gap is not (−6.8pp, p = 0.141), because group aggregates are dominated by a few large occupations. **The share is a composition, and the panel cannot decompose it.** The outcome falls if young employment falls, if total employment rises, or both, and in logs the components sum exactly to the share:
+
+| outcome (×100, percent per sd) | coef | p |
+|---|---:|---:|
+| log young employment (22-25) | −2.8768 | 0.121 |
+| log total employment (16-64) | +1.6555 | 0.285 |
+| **difference (= log share)** | **−4.5323** | **0.0025** |
+
+The share moves; neither component moves significantly alone. Point estimates put about two thirds on young employment falling, and the panel cannot resolve the split. This is the same limit the Section 5 quintile aggregates hit, on the full continuous panel, and it is the central one: **the age composition of exposed occupations shifted, and this project cannot establish that young workers were displaced from them.**
+
+Two further qualifications on the record. The most demanding trend specification, with occupation trends fitted over the full window, is uninformative rather than supportive, and a reader who holds that specification to be the right one should treat the share result as unproven rather than established. And there is no exogenous variation anywhere in this design: exposure-correlated interest-rate sensitivity is the most likely unmeasured confounder, it is untested, and this project's own Part 4 finds monetary policy explains most of the aggregate break over the same window. The share result establishes *that* the sorting happens; the levels result establishes *where in the distribution* and rejects a published magnitude. Neither this project nor the paper claims a significant reallocation gap in levels.
 
 ### Tech's break survived everything thrown at it → **BEST-STRESS-TESTED SINGLE RESULT**
 Information's post-2022 slope stays inside +0.150 to +0.223 across eight specifications (baseline, five rate controls, two overhang controls), and its real productivity (+7.2%/yr, with genuine falling deflators, no FISIM issue) is the highest in the sample while its 2024-2025 employment is shrinking.

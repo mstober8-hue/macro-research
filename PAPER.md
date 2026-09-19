@@ -12,7 +12,7 @@ Draft. Section 5 is written; the rest is the agreed skeleton.
 | **4** | **Is it exposure, or is exposure a proxy?** | **drafted** |
 | **5** | **Where the gap comes from** | **drafted** |
 | **6** | **Capability predicts the gap, deployment does not** | **drafted** |
-| 7 | Limits | outline |
+| **7** | **Limits** | **drafted** |
 
 Reproduce Section 3 with `python3 section3_core.py`, Section 4 with
 `python3 section4_controls.py`, Section 6 with `python3 section6_measures.py`,
@@ -702,4 +702,118 @@ literature are measure-dependent, the dependence is large enough to flip a headl
 finding from significant to null, and any single-measure result, this paper's
 included, should be read with that in mind. It also establishes that the
 automation-augmentation split available from AEI is one dimension rather than two.
+
+---
+
+# 7. Limits
+
+The result in this paper is a robust conditional correlation. It is not an
+identified causal effect, and several of the things a reader would want to know are
+things these data cannot establish. They are set out here rather than distributed
+through the sections that produced them.
+
+## 7.1 There is no exogenous variation
+
+Exposure is a fixed occupational characteristic interacted with time. Nothing
+assigns it, and no occupation is randomly made more or less exposed. The design
+therefore identifies the association between a pre-existing occupational trait and
+a post-2022 change in age composition, conditional on occupation and year effects,
+education, pay, and each occupation's own pre-period trend.
+
+Anything else that differentially affected high-exposure occupations after 2022 is
+confounded with AI. Section 4 rules out the specific alternatives that can be
+measured, including education, pay, pandemic timing, and pre-existing trends. It
+cannot rule out an unmeasured shock with the same incidence. The 2022 to 2026
+window contains a large monetary tightening whose sectoral incidence is not
+uniform, and the wider project this paper draws on finds that tightening explains
+most of the aggregate output-to-jobs break over the same period. Exposure-correlated
+interest-rate sensitivity is the most likely unmeasured confounder and it is not
+tested here.
+
+## 7.2 The share is a composition, and the panel cannot decompose it
+
+The outcome is the young share of an occupation's employment, which falls if young
+employment falls, if total employment rises, or both. In logs the components sum
+exactly to the share, so running the same specification on each decomposes it.
+
+| outcome, x100 so it reads as percent per sd | B | SE | p |
+|---|---:|---:|---:|
+| log young employment, 22 to 25 | −2.8768 | 1.8545 | 0.121 |
+| log total employment, 16 to 64 | +1.6555 | 1.5477 | 0.285 |
+| **difference, equals log share** | **−4.5323** | 1.5010 | **0.0025** |
+
+The share moves and neither component moves significantly on its own. The point
+estimates put roughly two thirds of the movement on young employment falling, and
+the panel cannot resolve the split. This is the same limit Section 5 reaches in the
+quintile aggregates, reproduced on the full continuous panel, and it is the
+central one: the paper establishes that the age composition of exposed occupations
+shifted, and it cannot establish that young workers were displaced from them.
+
+## 7.3 The most demanding trend specification is uninformative
+
+Section 4.3 reports that absorbing occupation-specific linear trends fitted over
+the full window leaves −0.1623 with p = 0.54. The argument given there is that a
+trend fitted through the treatment window absorbs a treatment that ramps, and that
+the resulting interval contains both zero and the baseline estimate, so the test
+does not discriminate.
+
+That argument is correct, and it is also the kind of argument that is easy to
+deploy whenever an inconvenient specification fails. A reader who holds that
+occupation-specific trends are the right specification regardless should read this
+paper's estimate as unproven rather than refuted. The pre-period-trend version in
+Table 4.2 is offered as the resolution, and it is a weaker test than the full-window
+version, not a stronger one.
+
+## 7.4 The revealed-usage null is not interpretable
+
+Section 6 finds that a revealed AI-usage measure gives a null where the task-based
+measure gives a strong effect. Because that usage measure concentrates 29 percent
+of its mass on ten occupations holding 0.6 percent of employment, and identifies
+librarians and announcers among the most AI-intensive occupations in the economy,
+the null cannot be read as evidence that deployment does not matter. It is equally
+consistent with the measure not capturing deployment. The anticipation channel that
+would reconcile the two measures is a hypothesis this paper raises and does not
+test.
+
+## 7.5 The disagreement with payroll data is not resolved
+
+Section 5.5 removes sample universe and window as explanations for the gap between
+this paper's +1.9 percent and the −11 percent reported in ADP payroll data, and
+an adversarially stacked specification reaches only −4.7 percent on a third of
+the sample. What remains is not adjudicable in a household survey: ADP's skew
+toward firms large enough to outsource payroll, its client selection, and the
+difference between a payroll job title and a self-reported occupation. It is
+possible that both estimates are correct for the populations they cover, and that
+entry-level contraction is concentrated in large firms in a way the CPS averages
+away. Settling this requires firm-size information the CPS does not carry monthly.
+
+## 7.6 Measurement in the CPS
+
+Occupation is self-reported and harmonized to OCC2010 across coding revisions.
+Misclassification is known to be substantial in the CPS and is largely classical
+here, so it attenuates within-occupation estimates toward zero rather than
+inflating them. That direction is favorable to the paper's finding and unfavorable
+to its precision.
+
+Two further data notes. The October 2025 CPS was never collected, so twelve-month
+windows spanning it average over eleven months; Section 5.5 handles this explicitly
+and an earlier version of that analysis did not, which invented a decline out of
+nothing. And the exposure crosswalk maps SOC codes to OCC2010 with partial-prefix
+fallback where an exact match is unavailable, which introduces error in the
+regressor for a minority of occupations.
+
+## 7.7 Scope
+
+One country, one generative-AI episode, and four post-treatment years. The event
+study in Section 3.3 reaches its most negative value in the final year, so the
+series is still moving and the magnitude reported here should be treated as an
+interim reading rather than a settled one. The 20 to 24 band carries a pre-trend
+that the 22 to 25 band does not, and results for that band are reported throughout
+with the caveat attached.
+
+Finally, one result in Section 6 sits awkwardly with the paper's own framing and is
+recorded rather than explained: the automation share of AI usage correlates
+−0.337 with task-based exposure, so the occupations most exposed by capability are
+the ones using AI most augmentatively. A simple substitution mechanism does not
+predict that.
 

@@ -107,6 +107,32 @@ for k in (0, 10, 25):
         row += f"{b[0]:>+11.4f} ({p[0]:.4f})"
     print(row + f"   [{sub.occ.nunique()} occ]")
 
+# ---- 5. numerator or denominator? (reported in Section 7) ----------------------
+print("\n" + "=" * 96)
+print("5. IS THE SHARE FALLING BECAUSE YOUNG EMPLOYMENT FELL, OR TOTAL ROSE?")
+print("=" * 96)
+print("""
+  The outcome is a composition, so a falling share is consistent with young
+  employment falling, total employment rising, or both. In logs the two components
+  sum exactly to the share, so the same specification run on each decomposes it.
+  Coefficients are x100, so they read as percent per sd of exposure.""")
+L = D.copy()
+for c, num in [("l2225", "a22_25"), ("l2024", "a20_24"), ("ltot", "tot")]:
+    L[c] = 100 * np.log(L[num].clip(lower=1e-9))
+L = L[np.isfinite(L[["l2225", "l2024", "ltot"]].values).all(axis=1)].copy()
+L["ldiff"] = L.l2225 - L.ltot
+print(f"\n  {'outcome':<40}{'coef':>9}{'se':>9}{'t':>7}{'p':>9}")
+for c, lab in [("l2225", "log young employment (22-25)"),
+               ("ltot", "log total employment (16-64)"),
+               ("ldiff", "difference (= log share)")]:
+    b, se, t, p, G, n = fe(L, c, post_x(L, ["rep_good"]))
+    print(f"  {lab:<40}{b[0]:>+9.4f}{se[0]:>9.4f}{t[0]:>7.2f}{p[0]:>9.4f} {stars(p[0])}")
+print("""
+  The share moves significantly; neither component does on its own. The point
+  estimates put about two thirds of it on young employment falling, but the panel
+  cannot resolve the split. This is the same limit Section 5 finds in the quintile
+  aggregates, here on the full continuous panel, and Section 7 carries it.""")
+
 # ---- chart ---------------------------------------------------------------------
 fig, ax = plt.subplots(1, 2, figsize=(13.5, 5.2))
 for k, (yc, yl) in enumerate(BANDS):
