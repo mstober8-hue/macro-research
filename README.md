@@ -142,6 +142,7 @@ Finance originally had a fourth mismatch (employment included Real Estate); it i
 | [`entry_panel.py`](entry_panel.py) | One construction of the entry-level panel, shared by every script that estimates on it; asserts the age bands tile 16-64 |
 | [`section3_core.py`](section3_core.py) | Section 3: the core young-share specification, event study, and the cut-off / weighting / influence checks |
 | [`section4_controls.py`](section4_controls.py) | Section 4: education and wage controls, occupation trends, placebo, and the 2020-vs-2022 break race |
+| [`section6_measures.py`](section6_measures.py) | Section 6: task-based vs revealed (AEI) exposure; what the revealed measure actually measures |
 | [`spec_checks_vs_canaries.py`](spec_checks_vs_canaries.py) | Part 6: the three specification checks against the published design (age band, quintiles, education) |
 | [`entry_level_decomposition.py`](entry_level_decomposition.py) | Part 6: decomposes the exposure gap into levels; the exposed side does not fall |
 | [`adp_cps_reconciliation.py`](adp_cps_reconciliation.py) | Part 6: walks the CPS to ADP's universe and window; neither explains the disagreement |
@@ -1147,7 +1148,33 @@ The displacement *reading* of that finding does not survive in nationally repres
 
 **The estimands have different power and the paper is explicit about it.** The share regression uses variation across 457 occupations and is significant at p = 0.0001. The levels gap compares two aggregates dominated by a handful of large occupations, and at p = 0.141 it is not significant. That is an estimand difference, not a conflict in the data. The share result establishes *that* young workers are sorted away from exposed work; the levels result establishes *where in the distribution* that happens and rejects a specific published magnitude. It does not establish a significant reallocation gap on its own, and nothing here claims one.
 
-Drafted as Section 5 of [`PAPER.md`](PAPER.md).
+## The measures disagree, and the revealed one is the problem (`section6_measures.py`)
+
+Swapping the task-based exposure rating for **revealed** Claude usage (Anthropic Economic Index) flips the result to a null, and the reason is what AEI measures.
+
+| | |
+|---|---|
+| share of all Claude usage in the top 10 occupations | **29.2%** |
+| share of employment in those same 10 | **0.6%** |
+| corr(usage share, occupation employment) | +0.015 |
+
+The ten are counter and rental clerks, editors, writers, technical writers, library technicians, archivists, librarians, announcers, reporters, and miscellaneous media workers. That is a portrait of one model's user base, not a map of AI deployment across the economy.
+
+| measure (22-25 share) | coef | p |
+|---|---:|---:|
+| **task-based, composite** | **−0.4018** | **0.0001** |
+| task-based, raw GPT-4 β | −0.3801 | 0.0002 |
+| revealed, usage share | −0.2171 | 0.0555 |
+| revealed, **usage per worker** | −0.0474 | 0.6873 |
+| revealed, automation-weighted | −0.1750 | 0.1411 |
+
+In a horse race the task-based measure takes everything (−0.4141, p = 0.002) and revealed usage goes to +0.0267 (p = 0.860). Neither measure predicts the pre-period, so this is not an endogeneity artifact in either direction.
+
+**Two things worth recording.** The automation share of usage correlates **−0.337** with task-based exposure, so the most capability-exposed occupations use AI in the most *augmentative* way. And AEI's automation and augmentation shares are exact complements (sum = 100, corr = −1.0000), so only one is identified; any analysis assigning them separate roles is reporting one dimension as two. Brynjolfsson et al. use that split as their secondary measure.
+
+This does **not** establish an anticipation channel, tempting as the reading is. A measure this concentrated cannot distinguish "deployment doesn't drive entry-level hiring" from "this doesn't measure deployment."
+
+Drafted as Sections 3, 4, 5 and 6 of [`PAPER.md`](PAPER.md).
 
 ---
 # Where the whole thing stands

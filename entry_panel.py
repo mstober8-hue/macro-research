@@ -150,3 +150,50 @@ def post_x(d, xcols, post_from=POST):
 
 def stars(p):
     return "***" if p < .01 else ("**" if p < .05 else ("*" if p < .10 else ""))
+
+def aei():
+    """Anthropic Economic Index, revealed Claude usage by SOC occupation.
+
+    This is a REVEALED measure and a single 2026 cross-section, so it is dated
+    after the treatment period it would be used to assign. Section 6 treats that
+    as the substantive issue rather than a footnote.
+
+    Returns one row per OCC2010 with:
+      use       share of Claude conversations mapped to the occupation, percent
+      auto_sh   share of that usage in automation-type collaboration
+      aug_sh    share in augmentation-type collaboration
+      autonomy  mean AI autonomy
+      auto_use  use x automation share, usage weighted toward substitution
+    """
+    from datapaths import dp
+    src = dp("aei_claude_ai_2026-06-26.csv")
+    ren = {"pct": "use", "collaboration_bucket_automation_pct": "auto_sh",
+           "collaboration_bucket_augmentation_pct": "aug_sh", "ai_autonomy_mean": "autonomy"}
+    head = pd.read_csv(src, nrows=0).columns
+    if "geo_level" in head:                     # long layout
+        A = pd.read_csv(src)
+        A = A[(A.geo_level == "global") & (A.category_name == "soc_occupation")]
+        A["soc"] = A.node_external_id.astype(str).str.extract(r"(\d{2}-\d{4})")[0]
+        Wv = A.pivot_table(index="soc", columns="metric_id", values="value", aggfunc="mean")
+        S = Wv[list(ren)].rename(columns=ren).reset_index()
+    else:                                       # already pivoted by SOC
+        S = pd.read_csv(src)
+        S["soc"] = S.soc.astype(str).str.extract(r"(\d{2}-\d{4})")[0]
+        S = S.rename(columns=ren)[["soc"] + list(ren.values())]
+    S = S.dropna(subset=["use"])
+    S["auto_use"] = S.use * S.auto_sh / 100.0
+
+    XW = pd.read_csv(DATA + "occ2010_soc_crosswalk.csv")
+    cols = ["use", "auto_sh", "aug_sh", "autonomy", "auto_use"]
+
+    def lk(soc):
+        h = S[S.soc == soc]
+        if len(h): return [h[c].iloc[0] for c in cols]
+        for n in (5, 2):
+            h = S[S.soc.astype(str).str.startswith(str(soc)[:n])]
+            if len(h): return [h[c].mean() for c in cols]
+        return [np.nan] * len(cols)
+
+    got = np.array([lk(s) for s in XW.soc])
+    for i, c in enumerate(cols): XW[c] = got[:, i]
+    return XW[["occ"] + cols].dropna(subset=["use"]).drop_duplicates("occ")

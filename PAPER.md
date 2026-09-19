@@ -11,11 +11,12 @@ Draft. Section 5 is written; the rest is the agreed skeleton.
 | **3** | **The young-employment share in AI-exposed occupations** | **drafted** |
 | **4** | **Is it exposure, or is exposure a proxy?** | **drafted** |
 | **5** | **Where the gap comes from** | **drafted** |
-| 6 | Measure divergence: task-based against revealed usage | outline |
+| **6** | **Capability predicts the gap, deployment does not** | **drafted** |
 | 7 | Limits | outline |
 
 Reproduce Section 3 with `python3 section3_core.py`, Section 4 with
-`python3 section4_controls.py`, and Section 5 with
+`python3 section4_controls.py`, Section 6 with `python3 section6_measures.py`,
+and Section 5 with
 `python3 entry_level_decomposition.py` and `python3 adp_cps_reconciliation.py`.
 
 ---
@@ -559,3 +560,146 @@ a growing aggregate without contracting, and that the published magnitude does n
 replicate outside payroll data. It does not claim a statistically significant
 reallocation of young workers across the exposure distribution, which these levels
 are too coarse to establish.
+
+---
+
+# 6. Capability predicts the gap, deployment does not
+
+The estimate in Sections 3 and 4 uses a task-based exposure measure: a rating of
+what share of an occupation's tasks a large language model could perform, built ex
+ante from task descriptions. An obvious alternative is to use where AI is actually
+being used. The Anthropic Economic Index maps Claude conversations to SOC
+occupations and is the natural revealed-preference counterpart.
+
+The two measures give different answers. This section reports the divergence and
+argues that it is mostly a fact about the revealed measure.
+
+The sample is the 456 occupations and 4,614 cells where both measures exist.
+
+## 6.1 What the revealed measure measures
+
+Usage is extraordinarily concentrated, and it is not concentrated where
+employment is.
+
+| | |
+|---|---|
+| share of all Claude usage in the top 10 occupations | **29.2%** |
+| share of employment in those same 10 occupations | **0.6%** |
+| correlation of usage share with occupation employment | +0.015 |
+
+The ten are Counter and rental clerks, Editors, Writers and authors, Technical
+writers, Library technicians, Archivists and curators, Librarians, Announcers,
+News analysts and reporters, and Miscellaneous media and communication workers.
+Setting aside the first, which is likely a crosswalk artifact given the company it
+keeps, this is a list of writing, editorial, and library occupations. It is a
+portrait of one model's user base and its dominant use case, and treating it as a
+map of where AI is deployed across the economy assumes something the data do not
+support.
+
+The measure is also mechanically a share of conversations rather than a rate per
+worker, so a per-worker intensity, usage share divided by employment share, is
+reported alongside it throughout.
+
+Correlations with the task-based measure are moderate, and one of them runs the
+wrong way for a displacement story:
+
+| revealed measure | corr with composite | corr with raw GPT-4 beta |
+|---|---:|---:|
+| usage share | +0.509 | +0.464 |
+| usage per worker (log) | +0.381 | +0.396 |
+| automation share of usage | **−0.337** | **−0.399** |
+| AI autonomy | +0.227 | +0.237 |
+
+The occupations with the highest task-based exposure have usage tilted toward
+augmentation rather than automation. Capability and substitutive deployment are
+pointing in opposite directions across occupations.
+
+## 6.2 The same specification under each measure
+
+**Table 6.1.** The Section 3 specification, 22 to 25 share, one measure at a time.
+
+| measure | B | SE | p |
+|---|---:|---:|---:|
+| **task-based, composite** | **−0.4018** | 0.1043 | **0.0001** |
+| **task-based, raw GPT-4 beta** | **−0.3801** | 0.1020 | **0.0002** |
+| revealed, usage share | −0.2171 | 0.1134 | 0.0555 |
+| revealed, usage per worker | −0.0474 | 0.1178 | 0.6873 |
+| revealed, automation-weighted | −0.1750 | 0.1189 | 0.1411 |
+| revealed, AI autonomy | +0.0673 | 0.0903 | 0.4556 |
+
+The task-based measures are significant at better than 0.1 percent. The best the
+revealed measures manage is marginal, and the per-worker version, which is the
+right functional form if the question is how intensively an occupation's workers
+use AI, is a clean null at p = 0.69.
+
+## 6.3 Horse race
+
+Entering both measures together settles which carries the result.
+
+| specification | task-based | revealed |
+|---|---:|---:|
+| 22-25, vs usage share | **−0.4141 (0.002)** | +0.0267 (0.860) |
+| 22-25, vs usage per worker | **−0.4684 (0.000)** | +0.1711 (0.156) |
+| 20-24, vs usage share | **−0.4303 (0.003)** | −0.0282 (0.879) |
+| 20-24, vs usage per worker | **−0.5403 (0.000)** | +0.2490 (0.157) |
+
+The task-based coefficient is unchanged or larger when the revealed measure is
+held constant, and the revealed coefficient goes to zero and changes sign. Whatever
+signal the usage share carried on its own in Table 6.1 was the part of it
+correlated with capability.
+
+The automation tilt adds nothing. Entered alone it gives +0.1440 (p = 0.20) for the
+22 to 25 band, and conditional on task-based exposure it is +0.0165 (p = 0.88).
+
+**A note on AEI's automation and augmentation shares.** They are exact
+complements, summing to 100 for every occupation with a correlation of exactly
+−1.0000. Only one is identified, entering both is degenerate, and any result
+attributing separate roles to the two is reporting a single dimension as though it
+were two. Brynjolfsson et al. use this split as their secondary measure, and the
+constraint applies to that use as well.
+
+## 6.4 Neither measure predicts the pre-period
+
+The revealed measure is a single 2026 cross-section, dated after the treatment
+period it would be used to assign. That raises the possibility that it is
+contaminated by the outcome. Running the placebo from Section 4.4 under each
+measure tests it.
+
+| measure | B | p |
+|---|---:|---:|
+| task-based, composite | +0.1195 | 0.148 |
+| task-based, raw GPT-4 beta | +0.1173 | 0.162 |
+| revealed, usage share | −0.0922 | 0.358 |
+| revealed, usage per worker | −0.0769 | 0.535 |
+| revealed, automation-weighted | −0.0562 | 0.565 |
+| revealed, AI autonomy | +0.1092 | 0.271 |
+
+Nothing is significant. The revealed measure's null in Table 6.1 is not an artifact
+of it predicting the pre-period, and the task-based result is not an artifact of
+the reverse.
+
+## 6.5 What the divergence does and does not establish
+
+Capability predicts the entry-level gap and deployment does not, and this is the
+one place in the paper where two reasonable measures of the same construct
+disagree sharply.
+
+The tempting reading is an anticipation channel: firms adjust entry-level hiring
+on what they believe AI will be able to do, ahead of any actual deployment, so a
+capability rating tracks hiring while a usage log does not. That reading is
+consistent with everything in this section and with the ramp in Section 3.3.
+
+It is not established here, and the obstacle is Section 6.1. A measure that puts
+29 percent of its mass on ten occupations holding 0.6 percent of employment, and
+which lists librarians and announcers among the most AI-intensive occupations in
+the economy, is not a reliable index of deployment. The null could mean deployment
+does not drive entry-level hiring. It could equally mean this measure does not
+capture deployment. These data cannot separate those, and the paper does not claim
+to.
+
+What the section does establish is narrower and still useful. Results in this
+literature are measure-dependent, the dependence is large enough to flip a headline
+finding from significant to null, and any single-measure result, this paper's
+included, should be read with that in mind. It also establishes that the
+automation-augmentation split available from AEI is one dimension rather than two.
+
