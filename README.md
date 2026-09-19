@@ -1069,6 +1069,19 @@ The controls are informative rather than collinear: exposure correlates +0.511 w
 
 **Break date.** Entering 2020 and 2022 steps together, the 2022 term takes the whole effect (−0.3927, p < 0.001) and the 2020 term is nothing (−0.0187, p = 0.861). The timing is generative AI, not a delayed COVID reallocation.
 
+**The interest-rate confounder, closed (`section4_rate_confound.py`).** Part 4 of this project finds monetary policy explains most of the aggregate break, which makes exposure-correlated rate sensitivity the most serious threat to the entry-level result. Built an occupational rate-exposure measure: 73 NAICS-3 industries' employment response to **identified monetary shocks** (Bauer-Swanson, orthogonalized to macro news), fitted 1990-2019 so the treatment window can't contaminate it, mapped onto occupations through the OEWS industry-by-occupation matrix.
+
+| | 22-25 | 20-24 |
+|---|---:|---:|
+| AI exposure alone | −0.4004 (0.0001) | −0.4421 (0.0001) |
+| rate sensitivity alone | −0.2749 (0.0515) | −0.4070 (0.0105) |
+| **AI exposure \| rate sensitivity** | **−0.3940 (0.0001)** | **−0.4326 (0.0001)** |
+| **AI exposure \| rate + educ + wage** | **−0.4533 (0.0001)** | **−0.5277 (0.0000)** |
+
+**corr(AI exposure, rate sensitivity) = +0.003.** The two dimensions are orthogonal, the AI coefficient moves <2%, and rate sensitivity carries its own significant effect, so the control is doing real work rather than nothing.
+
+**A measurement trap worth recording.** The first version used the raw change in the fed funds rate and ranked *Construction of buildings* **69th of 73** for rate sensitivity, with a positive coefficient. That is simultaneity: the Fed raises rates because the economy is booming, so ΔFFR is procyclical and the regression recovers how procyclical an industry is. On identified shocks construction ranks **5th of 73**, specialty trade contractors 6th, with wood and furniture manufacturing alongside. The script now carries a validation gate that fails loudly if construction lands in the insensitive half.
+
 **Quintiles.** In regression form the quintile cut agrees: a binary top-2-quintile indicator × post gives −0.2507 (p = 0.032) for 20-24 and −0.1991 (p = 0.051) for 22-25. **In levels it does not agree**, and that disagreement is the rest of this part.
 
 ## Which side opens the gap (`entry_level_decomposition.py`)

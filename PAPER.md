@@ -21,7 +21,10 @@ AI exposure after 2022 (p = 0.0001). It strengthens rather than attenuates under
 education and pay controls, where the original attenuates, has a clean pre-AI
 placebo, and survives occupation-specific trends fitted on the pre-period and
 extrapolated forward. A 2022 break dominates a 2020 break, so the timing is
-generative AI rather than a delayed pandemic reallocation.
+generative AI rather than a delayed pandemic reallocation. An occupational
+interest-rate exposure measure, built from identified monetary shocks and the OEWS
+industry-by-occupation matrix, correlates +0.003 with AI exposure and leaves the
+estimate unmoved.
 
 The magnitudes do not replicate. Employment of 22 to 25 year olds in the two most
 exposed quintiles **grew 1.9 percent**, with a bootstrap interval rejecting
@@ -56,7 +59,7 @@ published sources. Remaining: a data appendix.
 | **7** | **Limits** | **drafted** |
 
 Reproduce Section 3 with `python3 section3_core.py`, Section 4 with
-`python3 section4_controls.py`, Section 6 with `python3 section6_measures.py`,
+`python3 section4_controls.py` and `python3 section4_rate_confound.py`, Section 6 with `python3 section6_measures.py`,
 and Section 5 with
 `python3 entry_level_decomposition.py` and `python3 adp_cps_reconciliation.py`.
 
@@ -592,7 +595,73 @@ No term is significant, and the exposure coefficients are small and positive,
 which is the opposite sign to the post-2022 estimate. The design does not
 manufacture a result from a window where there was nothing to find.
 
-## 4.5 Is the break at 2022 or at 2020?
+## 4.5 Interest-rate sensitivity
+
+The 2022 to 2026 window contains the sharpest monetary tightening in four decades.
+If AI-exposed occupations are concentrated in rate-sensitive industries, the
+Section 3 estimate could be measuring the tightening. This is the most serious
+unmeasured confounder available, and in this project's case it is not a generic
+worry: a separate strand finds that one common factor explains 72 percent of sector
+hiring over the same period and tracks the fed funds rate at an 8 to 9 quarter lag.
+
+**Constructing the measure.** For each of 73 NAICS-3 industries, annual employment
+growth is regressed on an identified monetary policy shock at lags zero to three
+and the coefficients summed, giving the cumulative employment response to a
+contractionary shock. Estimation runs 1990 to 2019 only, so the treatment window
+cannot contaminate the measure. Industry sensitivity is then mapped onto
+occupations through the OEWS May 2022 industry-by-occupation employment matrix: an
+occupation's rate exposure is the employment-weighted mean sensitivity of the
+industries it works in.
+
+The shock is the Bauer-Swanson series, orthogonalized to macro news. Using the raw
+change in the fed funds rate instead does not work, and the failure is worth
+recording. A first version of this measure did exactly that and ranked
+"Construction of buildings" 69th of 73 for rate sensitivity, with a strongly
+positive coefficient. The Fed raises rates because the economy is booming, so the
+raw rate change is procyclical, and regressing employment growth on it recovers how
+procyclical an industry is rather than how rate-sensitive. On the identified shock
+the ordering is what theory predicts: construction of buildings ranks 5th of 73,
+specialty trade contractors 6th, with wood and furniture manufacturing also in the
+top four. The least sensitive industries are pipeline transportation, oil and gas
+extraction, and support activities for mining, which track commodity prices rather
+than rates.
+
+**The two dimensions are orthogonal.** The correlation between AI exposure and
+rate sensitivity across occupations is **+0.003**, and +0.047 on the raw GPT-4 beta
+rating. Whatever the tightening did to entry-level employment, it did not do it
+along the AI-exposure dimension.
+
+**Table 4.3.** AI exposure against occupational interest-rate sensitivity.
+
+| specification | 22-25 (primary) | 20-24 (robustness) |
+|---|---:|---:|
+| AI exposure alone | −0.4004 (0.0001) | −0.4421 (0.0001) |
+| rate sensitivity alone | −0.2749 (0.0515) | −0.4070 (0.0105) |
+| **AI exposure, controlling for rate sensitivity** | **−0.3940 (0.0001)** | **−0.4326 (0.0001)** |
+| rate sensitivity, controlling for AI exposure | −0.2611 (0.0435) | −0.3918 (0.0083) |
+| **AI exposure, controlling for rate + education + pay** | **−0.4533 (0.0001)** | **−0.5277 (0.0000)** |
+
+The AI coefficient moves by less than 2 percent when rate sensitivity is held
+constant, and strengthens when education and pay are added alongside it. Rate
+sensitivity carries its own significant association with the young share, so the
+control is not an irrelevant variable that leaves the estimate alone by doing
+nothing; it is a real second channel that happens to be independent of the first.
+
+One caution against over-reading the rate term itself. Sorting occupations into
+terciles of rate sensitivity gives young-share changes of +0.81, +0.08 and +0.74
+percentage points from most to least sensitive, which is non-monotone. The
+regression coefficient is a within-occupation, employment-weighted estimate and the
+tercile means are raw aggregates, so the two need not agree, but the descriptive
+pattern does not support a clean story about what the tightening did to entry-level
+hiring. That question is not this paper's, and answering the confounding question
+requires only that the two dimensions be orthogonal and that the AI estimate be
+stable when both are included. Both hold.
+
+![Section 4.5: the rate confound](section4_rate_confound.png)
+
+*Figure 3. The AI estimate alone, controlling for occupational interest-rate sensitivity, and controlling for rate sensitivity plus education and pay.*
+
+## 4.6 Is the break at 2022 or at 2020?
 
 The pandemic reorganized work along a dimension correlated with AI exposure, since
 exposed occupations are disproportionately the ones that could be done remotely. If
@@ -608,10 +677,11 @@ The 2022 term takes essentially the whole effect and the 2020 term is
 indistinguishable from zero. The timing matches generative AI rather than the
 pandemic.
 
-## 4.6 What survives
+## 4.7 What survives
 
 Exposure is not standing in for education or pay, and the estimate strengthens
-when both are held constant. It is not a pre-existing trend, at least for the 22 to
+when both are held constant. It is not standing in for interest-rate sensitivity
+either: that dimension is orthogonal to it and controlling for it changes nothing. It is not a pre-existing trend, at least for the 22 to
 25 band, which survives extrapolated pre-period trends with and without the
 pandemic years. It is not a placebo artifact and it is not COVID timing.
 
@@ -729,7 +799,7 @@ report that decomposition.
 
 ![Section 5: the levels decomposition](entry_level_decomposition.png)
 
-*Figure 3. Employment paths by exposure group, the two studies side by side, and the bootstrap distribution against the published −11%.*
+*Figure 4. Employment paths by exposure group, the two studies side by side, and the bootstrap distribution against the published −11%.*
 
 ## 5.4 Underperformance is imprecise, contraction is ruled out
 
@@ -825,7 +895,7 @@ most AI-exposed occupations did not contract.
 
 ![Section 5: the ADP/CPS reconciliation](adp_cps_reconciliation.png)
 
-*Figure 4. Walking the CPS to ADP's universe and window, one restriction at a time.*
+*Figure 5. Walking the CPS to ADP's universe and window, one restriction at a time.*
 
 ## 5.6 What each estimand can support
 
@@ -934,7 +1004,7 @@ pointing in opposite directions across occupations.
 
 ![Section 6: measure comparison](section6_measures.png)
 
-*Figure 5. The same specification under task-based (blue) and revealed-usage (red) measures.*
+*Figure 6. The same specification under task-based (blue) and revealed-usage (red) measures.*
 
 ## 6.2 The same specification under each measure
 
@@ -1050,12 +1120,14 @@ cannot rule out an unmeasured shock with the same incidence. The 2022 to 2026
 window contains a large monetary tightening whose sectoral incidence is not
 uniform, and the wider project this paper draws on finds that tightening explains
 most of the aggregate output-to-jobs break over the same period. Exposure-correlated
-interest-rate sensitivity is the most likely unmeasured confounder and it is not
-tested here. Brynjolfsson et al. do test it in their own data, reporting that the
-divergence persists when accounting for occupational interest-rate exposure and
-that it continued widening through mid-2026, long after rates peaked. That is
-reassuring and it is not a substitute for running the test on this panel, which has
-not been done.
+interest-rate sensitivity was the most likely candidate, and Section 4.5 now tests
+it directly: an occupational rate-exposure measure built from identified monetary
+shocks and the OEWS industry-by-occupation matrix correlates +0.003 with AI
+exposure, and holding it constant moves the estimate by less than 2 percent.
+Brynjolfsson et al. report the same conclusion in their own data. That specific
+confounder is closed. Others that would have to be correlated with task exposure
+and absent from education, pay, industry rate sensitivity, and each occupation's
+own pre-period trend are not ruled out, and cannot be by this design.
 
 ## 7.2 The share is a composition, and the panel cannot decompose it
 
