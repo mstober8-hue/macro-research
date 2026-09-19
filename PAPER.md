@@ -7,7 +7,7 @@ Draft. Section 5 is written; the rest is the agreed skeleton.
 | # | Section | Status |
 |---|---|---|
 | 1 | Introduction | outline |
-| 2 | Data and measures | outline |
+| **2** | **Data and measures** | **drafted** |
 | **3** | **The young-employment share in AI-exposed occupations** | **drafted** |
 | **4** | **Is it exposure, or is exposure a proxy?** | **drafted** |
 | **5** | **Where the gap comes from** | **drafted** |
@@ -18,6 +18,126 @@ Reproduce Section 3 with `python3 section3_core.py`, Section 4 with
 `python3 section4_controls.py`, Section 6 with `python3 section6_measures.py`,
 and Section 5 with
 `python3 entry_level_decomposition.py` and `python3 adp_cps_reconciliation.py`.
+
+---
+
+# 2. Data and measures
+
+## 2.1 The employment panel
+
+The panel is built from IPUMS CPS monthly microdata, 6,013,472 employed person
+records aged 16 to 64 covering January 2016 through July 2026. Records are
+aggregated to occupation-by-year cells using the OCC2010 harmonized occupation
+code, which holds the coding scheme fixed across the 2018 census revision, and
+weighted by the CPS final person weight. The panel has 32,645 rows across 473
+occupations. Employment covered in 2022 is 141.5 million.
+
+Ages are emitted into bands, and the non-overlapping set is
+
+    under 20,  20 to 24,  25,  26 to 30,  31 to 34,  35 and over
+
+which tiles 16 to 64 exactly. The singleton band at 25 is not decorative. An
+earlier version of this panel ran without it, which meant the denominator silently
+excluded every 25 year old, understating total employment by about 2 percent and
+making the 22 to 25 share a ratio whose numerator included people its denominator
+did not. Correcting it moved the estimates in Section 3 by roughly 4 percent and
+changed no inference. The construction now asserts that the bands tile before any
+estimation runs, so the error cannot recur.
+
+The 22 to 25 band overlaps 20 to 24 by construction and is therefore excluded from
+the denominator. Both are reported, with 22 to 25 primary for the reasons in
+Section 3.5.
+
+**What this panel is not.** A separate strand of this project splices the CPS onto
+published BLS occupation-by-age tables to reach back to 2011, and tests that splice
+across eight constructions. That work is on the 20 to 24 band, because the
+published BLS tables carry no 22 to 25 band, and it is not used anywhere in this
+paper. Every estimate here runs on CPS microdata from 2016 to 2026 alone.
+
+**Two known data gaps.** The October 2025 CPS was never collected, so any
+twelve-month window spanning it contains eleven months. Section 5.5 averages over
+the calendar months observed at both ends; an earlier version divided by twelve
+regardless and manufactured a decline of about 7 percent out of nothing. And the
+2026 year is partial, covering January through July.
+
+## 2.2 Exposure
+
+Two task-based measures are used.
+
+**Raw GPT-4 beta.** The Eloundou et al. occupational exposure scores, averaging the
+human and model ratings of the share of an occupation's tasks for which a large
+language model could reduce completion time by at least half. The source file
+carries 923 O*NET-SOC rows, collapsed to six-digit SOC. Across the estimation
+sample the measure has mean 0.314 and standard deviation 0.208. This is the primary
+measure in the study this paper replicates, which is why it is reported throughout
+rather than only as a robustness check.
+
+**Composite.** The raw rating min-max scaled and discounted by a complementarity
+index, `exposure x (1 - complementarity)`. The complementarity index is the mean of
+five O*NET Work Context ratings on the CX scale: physical proximity, face-to-face
+discussion, dealing with external customers, health and safety of other workers,
+and consequence of error. The reasoning is that an exposed task performed in person
+under high consequence of error is less substitutable than the task rating alone
+implies. Mean 0.159, standard deviation 0.132.
+
+The composite is a construct of this project and is not standard. Every result in
+this paper is reported under both measures and none depends on the composite; the
+raw rating gives −0.3801 against the composite's −0.4018 in the baseline.
+
+**Revealed usage.** The Anthropic Economic Index release of 26 June 2026 maps
+Claude conversations to SOC occupations, covering 522 occupations after
+crosswalking. It carries a usage share, an automation-versus-augmentation split,
+and a mean autonomy score. Section 6 uses it and Section 6.1 documents why it
+should not be read as an index of economy-wide AI deployment.
+
+## 2.3 Controls
+
+**Education and preparation.** O*NET Job Zone, a one-to-five ordinal of the
+education, experience, and training an occupation requires. Sample mean 2.93.
+
+**Pay.** OEWS May 2022 national annual median wage for detailed occupations,
+entered in logs. Sample mean 10.91, about \$54,600.
+
+Both are time-invariant occupational characteristics interacted with the post
+indicator, so they identify differential post-2022 movement by preparation and by
+pay rather than a level effect, which occupation fixed effects already absorb.
+
+## 2.4 Crosswalking
+
+Exposure, controls, and usage are all defined on SOC codes; the employment panel is
+on OCC2010. A crosswalk of 525 unique OCC2010 codes maps between them. Where an
+exact six-digit SOC match is unavailable the lookup falls back to the mean over
+five-digit and then two-digit prefix matches. This introduces measurement error in
+the regressor for a minority of occupations, and Section 7.6 records it.
+
+## 2.5 Estimation samples
+
+Three samples appear, and the differences are mechanical rather than discretionary.
+
+| sample | occupations | cells | used in |
+|---|---:|---:|---|
+| exposure available | **457** | 4,625 | Sections 3, 7 |
+| exposure, Job Zone and OEWS wage all available | **451** | 4,563 | Section 4 |
+| exposure and AEI both available | **456** | 4,614 | Section 6 |
+| exposure, CPS-only levels, positive base-year employment | 427 (22-25), 421 (20-24) | | Section 5 |
+
+Each is the largest sample on which its specification can be estimated. The
+Section 5 counts are smaller because a levels growth rate requires strictly
+positive employment in the base year, which a share regression does not.
+
+## 2.6 Reproduction
+
+All estimates in this paper come from four scripts sharing one panel construction
+in `entry_panel.py`:
+
+| script | sections |
+|---|---|
+| `section3_core.py` | 3, and the decomposition in 7.2 |
+| `section4_controls.py` | 4 |
+| `entry_level_decomposition.py`, `adp_cps_reconciliation.py` | 5 |
+| `section6_measures.py` | 6 |
+
+The panel itself is rebuilt by `build_cps_panel_bands.py` from the IPUMS extract.
 
 ---
 
