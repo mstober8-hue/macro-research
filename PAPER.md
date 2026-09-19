@@ -2,8 +2,48 @@
 
 **Entry-level employment and AI exposure in nationally representative data**
 
-Full draft, seven sections, read through end to end. Remaining: bibliographic
-verification and a data appendix.
+## Abstract
+
+Brynjolfsson, Chandar and Chen (2026) report that employment of 22 to 25 year olds
+in the two most AI-exposed occupational quintiles fell about 11 percent between
+November 2022 and June 2026 while employment in the three least exposed grew about
+10 percent, and that young employment in exposed occupations now stands 19 percent
+below where it would be had it kept pace with less-exposed peers. Their evidence is
+payroll data from a single provider, and they note their patterns are more
+pronounced there than in national survey benchmarks. This paper runs the test on
+nationally representative household data: 6.0 million IPUMS CPS person records
+covering 2016 to 2026, aggregated to 457 occupations, using their primary exposure
+measure.
+
+The compositional pattern replicates and strengthens. The young share of an
+occupation's employment falls by 0.40 percentage points per standard deviation of
+AI exposure after 2022 (p = 0.0001). It strengthens rather than attenuates under
+education and pay controls, where the original attenuates, has a clean pre-AI
+placebo, and survives occupation-specific trends fitted on the pre-period and
+extrapolated forward. A 2022 break dominates a 2020 break, so the timing is
+generative AI rather than a delayed pandemic reallocation.
+
+The magnitudes do not replicate. Employment of 22 to 25 year olds in the two most
+exposed quintiles **grew 1.9 percent**, with a bootstrap interval rejecting
+−11 percent at p < 0.001, and neither sample universe nor window accounts for the
+discrepancy. On the authors' own preferred kept-pace metric this paper finds a
+6.2 percent shortfall against their 19 percent. Exposed occupations underperformed
+a growing aggregate without contracting.
+
+A third finding concerns measurement. Replacing the task-based exposure rating with
+revealed AI usage turns the result into a null, and in a horse race capability
+takes the entire effect. That is partly a fact about the usage measure, which
+concentrates 29 percent of its mass on ten occupations holding 0.6 percent of
+employment. Results in this literature are measure-dependent enough to flip a
+headline finding.
+
+The paper's central limit is that the outcome is a composition. Neither the
+numerator nor the denominator moves significantly on its own. The age composition
+of AI-exposed occupations demonstrably shifted; that young workers were displaced
+from them is not established here.
+
+Full draft, seven sections, read through end to end. Citations verified against
+published sources. Remaining: a data appendix.
 
 | # | Section | Status |
 |---|---|---|
@@ -643,6 +683,16 @@ Eloundou GPT-4 beta, employment weighted. Bootstrap over occupations, 2,000 reps
 | | gap | −6.1pp | [−15.1, +3.3] | 0.205 |
 | Brynjolfsson et al. (ADP), same window | top 2 / bottom 3 / gap | −11% / +10% / −21pp | | |
 
+**A note on which of their numbers this compares against.** The −11 percent is
+their reported levels figure, quoted verbatim: "In levels, employment of
+22-25-year-olds in the two most exposed quintiles fell about 11% between November
+2022 and June 2026, while employment of the same age group in the three
+least-exposed quintiles grew about 10%." They also state that they now de-emphasise
+it in favour of a kept-pace shortfall, the gap against a counterfactual in which
+exposed occupations matched less-exposed ones, which stands at 19 percent. Section
+5.7 reports this paper's figure on that metric too, because it is the one they lead
+with and because this paper's own result is a shortfall rather than a contraction.
+
 Three results follow.
 
 First, the exposed side does not contract. The point estimate is positive in both
@@ -811,6 +861,14 @@ data cannot distinguish from zero, and it did not contract, which the data do
 resolve: the interval excludes the published figure of −11 percent at p < 0.001.
 Neither sample universe nor window explains that discrepancy, and an adversarially
 stacked specification reaches only −4.7 percent on a third of the sample.
+
+**On their preferred metric.** Dividing the exposed index by the unexposed index
+at 2026 gives the kept-pace shortfall directly: 101.9 against 108.7, a
+**−6.2 percent** shortfall for the 22 to 25 band and −5.6 percent for 20 to 24,
+against the 19 percent they report. The disagreement is smaller on this metric than
+on levels and remains a factor of three. This is the fairer comparison, and it
+locates the disagreement precisely: both studies find exposed occupations falling
+behind, and they differ on how far.
 
 What the levels establish is narrower than this section's original framing. The
 only movement identified with confidence is the less-exposed group growing 8.7
@@ -993,7 +1051,11 @@ window contains a large monetary tightening whose sectoral incidence is not
 uniform, and the wider project this paper draws on finds that tightening explains
 most of the aggregate output-to-jobs break over the same period. Exposure-correlated
 interest-rate sensitivity is the most likely unmeasured confounder and it is not
-tested here.
+tested here. Brynjolfsson et al. do test it in their own data, reporting that the
+divergence persists when accounting for occupational interest-rate exposure and
+that it continued widening through mid-2026, long after rates peaked. That is
+reassuring and it is not a substitute for running the test on this panel, which has
+not been done.
 
 ## 7.2 The share is a composition, and the panel cannot decompose it
 
@@ -1086,28 +1148,24 @@ predict that.
 
 # References
 
-> **These entries need bibliographic verification before submission.** Author
-> lists, dates, venues and versions below are as carried in this project's source
-> files and have not been checked against the published records.
+Anthropic (2026). *Anthropic Economic Index*, SOC occupation release, 26 June 2026.
 
-Brynjolfsson, E., B. Chandar and R. Chen (2026). "Canaries in the Coal Mine?
-Six Facts about the Recent Employment Effects of Artificial Intelligence."
-Working paper, August 2026.
+Brynjolfsson, E., B. Chandar and R. Chen (2026). "Canaries in the Coal Mine? Six
+Facts about the Recent Employment Effects of Artificial Intelligence." Stanford
+Digital Economy Lab / SIEPR working paper, August 2026. Updates and extends the
+August 2025 version with data through June 2026.
 
-Eloundou, T., S. Manning, P. Mishkin and D. Rock. "GPTs are GPTs: An Early Look at
-the Labor Market Impact Potential of Large Language Models." Occupational exposure
-scores, human and model GPT-4 beta ratings.
+Eloundou, T., S. Manning, P. Mishkin and D. Rock (2024). "GPTs are GPTs: Labor
+market impact potential of LLMs." *Science* 384(6702), 1306-1308. Earlier working
+version: arXiv:2303.10130.
 
-Felten, E., M. Raj and R. Seamans (2023). AI Occupational Exposure (AIIE) index.
-Used elsewhere in this project; not used in this paper.
+Flood, S., M. King, R. Rodgers, S. Ruggles, J. R. Warren, D. Backman, E. Breton,
+G. Cooper, J. A. Rivera Drew, S. Richards and D. Van Riper. *Integrated Public Use
+Microdata Series, Current Population Survey: Version 13.0* [dataset]. Minneapolis,
+MN: IPUMS, 2025. https://doi.org/10.18128/D030.V13.0
 
-Anthropic (2026). Anthropic Economic Index, SOC occupation release, 26 June 2026.
+U.S. Bureau of Labor Statistics. *Occupational Employment and Wage Statistics
+(OEWS)*, May 2022 national estimates.
 
-Flood, S., et al. IPUMS CPS: Version [x]. Minneapolis, MN: IPUMS. Monthly Current
-Population Survey microdata, 2016 to 2026.
-
-U.S. Bureau of Labor Statistics. Occupational Employment and Wage Statistics
-(OEWS), May 2022 national estimates.
-
-U.S. Department of Labor. O*NET Database: Work Context ratings (CX scale) and Job
-Zones.
+U.S. Department of Labor, Employment and Training Administration. *O\*NET Database*:
+Work Context ratings (CX scale) and Job Zones.

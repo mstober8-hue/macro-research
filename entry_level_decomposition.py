@@ -185,6 +185,29 @@ for band, lab in [("a22_25", "22-25"), ("a20_24", "20-24")]:
               f"{idx.loc[y,'top2']-idx.loc[y,'bot3']:>10.1f}")
 
 print("\n" + "=" * 100)
+print("ON CANARIES' OWN PREFERRED METRIC: THE KEPT-PACE SHORTFALL")
+print("=" * 100)
+print("""
+  Canaries report -11% in levels, which is what the table above compares against,
+  but they explicitly de-emphasise it: "We now emphasise the simpler descriptive
+  divergence", the shortfall against a counterfactual in which exposed occupations
+  kept pace with less-exposed ones. That figure is 19% as of June 2026.
+
+  The like-for-like number here is the top-2 index divided by the bot-3 index.""")
+for band, lab in [("a22_25", "22-25"), ("a20_24", "20-24")]:
+    d = RES[band]["d"]
+    piv = d.pivot_table(index="year", columns="grp", values="emp", aggfunc="sum")
+    idx = 100 * piv / piv.loc[BASE]
+    kp = 100 * (idx.loc[END, "top2"] / idx.loc[END, "bot3"] - 1)
+    print(f"\n  {lab}: top2 {idx.loc[END,'top2']:.1f} vs bot3 {idx.loc[END,'bot3']:.1f}"
+          f"  ->  kept-pace shortfall {kp:+.1f}%   (Canaries: -19%)")
+print("""
+  The disagreement is smaller on this metric than on levels, and it is still a
+  factor of three. It is also the fairer comparison, because it is the one they
+  lead with, and because this paper's own finding is a shortfall rather than a
+  contraction.""")
+
+print("\n" + "=" * 100)
 print("BENCHMARK: is the exposed side underperforming even though it grew?")
 print("=" * 100)
 for band, lab in [("a22_25", "22-25"), ("a20_24", "20-24")]:

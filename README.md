@@ -1180,7 +1180,9 @@ This does **not** establish an anticipation channel, tempting as the reading is.
 
 Its three claims: the entry-level exposure gap **replicates and strengthens** where the published version concedes weakness; the published **−11% magnitude does not replicate** (+1.9%, rejected at p < 0.001, and neither universe nor window explains it); and **capability predicts the gap while observed deployment does not**. Its central limit is that the outcome is a composition, so the age mix of exposed occupations demonstrably shifted while displacement of young workers from them is not established.
 
-Outstanding: bibliographic verification, figure callouts, and a data appendix.
+**Verified against the source (Sept 2026).** Canaries' abstract concession is quoted verbatim, and so is their levels claim: *"In levels, employment of 22-25-year-olds in the two most exposed quintiles fell about 11% between November 2022 and June 2026, while employment of the same age group in the three least-exposed quintiles grew about 10%."* Two things the check changed: their **headline is now a 19% kept-pace shortfall**, not the levels figure, so the paper reports its own number on that metric too (−6.2% for 22-25, a factor of three apart rather than a sign flip); and they **do** control for occupational interest-rate exposure, which Part 4 of this project flags as the most likely confounder, so the limits section credits that while noting the test has not been run on this panel.
+
+Outstanding: a data appendix.
 
 ---
 # Where the whole thing stands
