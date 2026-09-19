@@ -9,12 +9,13 @@ Draft. Section 5 is written; the rest is the agreed skeleton.
 | 1 | Introduction | outline |
 | 2 | Data and measures | outline |
 | **3** | **The young-employment share in AI-exposed occupations** | **drafted** |
-| 4 | Strengthening: controls, placebo, break date | outline |
+| **4** | **Is it exposure, or is exposure a proxy?** | **drafted** |
 | **5** | **Where the gap comes from** | **drafted** |
 | 6 | Measure divergence: task-based against revealed usage | outline |
 | 7 | Limits | outline |
 
-Reproduce Section 3 with `python3 section3_core.py`, and Section 5 with
+Reproduce Section 3 with `python3 section3_core.py`, Section 4 with
+`python3 section4_controls.py`, and Section 5 with
 `python3 entry_level_decomposition.py` and `python3 adp_cps_reconciliation.py`.
 
 ---
@@ -179,6 +180,154 @@ employment weighting, and the exclusion of the largest occupations. The event st
 shows a flat pre-period and a post-2022 path that reaches its most negative value
 in 2026. Section 4 asks whether the estimate is exposure proxying for education or
 pay.
+
+---
+
+# 4. Is it exposure, or is exposure a proxy?
+
+Section 3 establishes that the young share falls in AI-exposed occupations. It
+does not establish that exposure is what matters. Exposed occupations are also
+better paid, require more preparation, and were on different paths before 2022.
+This section tests each of those.
+
+The section is also where this paper has the most to gain relative to the study it
+replicates. Brynjolfsson et al. concede in their own abstract that their patterns
+"attenuate when controlling for education, show some divergent trends predating
+generative AI, and are more pronounced in the ADP analysis sample than in national
+survey benchmarks." The third concession does not apply here, because this paper
+runs on a national survey benchmark by construction. The other two are tested
+below. The estimation sample is the 451 occupations and 4,563 cells with both a
+Job Zone and an OEWS wage.
+
+## 4.1 The controls are informative
+
+A control that is nearly collinear with the treatment tells you little either way,
+so the overlap is worth measuring before interpreting anything.
+
+| pair | correlation |
+|---|---:|
+| exposure, Job Zone | +0.511 |
+| exposure, log median wage | +0.372 |
+| Job Zone, log median wage | +0.768 |
+
+Exposure is correlated with both controls, which is why the objection is worth
+taking seriously, and it is far from collinear with either. Regressing exposure on
+Job Zone and log wage together gives an R-squared of 0.263, so **74 percent of the
+variation in exposure is orthogonal to both**. There is real independent variation
+for the controlled specification to use.
+
+## 4.2 The estimate strengthens under controls
+
+**Table 4.1.** Young-share coefficient with education and wage controls, each
+interacted with post. Two-way fixed effects, occupation-clustered SEs.
+
+| specification | 22-25 (primary) | 20-24 (robustness) |
+|---|---:|---:|
+| no controls | −0.4034 (0.0001) | −0.4446 (0.0001) |
+| + education (Job Zone) x post | −0.4208 (0.0002) | −0.4967 (0.0000) |
+| + log median wage x post | −0.4636 (0.0000) | −0.5112 (0.0000) |
+| **+ both** | **−0.4424 (0.0001)** | **−0.5095 (0.0000)** |
+| | *strengthens 10%* | *strengthens 15%* |
+
+The estimate does not attenuate. It moves away from zero under both controls
+individually and under both together, in both age bands. This is the direct
+contrast with the published result, which attenuates on the same objection, and it
+is the single strongest claim this paper makes relative to the existing literature.
+
+The interpretation is that AI exposure is not a restatement of "high-skill
+occupation." If it were, adding a preparation measure and a pay measure would
+absorb it. Instead the exposure coefficient gets larger, which is what happens when
+the controls strip out variation that was working against the effect: high-wage,
+high-preparation occupations were absorbing young workers over this period for
+reasons unrelated to AI, and holding that constant sharpens rather than dissolves
+the exposure gradient.
+
+## 4.3 Trends that predate generative AI
+
+The second concession is the harder one, and Section 3.3 already showed it has
+teeth for the 20 to 24 band. Two tests follow, and they disagree in an informative
+way.
+
+**The demanding version fails, and it cannot do otherwise.** Absorbing an
+occupation-specific linear trend fitted over the full 2016 to 2026 window leaves
+−0.1623 with a standard error of 0.2638 for the 22 to 25 band, p = 0.54.
+
+That result should not be read as a refutation, for a reason visible in the
+numbers. The standard error is two and a half times the baseline's, and the
+resulting interval, [−0.679, +0.355], contains zero and also contains the
+baseline estimate of −0.4004. The specification cannot distinguish the two
+hypotheses. That is what happens when a linear trend is fitted through a window
+that includes the treatment period and the treatment effect ramps: the trend
+absorbs the effect by construction. Section 3.3 showed this effect ramps, reaching
+its most negative value in the final year. A diffusion-shaped treatment cannot pass
+this test whether or not it is real, so the test is uninformative here rather than
+adverse.
+
+**The version a ramping effect can pass.** The standard remedy is to fit each
+occupation's trend on the pre-period only and extrapolate it through the post
+period, so the treatment window contributes nothing to the trend it is judged
+against.
+
+**Table 4.2.** Deviations from occupation-specific trends fitted on 2016 to 2022
+and extrapolated forward.
+
+| specification | 22-25 (primary) | 20-24 (robustness) |
+|---|---:|---:|
+| trend fitted 2016-2022 | **−0.3840 (0.0018)** | −0.2506 (0.0663) |
+| trend fitted 2016-2022, excluding 2020-2021 | **−0.3570 (0.0073)** | −0.1966 (0.1681) |
+
+The 22 to 25 estimate survives at close to its baseline magnitude and remains
+significant at better than 1 percent, including when the pandemic years are
+dropped from the trend fit so that COVID cannot tilt the extrapolation. Young
+employment in exposed occupations fell below the path those occupations were
+already on, and that is the claim the pre-trend objection is meant to defeat.
+
+The 20 to 24 band does not survive, falling to p = 0.066 and then to p = 0.168
+without the pandemic years. This is the third independent diagnostic pointing the
+same way, after the event study and the unweighted specification in Section 3, and
+it is why 22 to 25 is primary.
+
+## 4.4 Placebo
+
+Running the controlled specification on 2016 to 2019 with a fake post indicator at
+2018 should produce nothing, and it does.
+
+| band | exposure | Job Zone | wage |
+|---|---:|---:|---:|
+| 22-25 | +0.0401 (p = 0.66) | +0.0418 (p = 0.74) | +0.1328 (p = 0.21) |
+| 20-24 | +0.0744 (p = 0.45) | +0.0441 (p = 0.72) | +0.1003 (p = 0.36) |
+
+No term is significant, and the exposure coefficients are small and positive,
+which is the opposite sign to the post-2022 estimate. The design does not
+manufacture a result from a window where there was nothing to find.
+
+## 4.5 Is the break at 2022 or at 2020?
+
+The pandemic reorganized work along a dimension correlated with AI exposure, since
+exposed occupations are disproportionately the ones that could be done remotely. If
+the young-share movement is really a delayed COVID reallocation, a 2020 step should
+carry it. Entering both steps in the same regression settles which does.
+
+| band | exposure x post-2020 | exposure x post-2022 |
+|---|---:|---:|
+| 22-25 | −0.0187 (p = 0.861) | **−0.3927 (p < 0.001)** |
+| 20-24 | −0.1373 (p = 0.185) | **−0.3667 (p < 0.001)** |
+
+The 2022 term takes essentially the whole effect and the 2020 term is
+indistinguishable from zero. The timing matches generative AI rather than the
+pandemic.
+
+## 4.6 What survives
+
+Exposure is not standing in for education or pay, and the estimate strengthens
+when both are held constant. It is not a pre-existing trend, at least for the 22 to
+25 band, which survives extrapolated pre-period trends with and without the
+pandemic years. It is not a placebo artifact and it is not COVID timing.
+
+One qualification belongs on the record. The most demanding trend specification,
+with trends fitted over the full window, is uninformative rather than supportive,
+and a reader who believes that specification is the right one should treat the
+result as unproven rather than refuted. Section 7 returns to this.
 
 ---
 
