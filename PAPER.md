@@ -1044,12 +1044,19 @@ correlated with capability.
 The automation tilt adds nothing. Entered alone it gives +0.1440 (p = 0.20) for the
 22 to 25 band, and conditional on task-based exposure it is +0.0165 (p = 0.88).
 
-**A note on AEI's automation and augmentation shares.** They are exact
-complements, summing to 100 for every occupation with a correlation of exactly
-−1.0000. Only one is identified, entering both is degenerate, and any result
-attributing separate roles to the two is reporting a single dimension as though it
-were two. Brynjolfsson et al. use this split as their secondary measure, and the
-constraint applies to that use as well.
+**A note on AEI's automation and augmentation shares, and its scope.** In the
+June 2026 SOC release used here they are exact complements, summing to 100 for
+every occupation with a correlation of exactly −1.0000. Only one is identified,
+entering both is degenerate, and this section therefore uses the automation share
+alone.
+
+This constraint is a property of the release used here and should not be extended
+to other work without checking the vintage. Brynjolfsson et al. enter automation,
+complementarity, and overall usage jointly from the March 2025 release and report
+three distinct estimable coefficients, so their construction is evidently not
+degenerate in the same way. What follows from the finding here is narrower: anyone
+using this release's collaboration-bucket shares should verify whether the two
+carry one dimension or two before assigning them separate roles.
 
 ## 6.4 Neither measure predicts the pre-period
 
