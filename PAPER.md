@@ -33,9 +33,15 @@ discrepancy. On the authors' own preferred kept-pace metric this paper finds a
 6.2 percent shortfall against their 19 percent. Exposed occupations underperformed
 a growing aggregate without contracting.
 
-A third finding concerns measurement. Replacing the task-based exposure rating with
-revealed AI usage turns the result into a null, and in a horse race capability
-takes the entire effect. That is partly a fact about the usage measure, which
+A third finding concerns mechanism and measurement. Replacing the task-based
+exposure rating with revealed AI usage turns the share result into a null, and in a
+horse race capability takes the entire effect. Running the authors' own
+mechanism specification, an occupation-level long difference of employment on
+automation and complementarity exposure, their fact (5) does not reproduce: the
+automation coefficient for 22 to 25 year olds is **+1.98** rather than the −9.8
+percent per standard deviation they report, no coefficient is significant at any
+age, and the monotone age gradient they describe as their most direct mechanism
+evidence is absent. That is partly a fact about the usage measure, which
 concentrates 29 percent of its mass on ten occupations holding 0.6 percent of
 employment. Results in this literature are measure-dependent enough to flip a
 headline finding.
@@ -1078,7 +1084,82 @@ Nothing is significant. The revealed measure's null in Table 6.1 is not an artif
 of it predicting the pre-period, and the task-based result is not an artifact of
 the reverse.
 
-## 6.5 What the divergence does and does not establish
+## 6.5 Their mechanism evidence does not reproduce
+
+Facts (1) through (4) of Brynjolfsson et al. establish that young employment
+diverged by exposure. Fact (5) says *why*: "Declines are concentrated in
+occupations where AI usage primarily substitutes for human tasks; where usage
+primarily complements workers, employment is flat or rising, especially for
+experienced workers." They describe it as "the paper's most direct evidence on
+mechanism." It is testable here.
+
+Their Table 3 is an occupation-level long difference: percent change in employment
+from November 2022 to June 2026 on standardized automation, complementarity, and
+overall-usage exposures from AEI, entered jointly, employment weighted. Note that
+the outcome is employment *levels*, not the young share used elsewhere in this
+paper, so this section adopts their dependent variable in order to test their
+claim rather than a different one.
+
+**What can and cannot be run.** The three-way joint specification is not estimable
+on the June 2026 AEI release, where automation and augmentation shares are exact
+complements. Even the two-way version is uninformative: automation-weighted and
+complementarity-weighted usage correlate +0.90 with a variance inflation factor of
+5.4, because both are overall usage multiplied by a share *of* that usage. Entering
+them together inflates the standard errors past the point of saying anything, and
+that specification is reported below only for completeness. Each measure entered
+alone is what carries information.
+
+**Table 6.2.** Percent change in 22 to 25 employment, 2022 to 2026, per standard
+deviation of each measure. Occupation-level long difference, employment weighted,
+379 occupations.
+
+| measure | B | SE | 95% CI | p |
+|---|---:|---:|---:|---:|
+| automation-weighted usage | **+1.978** | 4.132 | [−6.12, +10.08] | 0.632 |
+| overall usage | +3.215 | 5.262 | [−7.10, +13.53] | 0.541 |
+| automation share | −0.401 | 3.840 | [−7.93, +7.12] | 0.917 |
+| task-based exposure | −3.748 | 2.567 | [−8.78, +1.28] | 0.144 |
+
+Their automation coefficient is −0.098, which their text glosses as "about −0.10
+per standard deviation." Read in proportion units that is −9.8 percent. Read
+literally as percent it is −0.098 percent, which would be economically negligible
+and could not support the mechanism claim built on it, so the proportion reading is
+the one their own argument requires. Against −9.8 percent, the estimate here
+rejects at **p = 0.0044**. Against the literal reading it cannot reject, and both
+comparisons are reported so the conclusion does not rest on an inference about
+their units.
+
+**The units-free test.** Fact (5) makes a qualitative claim that does not depend on
+scaling at all: the automation coefficient is negative and significant for the
+young, it "shrinks monotonically with age," and complementarity turns positive and
+significant for older workers. That pattern either appears or it does not.
+
+**Table 6.3.** Automation-weighted usage, entered alone, by age group.
+
+| age group | B | 95% CI | their automation coefficient |
+|---|---:|---:|---:|
+| **22-25** | **+1.978** | [−6.12, +10.08] | −0.098 *** |
+| 20-24 | +1.424 | [−8.05, +10.90] | not reported |
+| 26-30 | +0.040 | [−4.27, +4.35] | −0.036 *** |
+| 31-34 | −1.530 | [−5.10, +2.04] | −0.017 |
+| 35+ | +0.657 | [−2.16, +3.47] | −0.014 / −0.008 / −0.006 |
+
+No element of the pattern appears. The 22 to 25 coefficient is positive rather than
+negative, nothing is significant at any age, and the ordering across age groups is
+non-monotone. The mechanism evidence underpinning the headline finding does not
+reproduce in nationally representative data.
+
+**An important qualification, and it cuts against the cleanest reading.** The
+task-based measure is *also* insignificant in this levels specification, at
+−3.748 with p = 0.144. So this is not a horse race in which capability wins and
+deployment loses; in levels, neither measure reaches significance. That is
+consistent with Section 5 and Section 7.2, where the levels outcome is repeatedly
+shown to have less power than the share outcome. What this section establishes is
+therefore specific: their fact (5) pattern is absent and their automation magnitude
+is rejected. It does not establish that substitution plays no role, because a
+levels design on this panel would struggle to detect a moderate one either way.
+
+## 6.6 What the divergence does and does not establish
 
 Capability predicts the entry-level gap and deployment does not, and this is the
 one place in the paper where two reasonable measures of the same construct

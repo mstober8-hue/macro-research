@@ -143,6 +143,7 @@ Finance originally had a fourth mismatch (employment included Real Estate); it i
 | [`section3_core.py`](section3_core.py) | Section 3: the core young-share specification, event study, and the cut-off / weighting / influence checks |
 | [`section4_controls.py`](section4_controls.py) | Section 4: education and wage controls, occupation trends, placebo, and the 2020-vs-2022 break race |
 | [`section6_measures.py`](section6_measures.py) | Section 6: task-based vs revealed (AEI) exposure; what the revealed measure actually measures |
+| [`section6_fact5.py`](section6_fact5.py) | Section 6.5: replicates Canaries' Table 3 mechanism specification; their fact (5) does not reproduce |
 | [`spec_checks_vs_canaries.py`](spec_checks_vs_canaries.py) | Part 6: the three specification checks against the published design (age band, quintiles, education) |
 | [`entry_level_decomposition.py`](entry_level_decomposition.py) | Part 6: decomposes the exposure gap into levels; the exposed side does not fall |
 | [`adp_cps_reconciliation.py`](adp_cps_reconciliation.py) | Part 6: walks the CPS to ADP's universe and window; neither explains the disagreement |
@@ -1186,6 +1187,21 @@ In a horse race the task-based measure takes everything (−0.4141, p = 0.002) a
 **Two things worth recording.** The automation share of usage correlates **−0.337** with task-based exposure, so the most capability-exposed occupations use AI in the most *augmentative* way. And in the **June 2026 SOC release used here**, AEI's automation and augmentation shares are exact complements (sum = 100, corr = −1.0000), so only one is identified and this project uses the automation share alone. That is a property of this vintage, not a general claim: Brynjolfsson et al. enter automation, complementarity and overall usage jointly from the March 2025 release and get three estimable coefficients, so their construction is not degenerate in the same way. An earlier version of this line said the constraint applied to their work too; it was asserted without checking their specification and is withdrawn.
 
 This does **not** establish an anticipation channel, tempting as the reading is. A measure this concentrated cannot distinguish "deployment doesn't drive entry-level hiring" from "this doesn't measure deployment."
+
+### Their mechanism evidence does not reproduce (`section6_fact5.py`)
+
+Facts (1)-(4) of Canaries establish *that* young employment diverged. **Fact (5) says why**, and they call it "the paper's most direct evidence on mechanism": declines concentrate where AI usage *substitutes*, while complementary usage sees flat or rising employment. Their Table 3 is an occupation-level long difference of percent employment change on standardized automation / complementarity / overall usage. That is directly testable here, using **their** dependent variable (levels) rather than this project's (shares).
+
+| age group | automation-weighted usage, alone | their automation coef |
+|---|---:|---:|
+| **22-25** | **+1.978**  [−6.12, +10.08] | −0.098 *** |
+| 26-30 | +0.040  [−4.27, +4.35] | −0.036 *** |
+| 31-34 | −1.530  [−5.10, +2.04] | −0.017 |
+| 35+ | +0.657  [−2.16, +3.47] | −0.014 / −0.008 / −0.006 |
+
+**No element of fact (5) appears.** The 22-25 coefficient is *positive*, nothing is significant at any age, and the age ordering is non-monotone. Their text glosses the coefficient as "about −0.10 per standard deviation"; read in proportion units (−9.8%, the reading their own argument requires, since −0.098% would be negligible) this estimate **rejects it at p = 0.0044**. Both unit readings are reported so the conclusion doesn't rest on a guess.
+
+Two honesty notes. The three-way joint specification isn't estimable on this AEI release, and even the two-way version is uninformative (automation- and complementarity-weighted usage correlate +0.90, VIF 5.4), so each measure is entered alone. And the **task-based measure is also insignificant in levels** (−3.748, p = 0.144), so this is *not* a horse race capability wins — in levels neither measure reaches significance, consistent with the power limits in Sections 5 and 7.2. What is established is narrow and real: their fact (5) pattern is absent and their automation magnitude is rejected.
 
 ## The paper
 
