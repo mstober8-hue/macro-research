@@ -141,6 +141,7 @@ Finance originally had a fourth mismatch (employment included Real Estate); it i
 | [`entry_level_measure_reaudit.py`](entry_level_measure_reaudit.py) | The retraction of a retraction: the exposure measure was broken, and the null it produced was not evidence of absence |
 | [`entry_panel.py`](entry_panel.py) | One construction of the entry-level panel, shared by every script that estimates on it; asserts the age bands tile 16-64 |
 | [`section3_core.py`](section3_core.py) | Section 3: the core young-share specification, event study, and the cut-off / weighting / influence checks |
+| [`section3_age_gradient.py`](section3_age_gradient.py) | Section 3.6: the exposure effect on every age band; the effect is entry-level specific and 35+ rises |
 | [`section4_controls.py`](section4_controls.py) | Section 4: education and wage controls, occupation trends, placebo, and the 2020-vs-2022 break race |
 | [`section6_measures.py`](section6_measures.py) | Section 6: task-based vs revealed (AEI) exposure; what the revealed measure actually measures |
 | [`section6_fact5.py`](section6_fact5.py) | Section 6.5: replicates Canaries' Table 3 mechanism specification; their fact (5) does not reproduce |
@@ -1058,6 +1059,19 @@ These are the corrected figures. An age-25 hole in the non-overlapping bands had
 The pre-AI placebo on the same controlled specification (2016-2019, fake post = 2018) is clean in both bands: exposure +0.0401 (p = 0.66) for 22-25 and +0.0744 (p = 0.45) for 20-24, with the controls themselves insignificant. This is the strongest position this project holds relative to the published literature.
 
 The controls are informative rather than collinear: exposure correlates +0.511 with Job Zone and +0.372 with log wage, and regressing exposure on both gives R² = 0.263, so **74% of the variation in exposure is orthogonal to both**.
+
+**The effect is entry-level specific (`section3_age_gradient.py`).** Running the same specification on every non-overlapping age band, which tile 16-64 so the coefficients sum to zero:
+
+| age band | coef | p |
+|---|---:|---:|
+| under 20 | −0.1264 | **0.0086** |
+| **20-24** | **−0.4421** | **0.0001** |
+| 25 | −0.0743 | **0.0395** |
+| 26-30 | −0.0405 | 0.686 |
+| 31-34 | +0.0545 | 0.507 |
+| **35 and over** | **+0.6289** | **0.0036** |
+
+Every band ≤25 significantly negative, neither middle band significant, **35+ significantly positive**; gradient +0.018/year of age (p = 0.049). This confirms Canaries' **fact (2)** ("experienced workers show no comparable gap") and rules out uniform shrinkage. Exposed occupations are changing who holds the jobs rather than shedding them. Caveats: the gradient test is marginal and carried by the 35+ endpoint, and the shares sum to zero by construction so the positive top band is not independent evidence.
 
 **The pre-trend objection, tested two ways (`section4_controls.py`).** Absorbing an occupation-specific linear trend over the *full* 2016-2026 window leaves −0.1623 (p = 0.54) for 22-25. That is uninformative rather than adverse: the standard error is 2.5× the baseline's and the interval [−0.68, +0.36] contains both zero *and* the baseline −0.4004. A trend fitted through the treatment window absorbs a treatment that ramps, and the event study shows this one ramps. Fitting each occupation's trend on the **pre-period only** and extrapolating is the version a ramping effect can pass:
 

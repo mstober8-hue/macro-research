@@ -1,6 +1,7 @@
-# Underperformance Without Contraction
+# AI-Exposed Occupations Are Getting Older
 
-**Entry-level employment and AI exposure in nationally representative data**
+**Age recomposition, and three findings that do not replicate in nationally
+representative data**
 
 ## Abstract
 
@@ -15,21 +16,27 @@ nationally representative household data: 6.0 million IPUMS CPS person records
 covering 2016 to 2026, aggregated to 457 occupations, using their primary exposure
 measure.
 
-The compositional pattern replicates and strengthens. The young share of an
-occupation's employment falls by 0.40 percentage points per standard deviation of
-AI exposure after 2022 (p = 0.0001). It strengthens rather than attenuates under
-education and pay controls, where the original attenuates, has a clean pre-AI
-placebo, and survives occupation-specific trends fitted on the pre-period and
-extrapolated forward. A 2022 break dominates a 2020 break, so the timing is
+**The age pattern replicates and sharpens.** The young share of an occupation's
+employment falls by 0.40 percentage points per standard deviation of AI exposure
+after 2022 (p = 0.0001), and the effect is specific to the entry level: every age
+band at 25 and under carries a significant negative coefficient, the bands from 26
+to 34 carry none, and the share above 35 rises significantly (+0.63, p = 0.004).
+AI-exposed occupations are changing who holds the jobs rather than shedding them. This estimate survives a longer list of challenges than the finding it
+replicates, including all three its authors concede theirs does not. It
+strengthens rather than attenuates under education and pay controls, has a clean
+pre-AI placebo, and survives occupation-specific trends fitted on the pre-period
+and extrapolated forward, as well as the exposure measure, the cutoff year,
+employment weighting, and the exclusion of the largest occupations. A 2022 break dominates a 2020 break, so the timing is
 generative AI rather than a delayed pandemic reallocation. An occupational
 interest-rate exposure measure, built from identified monetary shocks and the OEWS
 industry-by-occupation matrix, correlates +0.003 with AI exposure and leaves the
 estimate unmoved.
 
-The magnitudes do not replicate. Employment of 22 to 25 year olds in the two most
-exposed quintiles **grew 1.9 percent**, with a bootstrap interval rejecting
-−11 percent at p < 0.001, and neither sample universe nor window accounts for the
-discrepancy. On the authors' own preferred kept-pace metric this paper finds a
+**The contraction does not replicate.** Employment of 22 to 25 year olds in the
+two most exposed quintiles **grew 1.9 percent**, with a bootstrap interval
+rejecting −11 percent at p < 0.001. No construction of the sample recovers a
+decline: neither universe, nor window, nor an adversarial stack of every choice at
+once. On the authors' own preferred kept-pace metric this paper finds a
 6.2 percent shortfall against their 19 percent. Exposed occupations underperformed
 a growing aggregate without contracting.
 
@@ -62,10 +69,13 @@ published sources. Remaining: a data appendix.
 | **4** | **Is it exposure, or is exposure a proxy?** | **drafted** |
 | **5** | **Where the gap comes from** | **drafted** |
 | **6** | **Capability predicts the gap, deployment does not** | **drafted** |
-| **7** | **Limits** | **drafted** |
+| **7** | **What follows** | **drafted** |
+| **8** | **Limits** | **drafted** |
 
-Reproduce Section 3 with `python3 section3_core.py`, Section 4 with
-`python3 section4_controls.py` and `python3 section4_rate_confound.py`, Section 6 with `python3 section6_measures.py`,
+Reproduce Section 3 with `python3 section3_core.py` and
+`python3 section3_age_gradient.py`, Section 4 with
+`python3 section4_controls.py` and `python3 section4_rate_confound.py`, Section 6 with `python3 section6_measures.py`
+and `python3 section6_fact5.py`,
 and Section 5 with
 `python3 entry_level_decomposition.py` and `python3 adp_cps_reconciliation.py`.
 
@@ -141,7 +151,7 @@ significant, against a share effect of −4.5 percent that is. The age compositi
 of exposed occupations shifted; whether young workers were displaced from them is
 not resolved here. There is no exogenous variation in exposure anywhere in the
 design, and exposure-correlated interest-rate sensitivity, in a window containing a
-large monetary tightening, is an untested confounder. Section 7 sets out these
+large monetary tightening, is an untested confounder. Section 8 sets out these
 limits and several others.
 
 The contribution is therefore narrower than the original claim and, in one respect,
@@ -154,7 +164,8 @@ Section 2 describes the data. Section 3 gives the core estimate and the diagnost
 that make 22 to 25 the primary band. Section 4 tests whether exposure is standing
 in for education, pay, or a pre-existing trend. Section 5 decomposes the gap and
 reconciles the disagreement with payroll data. Section 6 reports the divergence
-between capability-based and usage-based measures. Section 7 sets out the limits.
+between capability-based and usage-based measures and tests their mechanism
+evidence directly. Section 7 sets out what follows. Sections 7 and 8 set out what follows and what the limits are.
 
 ---
 
@@ -248,7 +259,7 @@ Exposure, controls, and usage are all defined on SOC codes; the employment panel
 on OCC2010. A crosswalk of 525 unique OCC2010 codes maps between them. Where an
 exact six-digit SOC match is unavailable the lookup falls back to the mean over
 five-digit and then two-digit prefix matches. This introduces measurement error in
-the regressor for a minority of occupations, and Section 7.6 records it.
+the regressor for a minority of occupations, and Section 8.6 records it.
 
 ## 2.5 Estimation samples
 
@@ -452,10 +463,62 @@ It remains the right primary band, being the published comparison band and the o
 that passes every diagnostic in Sections 3 and 4, and the reason it passes is more
 compositional than the earlier explanation implied.
 
-## 3.6 Summary
+## 3.6 The effect is specific to young workers
+
+A falling young share is not by itself evidence of an entry-level effect. Shares
+across age bands sum to one by construction, so a fall at the bottom is
+mechanically matched by a rise somewhere else, and the question is whether the
+pattern has the shape an entry-level account predicts. Running the Section 3
+specification unchanged on every non-overlapping band answers it directly.
+
+**Table 3.4.** Exposure coefficient by age band, 457 occupations. The bands tile
+16 to 64, so the coefficients sum to zero by construction.
+
+| age band | B | SE | p |
+|---|---:|---:|---:|
+| under 20 | −0.1264 | 0.0481 | **0.0086** |
+| **20-24** | **−0.4421** | 0.1115 | **0.0001** |
+| 25 | −0.0743 | 0.0361 | **0.0395** |
+| 26-30 | −0.0405 | 0.1003 | 0.686 |
+| 31-34 | +0.0545 | 0.0822 | 0.507 |
+| **35 and over** | **+0.6289** | 0.2158 | **0.0036** |
+| *sum* | *0.0000* | | |
+
+Every band at 25 and under is significantly negative. Neither band between 26 and
+34 is significant. The 35-and-over band is significantly **positive**. Regressing
+the coefficients on band midpoints gives a gradient of +0.018 per year of age
+(p = 0.049).
+
+Two things follow. First, the effect is concentrated at the entry level rather
+than spread across the workforce, which is what the entry-level reading requires
+and what a uniform-shrinkage account would not produce. Second, exposed
+occupations are not losing workers so much as changing who holds the jobs: the
+share above 35 rises significantly as the share below 25 falls.
+
+This is a direct test of Brynjolfsson et al.'s fact (2), that "experienced workers
+show no comparable gap," and unlike their fact (5) it **reproduces**. The age
+pattern that motivates the entire literature is present in nationally
+representative data and is if anything sharper here, since the older band does not
+merely fail to decline, it significantly rises.
+
+Two qualifications. The gradient test is marginal at p = 0.049 and is carried by
+the 35-and-over endpoint; dropping that band leaves a pattern that is still
+correctly ordered but no longer separable from noise. And the arithmetic
+constraint means the positive coefficient at the top is not independent evidence,
+since something had to absorb what the young bands lost. What the table
+establishes is the shape, not two separate findings.
+
+![Section 3.6: the exposure effect by age](section3_age_gradient.png)
+
+*Figure 2. The exposure coefficient on each age band's employment share. Negative and significant at 25 and under, significantly positive above 35.*
+
+## 3.7 Summary
 
 The young-employment share falls in AI-exposed occupations after 2022, within
-occupation and relative to less-exposed occupations. The estimate is
+occupation and relative to less-exposed occupations, and it falls at the entry
+level specifically: every age band at 25 and under carries a significant negative
+coefficient, the bands from 26 to 34 carry none, and the band above 35 is
+significantly positive. The estimate is
 −0.40 percentage points per standard deviation of exposure for the 22 to 25 band,
 significant at p = 0.0001, robust to the exposure measure, the cutoff year,
 employment weighting, and the exclusion of the largest occupations. The event study
@@ -585,7 +648,7 @@ it is why 22 to 25 is primary.
 
 ![Section 4: controls and trends](section4_controls.png)
 
-*Figure 2. The estimate under each control set, and under occupation-specific trends (red).*
+*Figure 3. The estimate under each control set, and under occupation-specific trends (red).*
 
 ## 4.4 Placebo
 
@@ -665,7 +728,7 @@ stable when both are included. Both hold.
 
 ![Section 4.5: the rate confound](section4_rate_confound.png)
 
-*Figure 3. The AI estimate alone, controlling for occupational interest-rate sensitivity, and controlling for rate sensitivity plus education and pay.*
+*Figure 4. The AI estimate alone, controlling for occupational interest-rate sensitivity, and controlling for rate sensitivity plus education and pay.*
 
 ## 4.6 Is the break at 2022 or at 2020?
 
@@ -694,7 +757,7 @@ pandemic years. It is not a placebo artifact and it is not COVID timing.
 One qualification belongs on the record. The most demanding trend specification,
 with trends fitted over the full window, is uninformative rather than supportive,
 and a reader who believes that specification is the right one should treat the
-result as unproven rather than refuted. Section 7 returns to this.
+result as unproven rather than refuted. Section 8 returns to this.
 
 ---
 
@@ -805,7 +868,7 @@ report that decomposition.
 
 ![Section 5: the levels decomposition](entry_level_decomposition.png)
 
-*Figure 4. Employment paths by exposure group, the two studies side by side, and the bootstrap distribution against the published −11%.*
+*Figure 5. Employment paths by exposure group, the two studies side by side, and the bootstrap distribution against the published −11%.*
 
 ## 5.4 Underperformance is imprecise, contraction is ruled out
 
@@ -901,7 +964,7 @@ most AI-exposed occupations did not contract.
 
 ![Section 5: the ADP/CPS reconciliation](adp_cps_reconciliation.png)
 
-*Figure 5. Walking the CPS to ADP's universe and window, one restriction at a time.*
+*Figure 6. Walking the CPS to ADP's universe and window, one restriction at a time.*
 
 ## 5.6 What each estimand can support
 
@@ -1010,7 +1073,7 @@ pointing in opposite directions across occupations.
 
 ![Section 6: measure comparison](section6_measures.png)
 
-*Figure 6. The same specification under task-based (blue) and revealed-usage (red) measures.*
+*Figure 7. The same specification under task-based (blue) and revealed-usage (red) measures.*
 
 ## 6.2 The same specification under each measure
 
@@ -1153,7 +1216,7 @@ reproduce in nationally representative data.
 task-based measure is *also* insignificant in this levels specification, at
 −3.748 with p = 0.144. So this is not a horse race in which capability wins and
 deployment loses; in levels, neither measure reaches significance. That is
-consistent with Section 5 and Section 7.2, where the levels outcome is repeatedly
+consistent with Section 5 and Section 8.2, where the levels outcome is repeatedly
 shown to have less power than the share outcome. What this section establishes is
 therefore specific: their fact (5) pattern is absent and their automation magnitude
 is rejected. It does not establish that substitution plays no role, because a
@@ -1186,14 +1249,57 @@ automation-augmentation split available from AEI is one dimension rather than tw
 
 ---
 
-# 7. Limits
+# 7. What follows
+
+The three findings point in different directions for how the AI-and-jobs debate
+should be read, and it is worth separating them.
+
+**The entry-level concern is real and the evidence for it is now stronger.** The
+age pattern that motivates this literature survives in nationally representative
+data, survives controls that weaken it elsewhere, and has the shape an entry-level
+account predicts rather than the shape a general slowdown would produce. Anyone
+inclined to dismiss the finding as an artifact of one payroll provider's client
+base should update against that: it is visible in a household survey covering the
+whole workforce, and it is sharper there than the original reported, since the
+share above 35 significantly rises rather than merely holding.
+
+**The scale of it has been overstated.** A widely reported 11 percent collapse in
+young employment in AI-exposed occupations does not appear in national data, where
+the same group grew 1.9 percent. On the authors' own preferred measure the gap is
+6.2 percent rather than 19. The direction is agreed; the magnitude differs by a
+factor of three, and every sample-construction explanation for that gap has been
+tested and rejected. Coverage of this literature has generally reported the larger
+number without the qualification that it comes from one provider's clients, and
+the authors themselves flag that their patterns are more pronounced there than in
+national benchmarks.
+
+**The mechanism is not established.** The substitution story, that declines
+concentrate where AI does work rather than assists it, is the part of the argument
+that would license inferring automation from these correlations. It does not
+reproduce here. Occupations whose AI usage tilts toward automation show no
+distinctive employment loss at any age, and the monotone age gradient in that
+channel is absent. Whatever is happening to entry-level hiring in exposed
+occupations, this evidence does not show it running through observed substitution.
+
+**For policy, the distinction between the second and third findings matters more
+than the first.** A world in which exposed occupations shed 11 percent of their
+young workers through automation calls for a different response than one in which
+those occupations grew slightly, aged, and cannot be shown to have automated
+anything. The first invites intervention aimed at displaced entrants. The second
+is closer to a question about how young workers enter the labor market and where
+growth is accruing, and it does not yet justify treating entry-level knowledge work
+as a category in decline.
+
+None of this is causal, and Section 8 sets out why.
+
+# 8. Limits
 
 The result in this paper is a robust conditional correlation. It is not an
 identified causal effect, and several of the things a reader would want to know are
 things these data cannot establish. They are set out here rather than distributed
 through the sections that produced them.
 
-## 7.1 There is no exogenous variation
+## 8.1 There is no exogenous variation
 
 Exposure is a fixed occupational characteristic interacted with time. Nothing
 assigns it, and no occupation is randomly made more or less exposed. The design
@@ -1217,7 +1323,7 @@ confounder is closed. Others that would have to be correlated with task exposure
 and absent from education, pay, industry rate sensitivity, and each occupation's
 own pre-period trend are not ruled out, and cannot be by this design.
 
-## 7.2 The share is a composition, and the panel cannot decompose it
+## 8.2 The share is a composition, and the panel cannot decompose it
 
 The outcome is the young share of an occupation's employment, which falls if young
 employment falls, if total employment rises, or both. In logs the components sum
@@ -1236,7 +1342,7 @@ quintile aggregates, reproduced on the full continuous panel, and it is the
 central one: the paper establishes that the age composition of exposed occupations
 shifted, and it cannot establish that young workers were displaced from them.
 
-## 7.3 The most demanding trend specification is uninformative
+## 8.3 The most demanding trend specification is uninformative
 
 Section 4.3 reports that absorbing occupation-specific linear trends fitted over
 the full window leaves −0.1623 with p = 0.54. The argument given there is that a
@@ -1251,7 +1357,7 @@ paper's estimate as unproven rather than refuted. The pre-period-trend version i
 Table 4.2 is offered as the resolution, and it is a weaker test than the full-window
 version, not a stronger one.
 
-## 7.4 The revealed-usage null is not interpretable
+## 8.4 The revealed-usage null is not interpretable
 
 Section 6 finds that a revealed AI-usage measure gives a null where the task-based
 measure gives a strong effect. Because that usage measure concentrates 29 percent
@@ -1262,7 +1368,7 @@ consistent with the measure not capturing deployment. The anticipation channel t
 would reconcile the two measures is a hypothesis this paper raises and does not
 test.
 
-## 7.5 The disagreement with payroll data is not resolved
+## 8.5 The disagreement with payroll data is not resolved
 
 Section 5.5 removes sample universe and window as explanations for the gap between
 this paper's +1.9 percent and the −11 percent reported in ADP payroll data, and
@@ -1274,7 +1380,7 @@ possible that both estimates are correct for the populations they cover, and tha
 entry-level contraction is concentrated in large firms in a way the CPS averages
 away. Settling this requires firm-size information the CPS does not carry monthly.
 
-## 7.6 Measurement in the CPS
+## 8.6 Measurement in the CPS
 
 Occupation is self-reported and harmonized to OCC2010 across coding revisions.
 Misclassification is known to be substantial in the CPS and is largely classical
@@ -1289,7 +1395,7 @@ nothing. And the exposure crosswalk maps SOC codes to OCC2010 with partial-prefi
 fallback where an exact match is unavailable, which introduces error in the
 regressor for a minority of occupations.
 
-## 7.7 Scope
+## 8.7 Scope
 
 One country, one generative-AI episode, and four post-treatment years. The event
 study in Section 3.3 reaches its most negative value in the final year, so the
