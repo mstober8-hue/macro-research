@@ -1207,6 +1207,12 @@ significant for older workers. That pattern either appears or it does not.
 | 31-34 | −1.530 | [−5.10, +2.04] | −0.017 |
 | 35+ | +0.657 | [−2.16, +3.47] | −0.014 / −0.008 / −0.006 |
 
+![Section 6.5: fact (5) tested](section6_fact5.png)
+
+*Figure 8. Automation-weighted usage entered alone, by age band, against the
+coefficient Brynjolfsson et al. report for 22 to 25 year olds. Their estimate is
+plotted at −9.8, the proportion reading their own argument requires.*
+
 No element of the pattern appears. The 22 to 25 coefficient is positive rather than
 negative, nothing is significant at any age, and the ordering across age groups is
 non-monotone. The mechanism evidence underpinning the headline finding does not

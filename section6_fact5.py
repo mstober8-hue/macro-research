@@ -172,18 +172,31 @@ for col, lab in BANDS:
     print(f"  {lab:<22}{b[0]:>+14.3f} ({p[0]:.3f}){stars(p[0]):<4}")
 
 # ---- chart --------------------------------------------------------------------
-fig, ax = plt.subplots(figsize=(9.5, 5.4))
+# Their coefficient is plotted at -9.8, the proportion reading, which is the one
+# their own argument requires and the one Section 6.5 tests against. Plotting the
+# literal -0.098 alongside estimates of order 2 would render their result as a
+# flat line at zero and flatter this paper's conclusion by a scaling artifact.
+fig, ax = plt.subplots(figsize=(10, 5.6))
 labs = [l for _, l in BANDS]
-bs = [R[c][0][0] for c, _ in BANDS]; es = [1.96 * R[c][1][0] for c, _ in BANDS]
-ax.bar(np.arange(len(bs)) - 0.2, bs, 0.4, yerr=es, color="#c0392b",
-       error_kw=dict(lw=1.2, capsize=3), label="this paper (CPS)")
-ax.bar([0 + 0.2], [-0.098], 0.4, yerr=[1.96 * 0.018], color="#e59866",
-       error_kw=dict(lw=1.2, capsize=3), label="Canaries (ADP), 22-25")
-ax.axhline(0, color="black", lw=1.1)
-ax.set_xticks(range(len(labs))); ax.set_xticklabels(labs, fontsize=9)
-ax.set_ylabel("percent employment change per sd of automation exposure", fontsize=9.5)
-ax.set_title("Fact (5): the substitution channel in nationally representative data",
+bs, es = [], []
+for col, _ in BANDS:
+    d = longdiff(col)
+    b, se, p, n = wls(d, ["auto_use"])
+    bs.append(b[0]); es.append(1.96 * se[0])
+x = np.arange(len(bs))
+ax.bar(x, bs, 0.55, yerr=es, color="#c0392b", error_kw=dict(lw=1.3, capsize=4),
+       label="this paper (CPS), automation-weighted usage")
+ax.axhline(0, color="black", lw=1.2)
+ax.axhline(-9.8, color="#e59866", lw=2.2, ls="--",
+           label="Canaries (ADP), 22-25: $-$0.098 read as $-$9.8%")
+ax.annotate("their estimate for 22-25", xy=(0.15, -9.8), xytext=(0.5, -14),
+            fontsize=8.5, color="#a0522d",
+            arrowprops=dict(arrowstyle="->", color="#a0522d", lw=1.1))
+ax.set_xticks(x); ax.set_xticklabels(labs, fontsize=9)
+ax.set_ylabel("percent employment change 2022-2026, per sd of automation exposure",
+              fontsize=9.5)
+ax.set_title("Fact (5) does not reproduce: no age band shows an automation effect",
              fontsize=12.5, fontweight="bold")
-ax.legend(fontsize=9); ax.grid(True, axis="y", ls="--", alpha=.35)
+ax.legend(fontsize=8.5, loc="upper right"); ax.grid(True, axis="y", ls="--", alpha=.35)
 plt.tight_layout(); plt.savefig("section6_fact5.png", dpi=150, bbox_inches="tight")
 print("\nChart saved: section6_fact5.png")

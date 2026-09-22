@@ -32,11 +32,13 @@ which share a single panel construction in `entry_panel.py`.
 
 | Section | Script |
 |---|---|
-| 3, and the decomposition in 7.2 | `section3_core.py` |
+| 3.1 to 3.5, and the decomposition in 8.2 | `section3_core.py` |
+| 3.6 | `section3_age_gradient.py` |
 | 4.1 to 4.4, 4.6 | `section4_controls.py` |
 | 4.5 | `section4_rate_confound.py` |
 | 5 | `entry_level_decomposition.py`, `adp_cps_reconciliation.py` |
-| 6 | `section6_measures.py` |
+| 6.1 to 6.4 | `section6_measures.py` |
+| 6.5 | `section6_fact5.py` |
 
 The occupation-by-year panel is rebuilt from the IPUMS CPS extract by
 `build_cps_panel_bands.py`.
