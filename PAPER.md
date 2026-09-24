@@ -69,6 +69,7 @@ published sources. Remaining: a data appendix.
 | **4** | **Is it exposure, or is exposure a proxy?** | **drafted** |
 | **5** | **Where the gap comes from** | **drafted** |
 | **6** | **Capability predicts the gap, deployment does not** | **drafted** |
+| **6** | *(adds facts 4, 5 and 6)* | |
 | **7** | **What follows** | **drafted** |
 | **8** | **Limits** | **drafted** |
 
@@ -104,9 +105,22 @@ pronounced in the ADP analysis sample than in national survey benchmarks." Each 
 a live objection, and the third is structural: ADP observes the payroll clients of
 one firm, skewed toward employers large enough to outsource payroll.
 
-This paper runs the test on nationally representative household data. The panel is
-6.0 million IPUMS CPS person records, 2016 to 2026, aggregated to 457 occupations,
-using the same primary exposure measure the original uses.
+This paper runs the test on nationally representative household data: 8.5 million
+IPUMS CPS person records covering 2016 to 2026, aggregated to 457 occupations,
+using the same primary exposure measure the original uses, with individuals linked
+across months for flows and outgoing-rotation records for pay.
+
+Replications rarely cover an entire paper, and this one does not. Of their six
+facts, four are tested here.
+
+| their fact | tested here |
+|---|---|
+| (1) no economy-wide displacement | not tested, not disputed |
+| (2) young gap, none for experienced | **yes** — pattern confirmed, magnitude disputed |
+| (3) divergence widening | partially, through the event study |
+| (4) hiring rather than separations | **yes** — does not reproduce |
+| (5) concentrated in substitutive usage | **yes** — does not reproduce |
+| (6) employment rather than compensation | **yes** — reproduces |
 
 **The pattern replicates and strengthens.** The young share of employment falls in
 AI-exposed occupations after 2022, by 0.40 percentage points per standard deviation
@@ -133,6 +147,15 @@ data cannot distinguish from zero, and they did not contract, which is what a
 displacement account requires. Which side opens the gap is not resolved: measured
 against aggregate young employment growth the split is 57.5 to 42.5 with a modest
 tilt toward the exposed side, and neither deviation is significant.
+
+**Two of their three mechanism claims fail; the third holds.** Their fact (6),
+that adjustment runs through employment rather than pay, reproduces cleanly: no
+exposure effect on weekly earnings or hourly wages at any age, estimated on 1.0
+million outgoing-rotation records. Their fact (4), that the divergence runs
+through reduced hiring rather than increased separations, does not: hire rates
+move *up* with exposure and separation rates rise significantly at four of five
+age bands. Their fact (5), that declines concentrate where AI substitutes for
+labor, does not reproduce either.
 
 **Capability predicts the gap; observed deployment does not.** Replacing the
 task-based exposure rating with revealed Claude usage turns the result into a null,
@@ -1228,7 +1251,84 @@ therefore specific: their fact (5) pattern is absent and their automation magnit
 is rejected. It does not establish that substitution plays no role, because a
 levels design on this panel would struggle to detect a moderate one either way.
 
-## 6.6 What the divergence does and does not establish
+## 6.6 Facts (4) and (6): the other two mechanism claims
+
+Two of their six facts concern margins that employment stocks cannot see. Fact (4)
+is that the divergence "operates primarily through reduced hiring of young workers
+rather than increased separations." Fact (6) is that "adjustment is occurring
+through employment rather than base compensation." Both are testable on a CPS
+extract carrying the longitudinal person identifier and the outgoing-rotation
+earnings variables, and neither has been tested outside ADP.
+
+Individuals are linked across consecutive months on `CPSIDP`, giving 5.70 million
+verified month pairs from 5.74 million attempted, a 99.3 percent match rate after
+requiring sex to agree and age to move by no more than a year. A hire is a
+transition from not employed to employed, attributed to the occupation entered; a
+separation is the reverse, attributed to the occupation left. Rates are monthly.
+
+### Fact (4) does not reproduce
+
+**Table 6.4.** Hire and separation rates on AI exposure, Section 3 specification.
+
+| age band | hire rate | separation rate | net |
+|---|---:|---:|---:|
+| **22-25** | +0.1122 (0.422) | +0.2044 (0.102) | −0.0922 (0.517) |
+| 20-24 | +0.2704 (0.075) | **+0.3804 (0.004)** | −0.1099 (0.495) |
+| 26-30 | +0.0327 (0.643) | **+0.1682 (0.019)** | −0.1355 (0.152) |
+| 31-34 | **+0.1767 (0.029)** | **+0.1479 (0.045)** | +0.0287 (0.766) |
+| 35+ | +0.0436 (0.277) | +0.0711 (0.058) | −0.0275 (0.420) |
+
+Their claim requires the hire rate to fall and separations to hold steady. Neither
+happens. Hire-rate coefficients are positive throughout and insignificant for the
+22 to 25 band. Separation-rate coefficients are positive and significant at four
+of five bands. Exposed occupations show *more* churn on both sides rather than a
+hiring freeze.
+
+The net flow is negative for the young, which is the sign the stock result in
+Section 3 requires, and it is not significant at any age.
+
+**This creates a tension the paper cannot resolve, and it is a problem for this
+paper rather than for theirs.** The stock results in Section 3.6 carry a sharp age
+gradient: significantly negative at every band under 26, significantly positive
+above 35. The flow results carry no gradient at all, with separations elevated
+almost uniformly across ages. A compositional shift visible in stocks should be
+generated by flows, and here the flows that would generate it are not
+age-specific. Either the monthly transition data are too noisy to recover the
+gradient, or the stock result is accumulating through a margin these flows do not
+capture, such as occupational switching among the continuously employed, which is
+counted here as neither a hire nor a separation. Section 8.8 records this as an
+open problem.
+
+### Fact (6) reproduces
+
+Earnings come from the outgoing rotation groups, about 23 percent of employed
+records. Cell means are unusable at this thinness, with a median of four
+observations per occupation-year-age cell, so the regression runs at the person
+level on 1.0 million records with the ORG weight.
+
+**Table 6.5.** Log pay on AI exposure, person level, x100 so coefficients read as
+percent per standard deviation.
+
+| age band | log weekly earnings | log hourly wage |
+|---|---:|---:|
+| **22-25** | −1.073 (0.350) | −0.626 (0.370) |
+| 20-24 | −0.159 (0.908) | −0.104 (0.882) |
+| 26-30 | +0.092 (0.933) | −0.765 (0.440) |
+| 31-34 | −0.591 (0.638) | −0.385 (0.709) |
+| 35+ | +0.408 (0.447) | −0.230 (0.648) |
+
+No coefficient is significant at any age on either measure, and the magnitudes are
+small: the largest is about one percent per standard deviation of exposure. With
+77,497 records behind the 22 to 25 estimate the standard errors are tight enough
+that a pay effect of the size their employment effects would imply should have been
+visible. **Fact (6) reproduces.** Whatever is happening to entry-level employment
+in exposed occupations, it is not showing up in what those jobs pay.
+
+![Facts (4) and (6)](section6_facts_4_6.png)
+
+*Figure 9. Hire and separation rates, and log pay, by age band.*
+
+## 6.7 What the divergence does and does not establish
 
 Capability predicts the entry-level gap and deployment does not, and this is the
 one place in the paper where two reasonable measures of the same construct
@@ -1401,7 +1501,26 @@ nothing. And the exposure crosswalk maps SOC codes to OCC2010 with partial-prefi
 fallback where an exact match is unavailable, which introduces error in the
 regressor for a minority of occupations.
 
-## 8.7 Scope
+## 8.7 Stocks and flows do not line up
+
+Section 6.6 reaches a result this paper cannot reconcile. The age gradient in
+employment shares is sharp and significant at both ends. The hire and separation
+flows that should generate that gradient show no age pattern, and the net flow is
+insignificant at every band.
+
+Three explanations are available and these data do not separate them. Monthly CPS
+transitions are noisy and known to contain spurious flows, which would attenuate
+any gradient toward zero. The stock change may accumulate through occupational
+switching among the continuously employed, a margin counted here as neither a hire
+nor a separation. Or the share result may be driven by the denominator, employment
+of older workers rising, rather than by young workers flowing out, which Section
+8.2 already shows this design cannot rule out.
+
+The first and third are more likely than a failure of the stock result, which
+survives everything in Sections 3 and 4. It remains the case that a mechanism
+visible in stocks should be visible in flows, and here it is not.
+
+## 8.8 Scope
 
 One country, one generative-AI episode, and four post-treatment years. The event
 study in Section 3.3 reaches its most negative value in the final year, so the

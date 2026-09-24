@@ -32,3 +32,5 @@ cps_panel_adp_monthly.csv
 
 # built artifact; regenerate with ./make_docx.sh
 PAPER.docx
+cps_flows.csv
+cps_earnings.csv

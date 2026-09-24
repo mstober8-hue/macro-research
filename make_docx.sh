@@ -39,9 +39,12 @@ which share a single panel construction in `entry_panel.py`.
 | 5 | `entry_level_decomposition.py`, `adp_cps_reconciliation.py` |
 | 6.1 to 6.4 | `section6_measures.py` |
 | 6.5 | `section6_fact5.py` |
+| 6.6 | `section6_facts_4_6.py` |
 
 The occupation-by-year panel is rebuilt from the IPUMS CPS extract by
-`build_cps_panel_bands.py`.
+`build_cps_panel_bands.py`. Monthly flows and outgoing-rotation earnings come from
+`build_cps_flows.py`, which reads a second extract carrying `CPSIDP`, `MISH`,
+`EARNWEEK`, `HOURWAGE`, `EARNWT` and `ELIGORG`.
 """
 s = s.rstrip("\n") + "\n" + appendix
 open("/tmp/_paper_word.md", "w").write(s)
