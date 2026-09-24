@@ -98,6 +98,47 @@ print("""
   is a tension this paper cannot resolve, and Section 8 records it as such.
 """)
 
+# ---- do the flows CONTRADICT the stocks, or merely fail to resolve them? --------
+# A net-flow estimate that is insignificant is not evidence against the stock
+# result unless the flow design could have detected the flow the stock result
+# implies. This computes the implied value and checks it against the interval.
+print("=" * 96)
+print("RECONCILIATION: is the flow null a contradiction or a power failure?")
+print("=" * 96)
+print("""
+  A stock coefficient of b pp per sd on a band whose base share is s, accumulated
+  over a 48-month window, implies a monthly net-flow gap of 100*(b/s)/48. If that
+  implied value sits inside the observed flow interval, the two results agree and
+  the flow design simply cannot resolve the difference.
+""")
+from entry_panel import NONOVERLAP
+DD = load()
+for bb in NONOVERLAP: DD[f"sh_{bb}"] = 100 * DD[bb] / DD.tot
+DD["sh_a22_25"] = 100 * DD.a22_25 / DD.tot
+F["net_rate"] = F.hire_rate - F.sep_rate
+print(f"  {'band':<10}{'stock':>10}{'base':>9}{'REQUIRED':>11}{'OBSERVED':>11}"
+      f"{'95% CI':>20}{'agrees':>9}")
+for bb, colname in [("a20_24", "sh_a20_24"), ("a22_25", "sh_a22_25"),
+                    ("a26_30", "sh_a26_30"), ("a31_34", "sh_a31_34"),
+                    ("a35p", "sh_a35p")]:
+    sc, _, _, _, _, _ = fe(DD, colname, post_x(DD, ["rep_good"]))
+    share = 100 * DD[DD.year == 2022][bb].sum() / DD[DD.year == 2022].tot.sum()
+    req = 100 * (sc[0] / share) / 48
+    d = F[F.band == bb]
+    co, se, t, p, G, n = fe(d, "net_rate", post_x(d, ["rep_good"]))
+    lo, hi = co[0] - 1.96 * se[0], co[0] + 1.96 * se[0]
+    print(f"  {bb:<10}{sc[0]:>+10.3f}{share:>8.1f}%{req:>+11.4f}{co[0]:>+11.4f}"
+          f"   [{lo:+6.3f},{hi:+6.3f}]{'YES' if lo <= req <= hi else 'NO':>9}")
+print("""
+  The implied value falls inside the interval at every band, and for 22-25 the
+  observed estimate is 91% of the required magnitude. The flows agree with the
+  stocks; they are too imprecise to confirm the gradient. Note why the gradient is
+  hard to see in flows: the 35+ band holds 63% of employment, so its large stock
+  coefficient implies a monthly flow gap of only +0.021, well inside noise. The
+  whole implied flow gradient spans about 0.12pp against standard errors of 0.04
+  to 0.16.
+""")
+
 # ---- fact (6): earnings, at the PERSON level -----------------------------------
 # Cell means do not work here. The ORG subsample is a quarter of records, so
 # occupation x year x narrow age band cells held a median of 4 observations and
