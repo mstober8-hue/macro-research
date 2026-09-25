@@ -32,8 +32,9 @@ which share a single panel construction in `entry_panel.py`.
 
 | Section | Script |
 |---|---|
-| 3.1 to 3.5, and the decomposition in 8.2 | `section3_core.py` |
+| 3.1 to 3.5, and the decomposition and figure in 8.2 | `section3_core.py` |
 | 3.6 | `section3_age_gradient.py` |
+| 3.7 | `section3_discriminant.py` |
 | 4.1 to 4.4, 4.6 | `section4_controls.py` |
 | 4.5 | `section4_rate_confound.py` |
 | 5 | `entry_level_decomposition.py`, `adp_cps_reconciliation.py` |

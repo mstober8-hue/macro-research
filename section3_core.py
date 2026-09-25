@@ -180,3 +180,30 @@ fig.suptitle("Section 3: the young-employment share falls in AI-exposed occupati
              fontsize=13, fontweight="bold", y=1.02)
 plt.tight_layout(); plt.savefig("section3_core.png", dpi=150, bbox_inches="tight")
 print("\nChart saved: section3_core.png")
+
+# ---- figure for Section 8.2: the composition limit ------------------------------
+# The share moves while neither component does. That is the paper's central
+# limitation and it was carried by a table alone.
+figc, axc = plt.subplots(figsize=(7.6, 5.0))
+_L = L.copy()
+_vals = []
+for c, lab in [("l2225", "log young\nemployment\n(22-25)"),
+               ("ltot", "log total\nemployment\n(16-64)"),
+               ("ldiff", "difference\n= log share")]:
+    b, se, t, p, G, n = fe(_L, c, post_x(_L, ["rep_good"]))
+    _vals.append((lab, b[0], 1.96 * se[0], p[0]))
+cols = ["#7f8c8d", "#7f8c8d", "#c0392b"]
+axc.bar(range(3), [v[1] for v in _vals], yerr=[v[2] for v in _vals],
+        color=cols, error_kw=dict(lw=1.4, capsize=5))
+axc.axhline(0, color="black", lw=1.2)
+axc.set_xticks(range(3)); axc.set_xticklabels([v[0] for v in _vals], fontsize=9)
+axc.set_ylabel("percent per sd of exposure", fontsize=10)
+axc.set_title("The share moves; neither component does",
+              fontsize=12.5, fontweight="bold")
+for i, v in enumerate(_vals):
+    axc.annotate(f"p = {v[3]:.3f}", xy=(i, v[1] + (0.6 if v[1] > 0 else -0.9)),
+                 ha="center", fontsize=9,
+                 fontweight="bold" if v[3] < .05 else "normal")
+axc.grid(True, axis="y", ls="--", alpha=.35)
+plt.tight_layout(); plt.savefig("section8_composition.png", dpi=150, bbox_inches="tight")
+print("Chart saved: section8_composition.png")

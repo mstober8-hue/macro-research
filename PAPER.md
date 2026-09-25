@@ -535,7 +535,69 @@ establishes is the shape, not two separate findings.
 
 *Figure 2. The exposure coefficient on each age band's employment share. Negative and significant at 25 and under, significantly positive above 35.*
 
-## 3.7 Summary
+## 3.7 Is the gradient specific to AI exposure?
+
+An obvious objection to Section 3.6 is that any measure of occupational
+automatability might produce the same age pattern, in which case the finding is
+about automation broadly rather than about generative AI. Testing it requires an
+exposure measure built on a different construct.
+
+This project has one, built elsewhere for a different question. It scores
+occupations on **physical intensity x routineness** from O*NET Work Activities and
+Work Context: a job is robotically automatable only if it is both physical and
+routine. It uses different source variables from the composite in Section 3.1 and
+ranks occupations close to oppositely, correlating **−0.708** with the composite
+and −0.752 with the raw GPT-4 rating. A language model cannot pour concrete, so
+construction and warehousing sit at the bottom of text-AI exposure and near the top
+of this one.
+
+**Table 3.5.** The age ladder under each measure.
+
+| age band | text-AI exposure | robotic exposure |
+|---|---:|---:|
+| under 20 | −0.1264 (0.009) | +0.0997 (0.040) |
+| **20-24** | **−0.4421 (0.000)** | +0.2659 (0.060) |
+| 25 | −0.0743 (0.040) | +0.0447 (0.230) |
+| 26-30 | −0.0405 (0.686) | +0.2112 (0.098) |
+| 31-34 | +0.0545 (0.507) | +0.1562 (0.069) |
+| **35 and over** | **+0.6289 (0.004)** | **−0.7777 (0.002)** |
+| *22-25 (primary)* | *−0.4004 (0.000)* | *+0.2496 (0.030)* |
+
+The robotic measure produces a gradient that is close to the mirror image. Taken
+alone that is weak evidence, because two measures correlated −0.71 will
+mechanically produce opposing coefficients, and the reversal restates the same
+variation with its sign flipped rather than adding independent information.
+
+**The horse race is the informative test.** Entering both measures together on the
+22 to 25 share:
+
+| | B | SE | p |
+|---|---:|---:|---:|
+| text-AI composite | **−0.4323** | 0.1327 | **0.0011** |
+| robotic exposure | −0.0549 | 0.1401 | 0.695 |
+
+Text-AI exposure takes the entire effect and robotic exposure goes to zero. The
+two measures share about half their variance, so the marginal robotic coefficient
+is identified off the remaining half, which is enough for the comparison to mean
+something. The entry-level pattern loads on exposure to text-based AI
+specifically, not on automatability in general.
+
+A pre-AI placebo on 2016-2019 with a fake post at 2018 is clean under both
+measures: +0.1198 (p = 0.147) for text-AI on the 22 to 25 share and −0.0241
+(p = 0.805) for robotic. Neither construction manufactures a gradient where there
+is nothing to find.
+
+One caution belongs with this measure rather than with the result. The analysis
+that built it reports that robot-exposed occupations also shrink in a 2013-2019
+pre-AI window, so it captures a long-running automation trend rather than a new
+one. That bears on interpreting robotic exposure as evidence about anything
+recent. It does not affect its use here, which is only as a discriminant.
+
+![Section 3.7: text-AI against robotic exposure](section3_discriminant.png)
+
+*Figure 3. The age ladder under both measures.*
+
+## 3.8 Summary
 
 The young-employment share falls in AI-exposed occupations after 2022, within
 occupation and relative to less-exposed occupations, and it falls at the entry
@@ -671,7 +733,7 @@ it is why 22 to 25 is primary.
 
 ![Section 4: controls and trends](section4_controls.png)
 
-*Figure 3. The estimate under each control set, and under occupation-specific trends (red).*
+*Figure 4. The estimate under each control set, and under occupation-specific trends (red).*
 
 ## 4.4 Placebo
 
@@ -751,7 +813,7 @@ stable when both are included. Both hold.
 
 ![Section 4.5: the rate confound](section4_rate_confound.png)
 
-*Figure 4. The AI estimate alone, controlling for occupational interest-rate sensitivity, and controlling for rate sensitivity plus education and pay.*
+*Figure 5. The AI estimate alone, controlling for occupational interest-rate sensitivity, and controlling for rate sensitivity plus education and pay.*
 
 ## 4.6 Is the break at 2022 or at 2020?
 
@@ -891,7 +953,7 @@ report that decomposition.
 
 ![Section 5: the levels decomposition](entry_level_decomposition.png)
 
-*Figure 5. Employment paths by exposure group, the two studies side by side, and the bootstrap distribution against the published −11%.*
+*Figure 6. Employment paths by exposure group, the two studies side by side, and the bootstrap distribution against the published −11%.*
 
 ## 5.4 Underperformance is imprecise, contraction is ruled out
 
@@ -987,7 +1049,7 @@ most AI-exposed occupations did not contract.
 
 ![Section 5: the ADP/CPS reconciliation](adp_cps_reconciliation.png)
 
-*Figure 6. Walking the CPS to ADP's universe and window, one restriction at a time.*
+*Figure 7. Walking the CPS to ADP's universe and window, one restriction at a time.*
 
 ## 5.6 What each estimand can support
 
@@ -1096,7 +1158,7 @@ pointing in opposite directions across occupations.
 
 ![Section 6: measure comparison](section6_measures.png)
 
-*Figure 7. The same specification under task-based (blue) and revealed-usage (red) measures.*
+*Figure 8. The same specification under task-based (blue) and revealed-usage (red) measures.*
 
 ## 6.2 The same specification under each measure
 
@@ -1232,7 +1294,7 @@ significant for older workers. That pattern either appears or it does not.
 
 ![Section 6.5: fact (5) tested](section6_fact5.png)
 
-*Figure 8. Automation-weighted usage entered alone, by age band, against the
+*Figure 9. Automation-weighted usage entered alone, by age band, against the
 coefficient Brynjolfsson et al. report for 22 to 25 year olds. Their estimate is
 plotted at −9.8, the proportion reading their own argument requires.*
 
@@ -1342,7 +1404,7 @@ in exposed occupations, it is not showing up in what those jobs pay.
 
 ![Facts (4) and (6)](section6_facts_4_6.png)
 
-*Figure 9. Hire and separation rates, and log pay, by age band.*
+*Figure 10. Hire and separation rates, and log pay, by age band.*
 
 ## 6.7 What the divergence does and does not establish
 
@@ -1456,6 +1518,10 @@ exactly to the share, so running the same specification on each decomposes it.
 | log young employment, 22 to 25 | −2.8768 | 1.8545 | 0.121 |
 | log total employment, 16 to 64 | +1.6555 | 1.5477 | 0.285 |
 | **difference, equals log share** | **−4.5323** | 1.5010 | **0.0025** |
+
+![Section 8.2: the composition limit](section8_composition.png)
+
+*Figure 11. The share moves; neither component does.*
 
 The share moves and neither component moves significantly on its own. The point
 estimates put roughly two thirds of the movement on young employment falling, and
