@@ -815,7 +815,56 @@ stable when both are included. Both hold.
 
 *Figure 5. The AI estimate alone, controlling for occupational interest-rate sensitivity, and controlling for rate sensitivity plus education and pay.*
 
-## 4.6 Is the break at 2022 or at 2020?
+## 4.6 Between industries, or within them?
+
+Occupation and year fixed effects absorb anything fixed about an occupation and
+anything common to a year. They do not absorb an industry-specific shock in a
+particular year, and occupation fixed effects do not close that gap, because an
+occupation's industry mix shifts over time and the same occupation in a different
+industry faces a different shock. If AI-exposed occupations sit disproportionately
+in industries that contracted after 2022 for unrelated reasons, and young workers
+are more exposed to industry contraction than older ones, the Section 3
+coefficient could be reading industry composition.
+
+Testing it requires cells at the occupation-by-industry level. The CPS extract
+carries `IND1990`, grouped here to its 13 major divisions, which gives 142,395
+occupation-by-industry-by-year cells. Adding industry-by-year fixed effects
+absorbs every sector-level shock in every year, so identification comes only from
+comparing occupations against each other inside the same industry in the same
+year.
+
+**Table 4.4.** Exposure coefficient with and without industry-by-year fixed
+effects, estimated on identical occupation-by-industry cells.
+
+| specification | 22-25 (primary) | 20-24 |
+|---|---:|---:|
+| occupation + year FE | −0.3956 (0.0004) | −0.4300 (0.0002) |
+| **occupation + industry-by-year FE** | **−0.3058 (0.0047)** | **−0.3598 (0.0010)** |
+| | *attenuates 23%* | *attenuates 16%* |
+
+The effect survives and remains significant at better than 1 percent, and it does
+attenuate. Roughly a quarter of the raw estimate for the primary band operates
+through industry composition and three quarters within industry. That is a real
+reduction and the paper reports it as one rather than treating survival as
+vindication.
+
+Two things bound how much the industry channel could have been doing. Between-sector
+differences account for **15.1 percent** of the weighted variance in the young
+share, so most of the variation this design uses is within sector to begin with.
+And the specification above is demanding: with 13 sector-by-year effects absorbed,
+what remains is occupations competing against other occupations in the same sector
+in the same year.
+
+The coefficients in the first row differ slightly from Section 3 because these are
+occupation-by-industry cells rather than occupation-by-year cells. The comparison
+that matters is between the two rows, which run on identical data.
+
+![Section 4.6: within versus between industry](section4_between_industry.png)
+
+*Figure 6. The exposure coefficient before and after absorbing industry-by-year
+shocks.*
+
+## 4.7 Is the break at 2022 or at 2020?
 
 The pandemic reorganized work along a dimension correlated with AI exposure, since
 exposed occupations are disproportionately the ones that could be done remotely. If
@@ -831,11 +880,14 @@ The 2022 term takes essentially the whole effect and the 2020 term is
 indistinguishable from zero. The timing matches generative AI rather than the
 pandemic.
 
-## 4.7 What survives
+## 4.8 What survives
 
 Exposure is not standing in for education or pay, and the estimate strengthens
 when both are held constant. It is not standing in for interest-rate sensitivity
-either: that dimension is orthogonal to it and controlling for it changes nothing. It is not a pre-existing trend, at least for the 22 to
+either: that dimension is orthogonal to it and controlling for it changes nothing.
+It is mostly, though not entirely, a within-industry phenomenon: absorbing every
+sector-by-year shock attenuates it by roughly a quarter and leaves it significant
+at better than 1 percent. It is not a pre-existing trend, at least for the 22 to
 25 band, which survives extrapolated pre-period trends with and without the
 pandemic years. It is not a placebo artifact and it is not COVID timing.
 
@@ -953,7 +1005,7 @@ report that decomposition.
 
 ![Section 5: the levels decomposition](entry_level_decomposition.png)
 
-*Figure 6. Employment paths by exposure group, the two studies side by side, and the bootstrap distribution against the published −11%.*
+*Figure 7. Employment paths by exposure group, the two studies side by side, and the bootstrap distribution against the published −11%.*
 
 ## 5.4 Underperformance is imprecise, contraction is ruled out
 
@@ -1049,7 +1101,7 @@ most AI-exposed occupations did not contract.
 
 ![Section 5: the ADP/CPS reconciliation](adp_cps_reconciliation.png)
 
-*Figure 7. Walking the CPS to ADP's universe and window, one restriction at a time.*
+*Figure 8. Walking the CPS to ADP's universe and window, one restriction at a time.*
 
 ## 5.6 What each estimand can support
 
@@ -1158,7 +1210,7 @@ pointing in opposite directions across occupations.
 
 ![Section 6: measure comparison](section6_measures.png)
 
-*Figure 8. The same specification under task-based (blue) and revealed-usage (red) measures.*
+*Figure 9. The same specification under task-based (blue) and revealed-usage (red) measures.*
 
 ## 6.2 The same specification under each measure
 
@@ -1294,7 +1346,7 @@ significant for older workers. That pattern either appears or it does not.
 
 ![Section 6.5: fact (5) tested](section6_fact5.png)
 
-*Figure 9. Automation-weighted usage entered alone, by age band, against the
+*Figure 10. Automation-weighted usage entered alone, by age band, against the
 coefficient Brynjolfsson et al. report for 22 to 25 year olds. Their estimate is
 plotted at −9.8, the proportion reading their own argument requires.*
 
@@ -1404,7 +1456,7 @@ in exposed occupations, it is not showing up in what those jobs pay.
 
 ![Facts (4) and (6)](section6_facts_4_6.png)
 
-*Figure 10. Hire and separation rates, and log pay, by age band.*
+*Figure 11. Hire and separation rates, and log pay, by age band.*
 
 ## 6.7 What the divergence does and does not establish
 
@@ -1521,7 +1573,7 @@ exactly to the share, so running the same specification on each decomposes it.
 
 ![Section 8.2: the composition limit](section8_composition.png)
 
-*Figure 11. The share moves; neither component does.*
+*Figure 12. The share moves; neither component does.*
 
 The share moves and neither component moves significantly on its own. The point
 estimates put roughly two thirds of the movement on young employment falling, and
