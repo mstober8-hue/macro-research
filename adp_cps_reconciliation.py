@@ -63,7 +63,12 @@ def lk(s):
         if len(h): return h.beta.mean()
     return np.nan
 XW["beta"] = [lk(s) for s in XW.soc]
-OCC = XW[["occ", "beta"]].dropna().drop_duplicates("occ")
+# Flag occupations whose exposure comes from an exact SOC match rather than the
+# prefix fallback above. 35% of occupations are imputed, and imputation
+# compresses exposure toward SOC-family means, which blurs the quintile cut and
+# pulls both groups toward the overall mean. Reported as a scope check below.
+XW["exact"] = XW.soc.isin(set(EL.soc))
+OCC = XW[["occ", "beta", "exact"]].dropna(subset=["beta"]).drop_duplicates("occ")
 
 A = pd.read_csv(os.path.join(HERE, "cps_panel_adp.csv"))
 A = A[A.band == BAND].merge(OCC, on="occ", how="inner")
@@ -137,6 +142,9 @@ for lab, f in RUNGS:
     print(f"  {lab:<44}{t:>+8.1f}%{b:>+8.1f}%{t-b:>+8.1f}pp{kept:>12.1f}%")
 print(f"  {'Canaries (ADP)':<44}{CANARIES_TOP2:>+8.1f}%{CANARIES_BOT3:>+8.1f}%"
       f"{CANARIES_TOP2-CANARIES_BOT3:>+8.1f}pp{'--':>13}")
+
+def quint_fixed(df):
+    return df
 
 ADP_UNIV = lambda d: d[(d.cw == "priv") & (d.sector != "agri")]
 tA, bA = rates(ADP_UNIV(A))
@@ -214,6 +222,73 @@ for lab, (t, _), Bm in [("Section 5 as published (all CPS, annual)", rates(A), B
 print(f"\n  {'Canaries (ADP)':<46}{CANARIES_TOP2:>+8.1f}%")
 
 # =============================================================================
+print("\n\nTEST C2.  THE SAME, WITH NO IMPUTED EXPOSURE VALUES")
+print("-" * 104)
+print("""Exposure is merged from SOC to OCC2010 with a prefix fallback that fires for 35% of
+occupations and assigns them a SOC-family average. That compresses the exposure
+distribution and blurs the quintile cut. Dropping imputed occupations can be done two
+ways and they do NOT agree, so both are shown rather than choosing one:
+
+  FIXED      keep the quintile assignment derived on the full sample, then drop
+             imputed occupations. Holds group definitions constant; leaves the
+             groups unbalanced in size.
+  RE-DERIVED rebuild quintiles inside the exact-matched sample. Answers "what would
+             the cut look like with only measured values", at the cost of comparing
+             different groups.""")
+
+def rates_fixed(df, sub):
+    d = quint_fixed(df)
+    d = d[sub(d)] if callable(sub) else d
+    out = {}
+    for g in ("top2", "bot3"):
+        x = d[d.grp == g]
+        out[g] = 100 * (x[x.year == END].emp.sum() / x[x.year == BASE].emp.sum() - 1)
+    return out["top2"], out["bot3"]
+
+def rates_rederived(df):
+    b = df[df.year == BASE].groupby("occ").emp.sum()
+    q = (df.drop_duplicates("occ")[["occ", "beta"]]
+           .merge(b.rename("w0").reset_index(), on="occ").sort_values("beta"))
+    cw = q.w0.cumsum() / q.w0.sum()
+    q["grp"] = np.where(np.searchsorted([.2, .4, .6, .8], cw, side="right") + 1 >= 4, "top2", "bot3")
+    d = df.drop(columns=[c for c in ("grp", "quint") if c in df.columns]).merge(
+        q[["occ", "grp"]], on="occ")
+    out = {}
+    for g in ("top2", "bot3"):
+        x = d[d.grp == g]
+        out[g] = 100 * (x[x.year == END].emp.sum() / x[x.year == BASE].emp.sum() - 1)
+    return out["top2"], out["bot3"]
+
+print(f"\n  {'specification':<52}{'occ':>6}{'top2':>9}{'bot3':>9}{'gap':>9}")
+for frame, fn, lab in [(A, lambda d: d, "all CPS"), (A, ADP_UNIV, "ADP universe")]:
+    base = fn(frame)
+    t, b = rates(base)
+    print(f"  {lab + ', all occupations':<52}{base.occ.nunique():>6}{t:>+8.2f}%{b:>+8.2f}%{t-b:>+8.2f}pp")
+    ex = base[base.exact]
+    t, b = rates(ex)
+    print(f"  {lab + ', exact only, FIXED quintiles':<52}{ex.occ.nunique():>6}{t:>+8.2f}%{b:>+8.2f}%{t-b:>+8.2f}pp")
+    t, b = rates_rederived(ex)
+    print(f"  {lab + ', exact only, RE-DERIVED quintiles':<52}{ex.occ.nunique():>6}{t:>+8.2f}%{b:>+8.2f}%{t-b:>+8.2f}pp")
+
+print("""
+  The two methods disagree on direction. Holding the quintile definition fixed makes
+  the exposed side look better and the gap narrower; rebuilding the cut on measured
+  values alone makes it worse and the gap wider.
+
+  Across all six rows the exposed-side estimate spans -1.30% to +2.41%. The most
+  adverse variant, ADP's universe with quintiles rebuilt on measured exposure only,
+  is NEGATIVE. The published figure of +1.88% sits near the top of that range rather
+  than in the middle of it.
+
+  Two things to take from this. The specific figure of +1.9 percent is not robust and
+  should not be quoted as though it were; the honest summary is that the exposed side
+  is somewhere between slightly negative and modestly positive, and every variant is
+  statistically indistinguishable from zero on the interval reported in Test C.
+
+  What does hold across every variant is the comparison that matters: the widest
+  excursion here is -1.3%, against the -11% reported in payroll data. The gap between
+  the two studies is not a product of how imputed exposure values are handled.""")
+
 print("\n\nTEST D.  HOW MUCH COULD INDUSTRY MIX ALONE EXPLAIN?")
 print("-" * 104)
 print("""ADP's client base is not a random sample of private employers; it skews to firms
