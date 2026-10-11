@@ -28,7 +28,7 @@ import numpy as np, pandas as pd
 from scipy import stats as sp
 import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from entry_panel import load, fe, z, post_x, stars, NONOVERLAP
+from entry_panel import load, fe, z, post_x, stars, NONOVERLAP, DATA
 
 D = load()
 # the non-overlapping bands tile 16-64, so their shares sum to 100 by construction
@@ -91,6 +91,55 @@ print("""
   A positive gradient means the exposure effect moves from negative at the bottom
   of the age distribution toward positive at the top, which is the shape an
   entry-level account predicts and a uniform-shrinkage account does not.""")
+
+# ---- the gradient under exact-matched exposure only ----------------------------
+# The slope reported above is a fragile summary of a robust table, and this is
+# where that shows. 35% of occupations carry an imputed exposure value; dropping
+# them raises the slope and widens its standard error enough to lose significance.
+# The under-20 band is what breaks the linear fit, being LESS negative than 20-24,
+# so a straight line through all six bands is the wrong functional form.
+import re as _re
+def _soc6(c):
+    m = _re.match(r"(\d{2}-\d{4})", str(c)); return m.group(1) if m else None
+_el = pd.read_csv(DATA + "eloundou_gpt_occupational_exposure_scores.csv")
+_el.columns = [c.strip() for c in _el.columns]
+_EXACT = set(_el["O*NET-SOC Code"].map(_soc6).dropna())
+_xw = pd.read_csv(DATA + "occ2010_soc_crosswalk.csv").drop_duplicates("occ")
+_xw["exact"] = _xw.soc.isin(_EXACT)
+DX = D.merge(_xw[["occ", "exact"]], on="occ", how="left")
+
+def _slope(d, ladder):
+    rows = []
+    for col, nm, mid in ladder:
+        b, se, t, p, G, n = fe(d, col, post_x(d, ["rep_good"]))
+        rows.append((mid, b[0], se[0]))
+    mids = np.array([r[0] for r in rows]); co = np.array([r[1] for r in rows])
+    w = 1 / np.array([r[2] for r in rows]) ** 2
+    X = np.column_stack([np.ones(len(mids)), mids]); XtW = X.T * w
+    bb = np.linalg.pinv(XtW @ X) @ (XtW @ co)
+    resid = co - X @ bb
+    s2 = (w * resid ** 2).sum() / max(len(mids) - 2, 1)
+    V = s2 * np.linalg.pinv(XtW @ X)
+    tt = bb[1] / np.sqrt(V[1, 1])
+    return bb[1], 2 * (1 - sp.norm.cdf(abs(tt)))
+
+print("\n" + "=" * 92)
+print("THE SLOPE IS NOT ROBUST; THE TABLE IS")
+print("=" * 92)
+NO20 = [l for l in LADDER if l[1] != "under 20"]
+print(f"\n  {'sample':<42}{'slope/yr':>11}{'p':>9}")
+for d, lad, lab in [(DX, LADDER, "all occupations"),
+                    (DX[DX.exact], LADDER, "exact match only"),
+                    (DX, NO20, "all occupations, excluding under 20"),
+                    (DX[DX.exact], NO20, "exact match only, excluding under 20")]:
+    sl, pv = _slope(d, lad)
+    print(f"  {lab:<42}{sl:>+11.5f}{pv:>9.4f}")
+print("""
+  The published slope does not survive exact matching. Excluding the under-20
+  band it is strongly significant in both samples, which identifies that band as
+  the source of the non-linearity rather than evidence against the pattern.
+  The age-band TABLE above is the finding; this line fitted through it is a
+  summary statistic and should be read as one.""")
 
 # ---- chart ---------------------------------------------------------------------
 fig, ax = plt.subplots(figsize=(9.5, 5.4))

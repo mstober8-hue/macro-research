@@ -71,6 +71,47 @@ print("""
   bias. AEI is the outlier at 47.3%, which is why Section 6 needs the check below.
 """)
 
+# Coverage and concentration, all normalised within the merged sample. The AEI
+# 'pct' column is NOT a share of 100: it sums to 78.09 in the source file and to
+# 53.42 after the crosswalk, because some SOC rows map to no OCC2010 code and
+# others map to several. Any share-of-usage statement must therefore be
+# normalised within the merged sample and compared against an employment share
+# computed on that same sample. An earlier version of this project compared a
+# raw usage sum against a normalised employment share and understated the
+# computer-occupation figure by half.
+_S = pd.read_csv(DATA + "aei_2026/aei_soc_occupation_global_2026_06_26.csv")
+A0 = aei(); a0 = A0[A0.occ.isin(set(D0.occ))].drop_duplicates("occ")
+M22 = D0[D0.year == 2022].merge(A0, on="occ", how="inner").drop_duplicates("occ")
+_t = pd.read_csv(DATA + "occ2010_soc_crosswalk.csv").drop_duplicates("occ").set_index("occ")["title"]
+import collections as _c
+_vc = _c.Counter(a0.use.round(4)); _tied = sum(v for v in _vc.values() if v > 1)
+_o = D0.drop_duplicates("occ")
+_vc2 = _c.Counter(_o.rep_good.round(6)); _tied2 = sum(v for v in _vc2.values() if v > 1)
+print(f"  AEI 'pct' sums to {_S.pct.sum():.2f} at source, {M22.use.sum():.2f} after crosswalk")
+print(f"  occupations with an AEI value in the sample     : {len(a0)}")
+print(f"  assigned a usage of exactly zero                : {int((a0.use == 0).sum())}"
+      f"  ({100*(a0.use == 0).mean():.1f}%)")
+print(f"  sharing a usage value with another occupation   : {_tied} ({100*_tied/len(a0):.1f}%)")
+print(f"  same for the composite exposure measure         : {_tied2} ({100*_tied2/len(_o):.1f}%)")
+_r = a0.sort_values("use", ascending=False).reset_index(drop=True)
+_b = _r.iloc[20:30].use.round(4).unique()
+if len(_b) == 1:
+    print(f"  occupations ranked 21st-30th all carry          : {_b[0]:.4f}%")
+_top = M22.nlargest(10, "use")
+print(f"\n  top 10 by usage: {100*_top.use.sum()/M22.use.sum():.1f}% of usage, "
+      f"{100*_top.tot.sum()/M22.tot.sum():.2f}% of employment")
+_pat = "software|computer|programm|developer|web develop|information secur|database|network arch"
+_c2 = M22[M22.occ.map(_t).astype(str).str.contains(_pat, case=False, na=False)]
+_ur = 100*_c2.use.sum()/M22.use.sum(); _er = 100*_c2.tot.sum()/M22.tot.sum()
+print(f"  computer occupations: {_ur:.2f}% of usage, {_er:.2f}% of employment "
+      f"({_ur/_er:.1f}x their employment share)")
+print("""
+  The last line is why the concentration statistic cannot carry an argument that
+  the measure is broken. Computer occupations are represented at four and a half
+  times their employment share, so the measure is not simply tracking one
+  application's audience. The defensible problem is the imputation rate below.
+""")
+
 XW["ex_el"] = XW.soc.isin(SETS["Eloundou GPT-4 beta (PRIMARY)"])
 XW["ex_aei"] = XW.soc.isin(SETS["AEI usage (Section 6)"])
 D = D0.merge(XW[["occ","ex_el","ex_aei"]], on="occ", how="left")
