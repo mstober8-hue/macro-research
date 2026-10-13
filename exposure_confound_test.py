@@ -40,12 +40,12 @@ Reads FRED-Data/ and cps_panel.csv. Writes exposure_confound_test.png.
 """
 import os, re, sys, numpy as np, pandas as pd
 from scipy import stats as sp
-sys.path.insert(0, "/Users/maxstober/Developer/Macro-Research")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from fastfe import _demean
 import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-HERE = "/Users/maxstober/Developer/Macro-Research"
+HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "FRED-Data") + os.sep
 OEWS = os.path.join(DATA, "oews_national_industry_files") + os.sep
 

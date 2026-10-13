@@ -40,7 +40,7 @@ from scipy import stats as sp
 import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-HERE = "/Users/maxstober/Developer/Macro-Research"
+HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "FRED-Data") + os.sep
 RNG = np.random.default_rng(20260901)
 BASE, END = 2022, 2026

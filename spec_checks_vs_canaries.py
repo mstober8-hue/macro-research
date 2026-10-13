@@ -23,10 +23,10 @@ Reads cps_panel_bands.csv (build_cps_panel_bands.py) and FRED-Data/.
 """
 import os, re, sys, numpy as np, pandas as pd
 from scipy import stats as sp
-sys.path.insert(0, "/Users/maxstober/Developer/Macro-Research")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from fastfe import _demean
 
-HERE = "/Users/maxstober/Developer/Macro-Research"; DATA = HERE + "/FRED-Data/"
+HERE = os.path.dirname(os.path.abspath(__file__)); DATA = HERE + "/FRED-Data/"
 OEWS = DATA + "oews_national_industry_files/"
 COMP_VARS = ["Physical Proximity",
              "Face-to-Face Discussions with Individuals and Within Teams",

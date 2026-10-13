@@ -10,7 +10,7 @@ from scipy import stats as sp
 sys.path.insert(0,'.')
 from fastfe import fe_did, _demean
 
-HERE="/Users/maxstober/Developer/Macro-Research"; DATA=HERE+"/FRED-Data/"
+HERE=os.path.dirname(os.path.abspath(__file__)); DATA=HERE+"/FRED-Data/"
 
 # The AEI release ships either as a long metric file or already pivoted by SOC.
 # Accept both so this runs against whatever vintage is on disk.

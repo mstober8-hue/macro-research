@@ -38,7 +38,7 @@ import os, re, numpy as np, pandas as pd
 import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-HERE = "/Users/maxstober/Developer/Macro-Research"
+HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "FRED-Data") + os.sep
 RNG = np.random.default_rng(20260901)
 BAND, BASE, END = "a22_25", 2022, 2026

@@ -20,7 +20,7 @@ This re-runs all six outcomes with:
 import os, re, glob, numpy as np, pandas as pd
 from scipy import stats as sp
 
-HERE = "/Users/maxstober/Developer/Macro-Research"
+HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "FRED-Data") + os.sep
 
 COMP_VARS = ["Physical Proximity",

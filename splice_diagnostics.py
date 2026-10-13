@@ -123,7 +123,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats as sp
 
-HERE = "/Users/maxstober/Developer/Macro-Research"
+HERE = os.path.dirname(os.path.abspath(__file__))
 os.chdir(HERE)
 sys.path.insert(0, HERE)
 
