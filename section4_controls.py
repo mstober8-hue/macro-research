@@ -1,6 +1,6 @@
 """
 section4_controls.py
-Section 4 of PAPER.md: is the Section 3 estimate AI exposure, or is exposure
+Section 4 of the paper: is the Section 3 estimate AI exposure, or is exposure
 standing in for education, pay, or a trend that was already running?
 
 WHY THIS SECTION IS THE PAPER'S STRONGEST CLAIM

@@ -1,6 +1,6 @@
 """
 section3_core.py
-The core specification for Section 3 of PAPER.md, plus the choices that could be
+The core specification for Section 3 of the paper, plus the choices that could be
 doing the work.
 
 THE CLAIM

@@ -15,13 +15,13 @@ employment growth:
 Those are observationally identical in the employment series this project has
 used, and they mean completely different things. Only the first is AI
 displacement in the sense the literature means. The third is the immigration
-objection PAPER.md Section 6 flags as untestable.
+objection physical-sector-inversion/PAPER.md Section 6 flags as untestable.
 
 JOLTS separates them: job openings (labor DEMAND), hires (realized MATCHES),
 layoffs and discharges (involuntary separation), quits (voluntary, a proxy for
 worker confidence), monthly, per sector.
 
-CORRECTION TO PAPER.md SECTION 6
+CORRECTION TO physical-sector-inversion/PAPER.md SECTION 6
 That section states FRED carries JOLTS detail for only two of the nine sectors
 examined here. That is wrong. FRED carries all four rates for all nine sectors,
 307 monthly observations each from 2000-12, under the codes mapped in SECTORS

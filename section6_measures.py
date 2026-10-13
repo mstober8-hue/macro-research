@@ -1,6 +1,6 @@
 """
 section6_measures.py
-Section 6 of PAPER.md: the result depends on which exposure measure you use, and
+Section 6 of the paper: the result depends on which exposure measure you use, and
 the disagreement is itself the finding.
 
 THE TWO MEASURES
