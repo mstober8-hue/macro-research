@@ -49,12 +49,14 @@ meta = pd.read_csv(DATA + "ces/naics3_meta.csv")
 
 # Identified shocks, NOT the raw funds rate. A first version of this script
 # regressed industry employment growth on the change in the fed funds rate and
-# produced a measure on which "Construction of buildings" ranked 69th of 73 for
-# rate sensitivity, with a strongly POSITIVE coefficient. That is simultaneity:
-# the Fed raises rates because the economy is booming, so the raw rate change is
+# produced a measure on which "Construction of buildings" ranked badly for rate
+# sensitivity, with a strongly POSITIVE coefficient. That is simultaneity: the Fed
+# raises rates because the economy is booming, so the raw rate change is
 # procyclical and the regression recovers how procyclical an industry is rather
 # than how rate-sensitive it is. Bauer-Swanson is orthogonalized to macro news,
 # which is the fix; Jarocinski-Karadi's pure policy shock is the robustness check.
+# The rejected measure is recomputed below rather than described, so the ranking
+# the paper reports for it can be checked instead of taken on trust.
 def annual_shock(fname):
     d = pd.read_csv(DATA + "shocks/" + fname)
     d["year"] = pd.to_datetime(d.date).dt.year
@@ -86,6 +88,39 @@ def sensitivity(fname):
 SENS = sensitivity(SHOCKS["bauer_swanson"])
 SENS["naics3"] = SENS.naics_code.astype(str).str[:3]
 
+# The rejected raw-rate measure, kept so Section 4.5's description of it is
+# reproducible. Same lag structure and fitting window; only the regressor changes.
+def _raw_rate_annual():
+    ff = pd.read_csv(DATA + "fed_funds_rate_FEDFUNDS.csv")
+    vc = [c for c in ff.columns if c.lower() not in ("date", "observation_date")][0]
+    ff["year"] = pd.to_datetime(ff[ff.columns[0]]).dt.year
+    ff[vc] = pd.to_numeric(ff[vc], errors="coerce")
+    a = ff.groupby("year", as_index=False)[vc].mean().rename(columns={vc: "ffr"})
+    a["shock"] = a.ffr.diff()
+    return a[["year", "shock"]].dropna()
+
+def sensitivity_from(SH):
+    ann = ann_base.merge(SH, on="year", how="inner")
+    out = []
+    for sid, g in ann.groupby("sid"):
+        g = g.sort_values("year").copy()
+        for L in range(NLAG + 1):
+            g[f"d{L}"] = g.shock.shift(L)
+        f = g[(g.year >= 1990) & (g.year <= FIT_MAX)].dropna(
+            subset=["g"] + [f"d{L}" for L in range(NLAG + 1)])
+        if len(f) < 15:
+            continue
+        X = np.column_stack([np.ones(len(f))] + [f[f"d{L}"].values for L in range(NLAG + 1)])
+        b = np.linalg.lstsq(X, f.g.values, rcond=None)[0]
+        out.append({"sid": sid, "sens": b[1:].sum(), "n": len(f)})
+    return pd.DataFrame(out).merge(meta, on="sid", how="left")
+
+_RAW = sensitivity_from(_raw_rate_annual())
+_rc = _RAW[_RAW.industry_name.astype(str).str.contains(
+    "Construction of buildings", case=False, na=False)]
+_raw_rank = (_RAW.sens < _rc.sens.iloc[0]).sum() + 1 if len(_rc) else None
+_raw_coef = _rc.sens.iloc[0] if len(_rc) else float("nan")
+
 # Validation gate. Construction is the textbook rate-sensitive industry; if the
 # measure does not put it in the sensitive half, the measure is wrong and nothing
 # downstream should be believed.
@@ -100,6 +135,10 @@ print(f"   Bauer-Swanson orthogonalized shock, distributed lag 0-{NLAG} years,")
 print(f"   fitted 1990-{FIT_MAX}, {len(SENS)} industries")
 print(f"\n   VALIDATION: 'Construction of buildings' ranks {_rank} of {len(SENS)} most sensitive"
       f"  ({'PASS' if _rank and _rank <= len(SENS)//2 else 'FAIL'})")
+print(f"   REJECTED MEASURE (raw fed funds change, reported in Section 4.5 as the")
+print(f"   reason for using an identified shock): the same industry ranks "
+      f"{_raw_rank} of {len(_RAW)}")
+print(f"   with coefficient {_raw_coef:+.4f}, the wrong sign for rate sensitivity.")
 print(f"\n   most rate-sensitive (employment falls most):")
 for _, r in SENS.nsmallest(6, "sens").iterrows():
     print(f"     {r.sens:+7.3f}  {str(r.industry_name)[:52]}")
