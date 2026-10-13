@@ -83,19 +83,26 @@ for b, lab in BANDS:
     co, se, t, p, G, n = fe(d, "net_rate", post_x(d, ["rep_good"]))
     R4[("net_rate", b)] = (co[0], se[0], p[0])
     print(f"    {lab:<22}{co[0]:>+10.4f}{se[0]:>9.4f}{t[0]:>7.2f}{p[0]:>9.4f} {stars(p[0])}")
-print("""
+# Counted, not asserted. stars() marks p < .10 with a single "*", so reading the
+# star column as "significant" silently reports the 10% count as if it were the 5%
+# count. These are computed from the p-values so the prose cannot drift from them.
+_sep = [R4[("sep_rate", b)][2] for b, _ in BANDS if ("sep_rate", b) in R4]
+_n, _n5, _n10 = len(_sep), sum(q < .05 for q in _sep), sum(q < .10 for q in _sep)
+_npos = sum(R4[("sep_rate", b)][0] > 0 for b, _ in BANDS if ("sep_rate", b) in R4)
+print(f"""
   Read this carefully. The net is negative for the young, which is the sign the
   Section 3 stock result requires, but it is not significant at any age. What IS
-  significant is the separation side, and it is significant at four of five bands
-  rather than only the young ones.
+  significant is the separation side: positive at {_npos} of {_n} bands, significant at
+  {_n5} of {_n} at the 5% level and {_n10} of {_n} at the 10% level, rather than only the young ones.
 
   Two things follow, and the second is awkward for this paper rather than for
   theirs. Fact (4)'s specific claim, reduced hiring with separations unchanged,
   does not hold here: the hire-rate point estimates are positive and the
-  separation-rate estimates are positive and mostly significant. And the flow
-  results carry no age gradient, while the stock results in Section 3.6 carry a
-  sharp one. A mechanism visible in stocks but not in the flows that generate them
-  is a tension this paper cannot resolve, and Section 8 records it as such.
+  separation-rate estimates are positive, and significant at the 5% level at {_n5} of
+  {_n} bands. And the flow results carry no age gradient, while the stock results in
+  Section 3.6 carry a sharp one. A mechanism visible in stocks but not in the flows
+  that generate them is a tension this paper cannot resolve, and Section 8 records
+  it as such.
 """)
 
 # ---- do the flows CONTRADICT the stocks, or merely fail to resolve them? --------
