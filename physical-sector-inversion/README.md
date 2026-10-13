@@ -814,7 +814,7 @@ python3 identification_check.py     # tests whether that mechanism's timing gap 
 python3 timing_stress_test.py       # 50yr stress test of the timing claim: still no, but sharper
 python3 okun_decomposed.py          # output->employment->unemployment: which link actually broke
 python3 window_robustness.py        # window-length + COVID robustness of both forms
-python3 ../pvalue_purge.py          # recomputes every load-bearing p-value correctly
+python3 ../inference_validity.py          # recomputes every load-bearing p-value correctly
 python3 cf_style_comparison.py      # tests the Cleveland Fed's own lag spec against these 3 sectors
 python3 prediction_stress_tests.py  # the 3 failure modes: fresh data, lag sensitivity, 70yr history
 python3 desync_dynamics.py          # re-tests DESYNC dynamically: window-matched, changes, event study

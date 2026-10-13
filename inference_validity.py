@@ -1,5 +1,5 @@
 """
-pvalue_purge.py
+inference_validity.py
 Recompute every load-bearing p-value in this project with inference that is valid
 for the data it is computed on.
 

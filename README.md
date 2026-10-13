@@ -4,6 +4,8 @@
 
 Maximilian Stober and Esther Gewirtz
 
+> **Readers arriving from the working paper.** The paper, *Underperformance Without Contraction: Entry-Level Employment and AI Exposure in Nationally Representative Data*, corresponds to [Part III](#part-iii-entry-level-employment-and-ai-exposure). Its central result, that the young-worker share of employment falls in AI-exposed occupations after 2022, is reported here as established. Parts I and II address a separate question, whether AI changed the aggregate and sector-level relationship between output and employment, and find that it did not. The two results are compatible: a change in the age composition of particular occupations need not alter aggregate employment.
+
 ---
 
 ## Overview
@@ -218,7 +220,7 @@ Macroeconomic growth rates are highly persistent, and naive p-values on persiste
 | [`ai_replaceability_score.py`](ai_replaceability_score.py) | Job-replaceability score |
 | [`recency_test.py`](recency_test.py) | Timing of the productivity relationship |
 | [`aei_revealed_validation.py`](aei_revealed_validation.py) | Replaceability rebuilt from observed AI usage |
-| [`permutation_test.py`](permutation_test.py), [`stats_inference.py`](stats_inference.py), [`pvalue_purge.py`](pvalue_purge.py) | Inference |
+| [`permutation_test.py`](permutation_test.py), [`stats_inference.py`](stats_inference.py), [`inference_validity.py`](inference_validity.py) | Inference |
 | [`jolts_margins.py`](jolts_margins.py) | Openings, hires, layoffs and quits by sector |
 | [`okun_employment_form.py`](okun_employment_form.py) | Employment-form Okun test |
 | [`cyclical_abnormality.py`](cyclical_abnormality.py) | Comparison against prior downturns |

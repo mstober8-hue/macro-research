@@ -39,3 +39,7 @@ IMPUTATION_CHANGES.txt
 # agent instruction files, kept locally only
 CLAUDE.md
 AGENTS.md
+
+# working prose drafts, not research code
+paper-sections/
+paper-sections2/
